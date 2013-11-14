@@ -1,5 +1,6 @@
 package it.unitn.hci.feed.server;
 
+import it.unitn.hci.feed.PollingEngine;
 import java.net.InetAddress;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
 
@@ -15,6 +16,11 @@ public class ServerLauncher
         final String url = "http://" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "/";
 
         HttpServerFactory.create(url).start();
-        System.out.println("server starts on " + url + "\n [kill the process to exit]");
+        System.out.println("Server started on " + url + "\n [kill the process to exit]");
+        
+        PollingEngine engine = new PollingEngine();
+        engine.start();
+        System.out.println("PollingEngine started");
+
     }
 }
