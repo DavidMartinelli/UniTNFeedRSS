@@ -21,6 +21,5 @@ public class ServerLauncher
         PollingEngine engine = new PollingEngine();
         engine.start();
         System.out.println("PollingEngine started");
-
     }
 }

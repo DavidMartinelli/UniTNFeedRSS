@@ -1,22 +1,30 @@
 package it.unitn.hci.feed.models;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Feed implements Model
 {
+    @XmlElement(name="body")
     private String mBody;
+    
+    @XmlElement(name="id")
     private int mId;
+    
+    @XmlElement(name="timeStamp")
     private long mTimeStamp;
-    private Subject mSubject;
+    
+    @XmlElement(name="course")
+    private Course mCourse;
 
 
-    public Feed(int id, String body, long timeStamp, Subject subject)
+    public Feed(int id, String body, long timeStamp, Course course)
     {
         mId = id;
         mBody = body;
         mTimeStamp = timeStamp;
-        mSubject = subject;
+        mCourse = course;
     }
 
 
@@ -38,9 +46,9 @@ public class Feed implements Model
     }
 
 
-    public Subject getSubject()
+    public Course getSubject()
     {
-        return mSubject;
+        return mCourse;
     }
 
 
@@ -55,7 +63,7 @@ public class Feed implements Model
     public String toString()
     {
         final StringBuilder builder = new StringBuilder("[\n");
-        builder.append("\tSubject: " + mSubject + "\n");
+        builder.append("\tSubject: " + mCourse + "\n");
         builder.append("\tID: " + mId + "\n");
         builder.append("\tTimeStamp: " + mTimeStamp + "\n");
         builder.append("\tBody: " + mBody + "\n");

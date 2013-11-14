@@ -1,16 +1,16 @@
 package it.unitn.hci.feed;
 
 import it.unitn.hci.feed.models.Feed;
-import it.unitn.hci.feed.models.Subject;
+import it.unitn.hci.feed.models.Course;
 
 public class FeedAnalyzer
 {
     public Feed extract(String body)
     {
-        Subject subject = Subject.GENERIC;
-        for (Subject s : Subject.values())
+        Course subject = Course.GENERIC;
+        for (Course s : Course.values())
         {
-            if (s == Subject.GENERIC) continue;
+            if (s == Course.GENERIC) continue;
             
             if (body.toUpperCase().contains(s.toString().replace('_', ' ')))
             {
