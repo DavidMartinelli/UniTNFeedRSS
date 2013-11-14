@@ -1,5 +1,6 @@
-package it.unitn.hci.feed;
+package it.unitn.hci.feed.android;
 
+import it.unitn.hci.feed.R;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
