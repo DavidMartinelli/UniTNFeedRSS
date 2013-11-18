@@ -22,7 +22,6 @@ public class CoursesAdapter extends BaseExpandableListAdapter
     private Context mContext;
     private LayoutInflater mInflater;
     private List<String> mDates;
-    private int mGroupsQuantity;
 
 
     public CoursesAdapter(Context context, List<String> dates, HashMap<String, List<Pair<String, String>>> courses, OnClickListener listener)
@@ -31,7 +30,6 @@ public class CoursesAdapter extends BaseExpandableListAdapter
         mCourses = courses;
         mContext = context;
         mDates = dates;
-        mGroupsQuantity = mDates.size();
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -85,7 +83,7 @@ public class CoursesAdapter extends BaseExpandableListAdapter
     @Override
     public int getGroupCount()
     {
-        return mGroupsQuantity;
+        return mDates.size();
     }
 
 
