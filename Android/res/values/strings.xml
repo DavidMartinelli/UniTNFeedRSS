@@ -2,10 +2,7 @@
 <resources>
 
     <string name="app_name">UniTnFeed</string>
-    <string name="action_settings">Settings</string>
-    <string name="manage_feed">Manage feeds</string>
-    <string name="show_all">Show all feeds</string>
-    <string name="enable_notifications">Enable notifications</string>
-    <string name="disable_notifications">Disable notifications</string>
+    <string name="CourseName">Course Name</string>
+    <string name="CourseDescription">Course Description</string>
 
 </resources>
