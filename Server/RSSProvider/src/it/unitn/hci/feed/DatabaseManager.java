@@ -34,5 +34,4 @@ public class DatabaseManager
     private final static String CREATE_TABLE_DEPARTMENRS = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS + " ( " + COLUMN_DEPARTMENT_ID + " PRIMARY KEY, " + COLUMN_DEPARTMENT_NAME + " VARCHAR(200))";
 
 
-
 }
