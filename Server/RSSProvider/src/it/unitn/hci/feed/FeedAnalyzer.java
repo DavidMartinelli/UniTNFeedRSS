@@ -1,7 +1,7 @@
 package it.unitn.hci.feed;
 
-import it.unitn.hci.feed.models.Feed;
-import it.unitn.hci.feed.models.Course;
+import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Feed;
 
 public class FeedAnalyzer
 {

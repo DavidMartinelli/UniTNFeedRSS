@@ -1,6 +1,6 @@
 package it.unitn.hci.feed;
 
-import it.unitn.hci.feed.models.Feed;
+import it.unitn.hci.feed.common.models.Feed;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;

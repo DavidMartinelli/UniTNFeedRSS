@@ -1,4 +1,4 @@
-package it.unitn.hci.feed.models;
+package it.unitn.hci.feed.common.models;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
