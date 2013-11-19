@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">UniTnFeed</string>
+    <string name="CourseName">Course Name</string>
+    <string name="CourseDescription">Course Description</string>
+    <string name="manage_feed">Manage feeds</string>
+    <string name="show_all">Show all feeds</string>
+    <string name="enable_notifications">Enable notifications</string>
+    <string name="disable_notifications">Disable notifications</string>
+
+</resources>
