@@ -49,7 +49,7 @@ public class MainActivity extends Activity
             @Override
             public void invoke(TaskResult<List<Feed>> param)
             {
-                Toast.makeText(MainActivity.this, "Rss readed async, result: " + param.result, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Rss readed async, result: " + param.result +", exception: " + param.exception, Toast.LENGTH_LONG).show();
             }
         });
     }

@@ -5,10 +5,13 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.List;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -50,17 +53,22 @@ public class RSSAsyncReader
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + course, null, null);
         HttpGet get = new HttpGet(uri);
 
-        HttpEntity response = null;
+        HttpEntity entity = null;
 
         try
         {
-            response = client.execute(get).getEntity();
-            System.out.println(extractString(response));
+            HttpResponse response = client.execute(get);
+
+            StatusLine line = response.getStatusLine();
+            if (line.getStatusCode() != 200) throw new FileNotFoundException(line.getStatusCode() + ": " + line.getReasonPhrase());
+
+            entity = response.getEntity();
+            System.out.println(extractString(entity));
             return null;
         }
         finally
         {
-            if (response != null) response.consumeContent();
+            if (entity != null) entity.consumeContent();
         }
     }
 
