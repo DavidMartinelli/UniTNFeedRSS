@@ -1,11 +1,12 @@
 package it.unitn.hci.feed.android.adapter;
 
 import it.unitn.hci.feed.R;
-import java.util.HashMap;
+import it.unitn.hci.feed.common.models.Feed;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,18 +19,19 @@ public class CoursesAdapter extends BaseExpandableListAdapter
 {
 
     private OnClickListener mListener;
-    private HashMap<String, List<Pair<String, String>>> mCourses;
+    private List<String> mDates;
+    private Map<String, List<Feed>> mCourses;
     private Context mContext;
     private LayoutInflater mInflater;
-    private List<String> mDates;
 
 
-    public CoursesAdapter(Context context, List<String> dates, HashMap<String, List<Pair<String, String>>> courses, OnClickListener listener)
+    public CoursesAdapter(Context context, Map<String, List<Feed>> courses, OnClickListener listener)
     {
         mListener = listener;
         mCourses = courses;
         mContext = context;
-        mDates = dates;
+        List<String> l = new ArrayList<String>(courses.keySet());
+        mDates = l;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -48,7 +50,6 @@ public class CoursesAdapter extends BaseExpandableListAdapter
     }
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent)
     {
@@ -56,10 +57,10 @@ public class CoursesAdapter extends BaseExpandableListAdapter
         TextView lblCourseName = (TextView) convertView.findViewById(R.id.lblCourseName);
         TextView lblCourseDescription = (TextView) convertView.findViewById(R.id.lblCourseDescription);
         RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.lyCourse);
-        Pair<String, String> course = (Pair<String, String>) getChild(groupPosition, childPosition);
+        Feed course = (Feed) getChild(groupPosition, childPosition);
 
-        lblCourseName.setText(course.first);
-        lblCourseDescription.setText(course.second);
+        lblCourseName.setText(course.getSubject().toString());
+        lblCourseDescription.setText(course.getBody());
         layout.setOnClickListener(mListener);
 
         return convertView;
@@ -101,7 +102,7 @@ public class CoursesAdapter extends BaseExpandableListAdapter
 
         String headerTitle = (String) getGroup(groupPosition);
         TextView lblListHeader = (TextView) convertView.findViewById(R.id.lblListItem);
-        
+
         lblListHeader.setTypeface(null, Typeface.BOLD);
         lblListHeader.setText(headerTitle);
 

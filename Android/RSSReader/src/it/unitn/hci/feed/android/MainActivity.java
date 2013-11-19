@@ -1,8 +1,10 @@
 package it.unitn.hci.feed.android;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.adapter.CoursesAdapter;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
@@ -11,23 +13,20 @@ import it.unitn.hci.feed.android.utils.RSSAsyncReader;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 import android.app.Activity;
-import android.content.Context;
+import android.app.ProgressDialog;
 
 public class MainActivity extends Activity
 {
     private ExpandableListAdapter mCoursesAdapter;
     private ExpandableListView mCoursesList;
-    private Context mContext;
 
-    List<String> mHeaders;
-    HashMap<String, List<Pair<String, String>>> mCourses;
+    private Map<String, List<Feed>> mCourses;
 
 
     @Override
@@ -37,19 +36,38 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         mCoursesList = (ExpandableListView) findViewById(R.id.lstCourses);
-        mContext = this;
 
-        prepareListData();
-
-        mCoursesAdapter = new CoursesAdapter(mContext, mHeaders, mCourses, mCourseClickedListener);
-        mCoursesList.setAdapter(mCoursesAdapter);
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setTitle("Loading feeds");
+        dialog.setMessage("Please wait...");
+        dialog.setCancelable(false);
+        dialog.show();
 
         RSSAsyncReader.getFeedsAsync(Course.ANALISI_MATEMATICA_III, new Action<TaskResult<List<Feed>>>()
         {
             @Override
-            public void invoke(TaskResult<List<Feed>> param)
+            public void invoke(TaskResult<List<Feed>> result)
             {
-                Toast.makeText(MainActivity.this, "Rss readed async, result: " + param.result +", exception: " + param.exception, Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+                Exception exception = result.exception;
+                if (exception != null)
+                {
+                    Toast.makeText(MainActivity.this, "Something went wrong: " + exception + ", " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                mCourses = new Hashtable<String, List<Feed>>();
+                for (Feed f : result.result)
+                {
+                    final String timestamp = new Date(f.getTimeStamp()).toString();
+                    List<Feed> feeds = mCourses.get(timestamp);
+                    if (feeds == null) feeds = new LinkedList<Feed>();
+                    feeds.add(f);
+                    mCourses.put(timestamp, feeds);
+                }
+
+                mCoursesAdapter = new CoursesAdapter(MainActivity.this, mCourses, mCourseClickedListener);
+                mCoursesList.setAdapter(mCoursesAdapter);
             }
         });
     }
@@ -62,20 +80,4 @@ public class MainActivity extends Activity
         }
     };
 
-
-    private void prepareListData()
-    {
-        mHeaders = new ArrayList<String>();
-        mCourses = new HashMap<String, List<Pair<String, String>>>();
-
-        // Adding child data
-        mHeaders.add("21/11/2013");
-
-        // Adding child data
-        List<Pair<String, String>> c = new ArrayList<Pair<String, String>>();
-        c.add(new Pair<String, String>("HCI", "prova1"));
-        c.add(new Pair<String, String>("ISDE", "prova2"));
-
-        mCourses.put(mHeaders.get(0), c);
-    }
 }
