@@ -11,7 +11,7 @@ public class ServerLauncher
     {
         final String port;
         if (args.length == 1) port = args[0];
-        else port = "8080";
+        else port = "6767";
 
         final String url = "http://" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "/";
 
