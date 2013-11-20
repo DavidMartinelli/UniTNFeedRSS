@@ -1,12 +1,13 @@
 package it.unitn.hci.feed.android;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
-import it.unitn.hci.feed.android.adapter.CoursesAdapter;
+import it.unitn.hci.feed.android.adapter.FeedsAdapter;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
@@ -26,8 +27,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.webkit.WebView.FindListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
@@ -87,21 +91,23 @@ public class MainActivity extends FragmentActivity
                     mCourses.put(timestamp, feeds);
                 }
 
-                mCoursesAdapter = new CoursesAdapter(MainActivity.this, mCourses, mCourseClickedListener);
+                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
                 mCoursesList.setAdapter(mCoursesAdapter);
+                mCoursesList.setOnChildClickListener(new OnChildClickListener()
+                {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+                    {
+                        List<String> mDates = new ArrayList<String>(mCourses.keySet());
+                        DialogUtils.showListOfSongs(MainActivity.this, mCourses.get(mDates.get(groupPosition)).get(childPosition));
+                        return true;
+                    }
+                });
             }
         });
 
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
     }
-
-    private final static OnClickListener mCourseClickedListener = new OnClickListener()
-    {
-        @Override
-        public void onClick(View v)
-        {
-        }
-    };
 
 
     private static OnClickListener onBtnMenuClicked(final Context context)

@@ -1,13 +1,21 @@
 package it.unitn.hci.feed.android.utils;
 
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.common.models.Feed;
+import android.app.Dialog;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager.LayoutParams;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
 
 public class DialogUtils
 {
@@ -28,5 +36,41 @@ public class DialogUtils
             }
         });
         popupWindow.showAsDropDown(anchor);
+    }
+
+
+    public static void showListOfSongs(final Context context, final Feed feed)
+    {
+        DialogFragment d = new DialogFragment()
+        {
+
+            @Override
+            public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
+            {
+                View rootView = inflater.inflate(R.layout.feed_dialog_layout, container, false);
+                TextView lblTitle = (TextView) rootView.findViewById(R.id.lblTitle);
+                TextView lblBody = (TextView) rootView.findViewById(R.id.lblBody);
+
+                lblTitle.setText(feed.getSubject().getStringName());
+                lblBody.setText(feed.getBody());
+                
+                return rootView;
+            }
+
+
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState)
+            {
+                Dialog dialog = super.onCreateDialog(savedInstanceState);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                return dialog;
+            }
+        };
+        
+        
+        FragmentManager manager = ((FragmentActivity) context).getSupportFragmentManager();
+
+        d.setCancelable(true);
+        d.show(manager, "full_feed");
     }
 }

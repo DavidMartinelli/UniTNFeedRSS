@@ -9,25 +9,21 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class CoursesAdapter extends BaseExpandableListAdapter
+public class FeedsAdapter extends BaseExpandableListAdapter
 {
 
-    private OnClickListener mListener;
     private List<String> mDates;
     private Map<String, List<Feed>> mCourses;
     private Context mContext;
     private LayoutInflater mInflater;
 
 
-    public CoursesAdapter(Context context, Map<String, List<Feed>> courses, OnClickListener listener)
+    public FeedsAdapter(Context context, Map<String, List<Feed>> courses)
     {
-        mListener = listener;
         mCourses = courses;
         mContext = context;
         List<String> l = new ArrayList<String>(courses.keySet());
@@ -56,12 +52,10 @@ public class CoursesAdapter extends BaseExpandableListAdapter
         if (convertView == null) convertView = mInflater.inflate(R.layout.feed_content_layout, null);
         TextView lblCourseName = (TextView) convertView.findViewById(R.id.lblCourseName);
         TextView lblCourseDescription = (TextView) convertView.findViewById(R.id.lblCourseDescription);
-        RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.lyCourse);
         Feed feed = (Feed) getChild(groupPosition, childPosition);
 
         lblCourseName.setText(feed.getSubject().getStringName());
         lblCourseDescription.setText(feed.getBody());
-        layout.setOnClickListener(mListener);
 
         return convertView;
     }
