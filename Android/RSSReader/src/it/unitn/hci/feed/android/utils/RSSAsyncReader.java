@@ -3,6 +3,7 @@ package it.unitn.hci.feed.android.utils;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Course.CourseName;
 import it.unitn.hci.feed.common.models.Feed;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -74,7 +75,7 @@ public class RSSAsyncReader
             for (int i = 0; i < jsonArray.length(); i++)
             {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.CourseName.valueOf(jsonObject.getString("mCourse"))));
+                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.fromType(CourseName.valueOf(jsonObject.getString("mCourse")))));
             }
 
             return feeds;

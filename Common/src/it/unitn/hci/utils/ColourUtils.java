@@ -1,9 +1,8 @@
 package it.unitn.hci.utils;
 
+public class ColourUtils
+{
 
-public class ColourUtils {
-
-	
     public static int getColorDifference(int color1, int color2)
     {
         int red1 = Color.red(color1);

@@ -1,6 +1,5 @@
 package it.unitn.hci.feed.common.models;
 
-import it.unitn.hci.feed.common.models.Course.CourseName;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -17,10 +16,10 @@ public class Feed implements Model
     private long mTimeStamp;
     
     @XmlElement(name="course")
-    private CourseName mCourse;
+    private Course mCourse;
 
 
-    public Feed(int id, String body, long timeStamp, CourseName course)
+    public Feed(int id, String body, long timeStamp, Course course)
     {
         mId = id;
         mBody = body;
@@ -47,7 +46,7 @@ public class Feed implements Model
     }
 
 
-    public CourseName getSubject()
+    public Course getSubject()
     {
         return mCourse;
     }
