@@ -74,7 +74,7 @@ public class RSSAsyncReader
             for (int i = 0; i < jsonArray.length(); i++)
             {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.valueOf(jsonObject.getString("mCourse"))));
+                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.CourseName.valueOf(jsonObject.getString("mCourse"))));
             }
 
             return feeds;
