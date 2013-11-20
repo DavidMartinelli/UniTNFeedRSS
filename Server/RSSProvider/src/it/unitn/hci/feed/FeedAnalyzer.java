@@ -7,10 +7,10 @@ public class FeedAnalyzer
 {
     public Feed extract(String body)
     {
-        Course subject = Course.GENERIC;
-        for (Course s : Course.values())
+        Course.CourseName subject = Course.CourseName.GENERIC;
+        for (Course.CourseName s : Course.CourseName.values())
         {
-            if (s == Course.GENERIC) continue;
+            if (s == Course.CourseName.GENERIC) continue;
             
             if (body.toUpperCase().contains(s.toString().replace('_', ' ')))
             {
@@ -19,6 +19,6 @@ public class FeedAnalyzer
             }
         }
 
-        return new Feed(-1, body, System.currentTimeMillis(), subject);
+        return new Feed(-1, body, System.currentTimeMillis(), Course.fromType(subject));
     }
 }
