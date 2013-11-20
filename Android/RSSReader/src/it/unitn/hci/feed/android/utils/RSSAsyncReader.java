@@ -24,7 +24,7 @@ public class RSSAsyncReader
 {
     public static final String PROTOCOL = "http";
     public static final int PORT = 6767;
-    public static final String IP = "192.168.0.104";
+    public static final String IP = "192.168.1.27";
     public static final String PATH = "/RssService/";
     public static final String BASE_URL = PROTOCOL + "//" + IP + ":" + PORT + PATH;
 

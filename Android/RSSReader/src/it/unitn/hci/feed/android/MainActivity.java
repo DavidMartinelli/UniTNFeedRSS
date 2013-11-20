@@ -9,6 +9,7 @@ import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.adapter.CoursesAdapter;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
+import it.unitn.hci.feed.android.utils.DialogUtils;
 import it.unitn.hci.feed.android.utils.RSSAsyncReader;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Course.CourseName;
@@ -17,17 +18,27 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager.LayoutParams;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.webkit.WebView.FindListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 
 public class MainActivity extends FragmentActivity
 {
@@ -81,7 +92,7 @@ public class MainActivity extends FragmentActivity
             }
         });
 
-        btnMenu.setOnClickListener(onBtnMenuClicked(getSupportFragmentManager()));
+        btnMenu.setOnClickListener(onBtnMenuClicked(this));
     }
 
     private final static OnClickListener mCourseClickedListener = new OnClickListener()
@@ -93,49 +104,14 @@ public class MainActivity extends FragmentActivity
     };
 
 
-    private static OnClickListener onBtnMenuClicked(final FragmentManager fm)
+    private static OnClickListener onBtnMenuClicked(final Context context)
     {
         return new OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                DialogFragment d = new DialogFragment()
-                {
-
-                    TextView btnManageFeeds;
-                    TextView btnShowAllFeeds;
-                    TextView btnEnableNotification;
-
-
-                    @Override
-                    public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
-                    {
-                        View rootView = inflater.inflate(R.layout.fast_menu_layout, container, false);
-
-                        btnManageFeeds = (TextView) rootView.findViewById(R.id.btnManageFeeds);
-                        btnShowAllFeeds = (TextView) rootView.findViewById(R.id.btnShowAllFeeds);
-                        btnEnableNotification = (TextView) rootView.findViewById(R.id.btnEnableNotification);
-
-                        btnManageFeeds.setOnClickListener(mOnManageFeedsCkicked);
-                        btnShowAllFeeds.setOnClickListener(mOnShowAllFeedsCkicked);
-                        btnEnableNotification.setOnClickListener(mOnEnableNotificationCkicked);
-
-                        return rootView;
-                    }
-
-
-                    @Override
-                    public Dialog onCreateDialog(Bundle savedInstanceState)
-                    {
-                        Dialog dialog = super.onCreateDialog(savedInstanceState);
-                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        return dialog;
-                    }
-
-                };
-
-                d.show(fm, "123");
+                DialogUtils.showPopupWindowMenu(context, v, mOnManageFeedsCkicked, mOnShowAllFeedsCkicked, mOnEnableNotificationCkicked);
             }
         };
     }
