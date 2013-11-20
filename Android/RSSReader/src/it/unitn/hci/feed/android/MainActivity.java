@@ -11,6 +11,7 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.RSSAsyncReader;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Course.CourseName;
 import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -52,7 +53,7 @@ public class MainActivity extends FragmentActivity
         dialog.setCancelable(false);
         dialog.show();
 
-        RSSAsyncReader.getFeedsAsync(Course.ANALISI_MATEMATICA_III, new Action<TaskResult<List<Feed>>>()
+        RSSAsyncReader.getFeedsAsync(CourseName.ANALISI_MATEMATICA_III, new Action<TaskResult<List<Feed>>>()
         {
             @Override
             public void invoke(TaskResult<List<Feed>> result)

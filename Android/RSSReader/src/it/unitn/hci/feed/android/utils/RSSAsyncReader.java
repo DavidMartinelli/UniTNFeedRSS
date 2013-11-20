@@ -35,7 +35,7 @@ public class RSSAsyncReader
     }
 
 
-    public static CallbackAsyncTask<List<Feed>> getFeedsAsync(final Course course, final Action<TaskResult<List<Feed>>> callback)
+    public static CallbackAsyncTask<List<Feed>> getFeedsAsync(final CourseName course, final Action<TaskResult<List<Feed>>> callback)
     {
         CallbackAsyncTask<List<Feed>> task = new CallbackAsyncTask<List<Feed>>(callback)
         {
@@ -51,7 +51,7 @@ public class RSSAsyncReader
     }
 
 
-    public static List<Feed> getFeeds(Course course) throws Exception
+    public static List<Feed> getFeeds(CourseName course) throws Exception
     {
         HttpClient client = new DefaultHttpClient();
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + course, null, null);
