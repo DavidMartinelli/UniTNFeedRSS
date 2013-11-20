@@ -5,19 +5,32 @@
     android:background="#000000"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/lblTitle"
-        style="@style/MarqueeTextView"
+    <LinearLayout
+        android:id="@+id/lyTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#aaaaaa"
-        android:paddingBottom="10dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="10dp"
-        android:text="HUMAN COMPUTER INTERACTION"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="15dp"
+            android:paddingLeft="3dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/icn_back" />
+
+        <TextView
+            android:id="@+id/lblTitle"
+            style="@style/MarqueeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="12dp"
+            android:paddingTop="10dp"
+            android:text="HUMAN COMPUTER INTERACTION"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"

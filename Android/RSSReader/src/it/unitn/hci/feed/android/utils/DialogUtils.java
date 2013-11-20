@@ -43,19 +43,27 @@ public class DialogUtils
 
     public static void showListOfSongs(final Context context, final Feed feed)
     {
-        DialogFragment d = new DialogFragment()
+        final DialogFragment d = new DialogFragment()
         {
-
             @Override
             public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
             {
                 View rootView = inflater.inflate(R.layout.feed_dialog_layout, container, false);
                 TextView lblTitle = (TextView) rootView.findViewById(R.id.lblTitle);
                 TextView lblBody = (TextView) rootView.findViewById(R.id.lblBody);
+                View lyTitle = rootView.findViewById(R.id.lyTitle);
+                lyTitle.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        dismiss();
+                    }
+                });
 
                 lblTitle.setText(feed.getSubject().getStringName());
                 lblBody.setText(feed.getBody());
-                
+
                 return rootView;
             }
 
@@ -68,8 +76,7 @@ public class DialogUtils
                 return dialog;
             }
         };
-        
-        
+
         FragmentManager manager = ((FragmentActivity) context).getSupportFragmentManager();
 
         d.setCancelable(true);
