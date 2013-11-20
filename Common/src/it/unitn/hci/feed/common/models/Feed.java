@@ -63,11 +63,11 @@ public class Feed implements Model
     public String toString()
     {
         final StringBuilder builder = new StringBuilder("[\n");
-        builder.append("\tSubject: " + mCourse + "\n");
+        builder.append("\tSubject: " + mCourse.getStringName() + "\n");
         builder.append("\tID: " + mId + "\n");
         builder.append("\tTimeStamp: " + mTimeStamp + "\n");
-        builder.append("\tBody: " + mBody + "\n");
-        builder.append("]");
+        builder.append("\tBody: " + mBody);
+        builder.append("\n]");
         return builder.toString();
     }
 

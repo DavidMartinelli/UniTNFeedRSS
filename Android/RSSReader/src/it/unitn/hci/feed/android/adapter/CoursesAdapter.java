@@ -39,7 +39,7 @@ public class CoursesAdapter extends BaseExpandableListAdapter
     @Override
     public Object getChild(int groupPosition, int childPosition)
     {
-        return mCourses.get(mDates.get(groupPosition)).get(childPosition);
+        return mCourses.get(getGroup(groupPosition)).get(childPosition);
     }
 
 
@@ -57,10 +57,10 @@ public class CoursesAdapter extends BaseExpandableListAdapter
         TextView lblCourseName = (TextView) convertView.findViewById(R.id.lblCourseName);
         TextView lblCourseDescription = (TextView) convertView.findViewById(R.id.lblCourseDescription);
         RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.lyCourse);
-        Feed course = (Feed) getChild(groupPosition, childPosition);
+        Feed feed = (Feed) getChild(groupPosition, childPosition);
 
-        lblCourseName.setText(course.getSubject().toString());
-        lblCourseDescription.setText(course.getBody());
+        lblCourseName.setText(feed.getSubject().getStringName());
+        lblCourseDescription.setText(feed.getBody());
         layout.setOnClickListener(mListener);
 
         return convertView;
@@ -70,7 +70,7 @@ public class CoursesAdapter extends BaseExpandableListAdapter
     @Override
     public int getChildrenCount(int groupPosition)
     {
-        return mCourses.get(mDates.get(groupPosition)).size();
+        return mCourses.get(getGroup(groupPosition)).size();
     }
 
 

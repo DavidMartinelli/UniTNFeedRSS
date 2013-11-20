@@ -20,8 +20,6 @@ public class PollingEngine extends Thread
 
     private final URL UNITN_FEED_URL;
     private final Logger LOGGER;
-    private final FeedAnalyzer ANALYZER;
-
     private long mModifiedSince;
     private static final List<Feed> mCache = new ArrayList<Feed>();
 
@@ -29,7 +27,6 @@ public class PollingEngine extends Thread
     public PollingEngine()
     {
         LOGGER = Logger.getLogger("resources_provider");
-        ANALYZER = new FeedAnalyzer();
         mModifiedSince = -1;
         try
         {
@@ -68,7 +65,7 @@ public class PollingEngine extends Thread
             mCache.clear();
             for (Element feed : feeds)
             {
-                Feed f = ANALYZER.extract(feed.text());
+                Feed f = FeedAnalyzer.extract(feed.text());
                 mCache.add(f);
             }
         }
