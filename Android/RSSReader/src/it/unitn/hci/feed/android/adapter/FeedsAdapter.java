@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class FeedsAdapter extends BaseExpandableListAdapter
@@ -52,11 +54,13 @@ public class FeedsAdapter extends BaseExpandableListAdapter
         if (convertView == null) convertView = mInflater.inflate(R.layout.feed_content_layout, null);
         TextView lblCourseName = (TextView) convertView.findViewById(R.id.lblCourseName);
         TextView lblCourseDescription = (TextView) convertView.findViewById(R.id.lblCourseDescription);
+        ImageView imgCourseColor = (ImageView) convertView.findViewById(R.id.imgCoursesColor);
+
         Feed feed = (Feed) getChild(groupPosition, childPosition);
 
         lblCourseName.setText(feed.getSubject().getStringName());
         lblCourseDescription.setText(feed.getBody());
-
+        imgCourseColor.setBackgroundColor(feed.getSubject().getColour());
         return convertView;
     }
 

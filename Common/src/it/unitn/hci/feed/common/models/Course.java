@@ -1,5 +1,7 @@
 package it.unitn.hci.feed.common.models;
 
+import java.util.Random;
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -71,6 +73,7 @@ public class Course implements Model
 
     public static int generateRandomColor()
     {
-        return 42;
+        Random rand = new Random();
+        return rand.nextInt();
     }
 }
