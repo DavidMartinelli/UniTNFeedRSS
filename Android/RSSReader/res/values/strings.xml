@@ -7,6 +7,6 @@
     <string name="manage_feed">Manage feeds</string>
     <string name="show_all">Show all feeds</string>
     <string name="enable_notifications">Enable notifications</string>
-    <string name="disable_notifications">Disable notifications</string>
+    <string name="manage_feeds">Manage feeds</string>
 
 </resources>
