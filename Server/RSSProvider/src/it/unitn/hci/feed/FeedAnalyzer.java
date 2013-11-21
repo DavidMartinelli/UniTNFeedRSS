@@ -1,33 +1,33 @@
 package it.unitn.hci.feed;
 
-import java.util.List;
-import java.util.Map.Entry;
+import java.util.Set;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 
 public class FeedAnalyzer
 {
-    public static Feed extract(String body)
+    public static Feed extract(String body) throws Exception
     {
-        String subject = Course.GENERIC_COURSE_NAME;
-        for (Entry<String, List<String>> course : CourseAliasReader.getCache().entrySet())
+        Course target = null;
+        for (Course course : DatabaseManager.getAllCourses())
         {
-            final String officialName = course.getKey();
-            final List<String> aliases = course.getValue();
+            final String officialName = course.getName();
+            final Set<String> aliases = course.getAliases();
+            final String lowerBody = body.toLowerCase();
+
             aliases.add(officialName);
 
-            final String lowerBody = body.toLowerCase();
             for (String alias : aliases)
             {
                 if (lowerBody.contains(alias.replace('_', ' ').toLowerCase()))
                 {
-                    subject = alias;
+                    target = course;
                     break;
                 }
             }
-            
-            if (!subject.equals(Course.GENERIC_COURSE_NAME)) break;
+
+            if (target != null) break;
         }
-        return new Feed(-1, body, System.currentTimeMillis(), Course.notCached(subject));
+        return new Feed(-1, body, System.currentTimeMillis(), target == null ? Course.GENERIC_COURSE: target);
     }
 }

@@ -6,17 +6,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Feed implements Model
 {
-    @XmlElement(name="body")
+    @XmlElement(name = "body")
     private String mBody;
-    
-    @XmlElement(name="id")
+
+    @XmlElement(name = "id")
     private int mId;
-    
-    @XmlElement(name="timeStamp")
+
+    @XmlElement(name = "timeStamp")
     private long mTimeStamp;
-    
-    @XmlElement(name="course")
+
+    @XmlElement(name = "course")
     private Course mCourse;
+
+
+    Feed()
+    {
+    };
 
 
     public Feed(int id, String body, long timeStamp, Course course)
@@ -46,7 +51,7 @@ public class Feed implements Model
     }
 
 
-    public Course getSubject()
+    public Course getCourse()
     {
         return mCourse;
     }
@@ -69,6 +74,38 @@ public class Feed implements Model
         builder.append("\tBody: " + mBody);
         builder.append("\n]");
         return builder.toString();
+    }
+
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((mBody == null) ? 0 : mBody.hashCode());
+        result = prime * result + ((mCourse == null) ? 0 : mCourse.hashCode());
+        return result;
+    }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Feed other = (Feed) obj;
+        if (mBody == null)
+        {
+            if (other.mBody != null) return false;
+        }
+        else if (!mBody.equals(other.mBody)) return false;
+        if (mCourse == null)
+        {
+            if (other.mCourse != null) return false;
+        }
+        else if (!mCourse.equals(other.mCourse)) return false;
+        return true;
     }
 
 }

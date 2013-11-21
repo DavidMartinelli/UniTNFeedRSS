@@ -1,6 +1,7 @@
 package it.unitn.hci.feed.common.models;
 
 import java.util.Random;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -8,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Course implements Model
 {
     public static final String GENERIC_COURSE_NAME = "GENERIC";
+    public static final Course GENERIC_COURSE = notCached(GENERIC_COURSE_NAME);
     private static final int DEFAUL_COLOUR = 000000;
 
     @XmlElement(name = "id")
@@ -19,13 +21,21 @@ public class Course implements Model
     @XmlElement(name = "colour")
     private int mColour;
 
+    private Set<String> mAliases;
 
-    public Course(int id, String name, int colour)
+
+    Course()
+    {
+    }
+
+
+    public Course(int id, String name, int colour, Set<String> aliases)
     {
         super();
-        this.mId = id;
-        this.mName = name;
-        this.mColour = colour;
+        mId = id;
+        mName = name;
+        mColour = colour;
+        mAliases = aliases;
     }
 
 
@@ -53,6 +63,12 @@ public class Course implements Model
     }
 
 
+    public Set<String> getAliases()
+    {
+        return mAliases;
+    }
+
+
     @Override
     public boolean isPersistent()
     {
@@ -62,13 +78,13 @@ public class Course implements Model
 
     public static Course notCached(String subject, int colour)
     {
-        return new Course(-1, subject, colour);
+        return new Course(-1, subject, colour, null);
     }
 
 
     public static Course notCached(String subject)
     {
-        return new Course(-1, subject, DEFAUL_COLOUR);
+        return new Course(-1, subject, DEFAUL_COLOUR, null);
     }
 
 

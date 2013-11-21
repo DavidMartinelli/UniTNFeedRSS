@@ -5,9 +5,9 @@
 	<classpathentry exported="true" kind="lib" path="libs/activation-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/asm-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/date4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/http-20070405.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/http-20070405.jar" sourcepath="/Users/Luca/.m2/repository/com/sun/net/httpserver/http/20070405/http-20070405-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jaxb-api-2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/jaxb-impl-2.1.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jaxb-impl-2.1.12.jar" sourcepath="/Users/Luca/.m2/repository/com/sun/xml/bind/jaxb-impl/2.1.12/jaxb-impl-2.1.12-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jersey-bundle-1.6.client.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jersey-core-1.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jersey-json-1.6.jar"/>

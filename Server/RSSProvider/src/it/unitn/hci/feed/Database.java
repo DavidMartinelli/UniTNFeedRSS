@@ -37,7 +37,7 @@ public class Database
 
 
     /**
-     * Executes a SQL command using the specified parameters. But, for now, the parameters in the statement is only "?", we put the real parameters into the query using the function 'addParamenters' that is a private methos called automatically in this method (executeStatement), this provide to avoid sql injection. Statement is close automatically in this method (executeStatement). (insert, update, create)
+     * Executes a SQL command using the specified parameters. But, for now, the parameters in the statement is only "?", we put the real parameters into the query using the function 'addParamenters' that is a private methos called automatically in this method (executeStatement), this provide to avoid sql injection. Statement is close automatically in this method (executeStatement). (update, create)
      * 
      * @param query
      * @param parameters
@@ -52,6 +52,40 @@ public class Database
             {
                 addParameters(statement, parameters);
                 statement.execute();
+            }
+            finally
+            {
+                statement.close();
+            }
+        }
+    }
+
+
+    /**
+     * Executes a SQL command using the specified parameters. But, for now, the parameters in the statement is only "?", we put the real parameters into the query using the function 'addParamenters' that is a private methos called automatically in this method (executeStatement), this provide to avoid sql injection. Statement is close automatically in this method (executeStatement). (insert)
+     * 
+     * @param query
+     * @param parameters
+     * @return the generated id
+     * @throws SQLException
+     */
+    public Long executeInsert(String query, Object... parameters) throws SQLException
+    {
+        synchronized (LOCK)
+        {
+            Long generatedKey = null;
+            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            try
+            {
+                addParameters(statement, parameters);
+                statement.executeUpdate();
+
+                ResultSet rs = statement.getGeneratedKeys();
+                if (rs.next())
+                {
+                    generatedKey = rs.getLong(1);
+                }
+                return generatedKey;
             }
             finally
             {

@@ -14,20 +14,10 @@ public class CourseAliasReader
     private static final String COURSE_SEPARATOR = "=";
     private static final String ALIAS_SEPARATOR = "-";
 
-    private static Map<String, List<String>> mCache;
-
-
     private CourseAliasReader()
     {
         // static methods only
     }
-
-
-    public static Map<String, List<String>> getCache()
-    {
-        return mCache;
-    }
-
 
     public static Map<String, List<String>> getAliases() throws Exception
     {
@@ -54,7 +44,6 @@ public class CourseAliasReader
                 }
             }
 
-            mCache = aliases;
             return aliases;
         }
         finally

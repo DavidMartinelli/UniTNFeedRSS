@@ -18,16 +18,22 @@ public class RssAPIs
     @GET
     @Path("/{coursename}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Feed> getCourseFeeds(@PathParam("courseame") String courseName)
+    public List<Feed> getCourseFeeds(@PathParam("coursename") String courseName) throws Exception
     {
+        try{
+        System.out.print("here" + courseName);
         return DatabaseManager.getFeeds(courseName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
     @GET
     @Path("/departments")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getDepartments()
+    public List<String> getDepartments() throws Exception
     {
         return DatabaseManager.getDepartments();
     }
@@ -36,7 +42,7 @@ public class RssAPIs
     @GET
     @Path("/courses/{department}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getDepartmentCourses(@PathParam("department") String departmentName)
+    public List<String> getDepartmentCourses(@PathParam("department") String departmentName) throws Exception
     {
         return DatabaseManager.getDepartmentCourses(departmentName);
     }

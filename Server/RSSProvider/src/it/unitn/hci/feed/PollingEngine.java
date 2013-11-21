@@ -90,6 +90,7 @@ public class PollingEngine extends Thread
             }
             catch (Exception e)
             {
+                e.printStackTrace();
                 LOGGER.log(Level.SEVERE, e.toString());
             }
         }
