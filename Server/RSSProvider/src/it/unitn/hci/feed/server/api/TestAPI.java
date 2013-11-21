@@ -14,7 +14,7 @@ public class TestAPI
     @GET
     @Path("/{id}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getPersonById(@PathParam("id") String id)
+    public String test(@PathParam("id") String id)
     {
         return new Gson().toJson(PollingEngine.getCache()).toString();
     }
