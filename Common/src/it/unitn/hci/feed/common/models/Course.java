@@ -7,25 +7,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Course implements Model
 {
+    public static final String GENERIC_COURSE_NAME = "GENERIC";
     private static final int DEFAUL_COLOUR = 000000;
 
     @XmlElement(name = "id")
     private int mId;
 
     @XmlElement(name = "name")
-    private CourseName mName;
+    private String mName;
 
     @XmlElement(name = "colour")
     private int mColour;
 
-    @XmlRootElement
-    public enum CourseName
-    {
-        GENERIC, FORMAL_LANGUAGES_AND_COMPILERS, INTRODUCTION_TO_CELL_BIOLOGY, PERCORSO_DI_ECCELLENZA_1, ANALISI_MATEMATICA_III, ANALISI_MATEMATICA_II, ANALISI_MATEMATICA_I, INFORMATICA_ESERCITAZIONE, MACHINE_LEARNING, STOCHASTIC_PROCESSES_II, HIGHT_THROUGHPUT_METHODOLOGIES_1, BIOTECNOLOGIE_MICROBICHE, INTRODUZIONE_ALLA_PROGRAMMAZIONE_WEB, TECHNICAL_WRITING
-    }
 
-
-    public Course(int id, CourseName name, int colour)
+    public Course(int id, String name, int colour)
     {
         super();
         this.mId = id;
@@ -40,7 +35,7 @@ public class Course implements Model
     }
 
 
-    public CourseName getName()
+    public String getName()
     {
         return mName;
     }
@@ -65,13 +60,13 @@ public class Course implements Model
     }
 
 
-    public static Course fromType(CourseName subject, int colour)
+    public static Course notCached(String subject, int colour)
     {
         return new Course(-1, subject, colour);
     }
 
 
-    public static Course fromType(CourseName subject)
+    public static Course notCached(String subject)
     {
         return new Course(-1, subject, DEFAUL_COLOUR);
     }

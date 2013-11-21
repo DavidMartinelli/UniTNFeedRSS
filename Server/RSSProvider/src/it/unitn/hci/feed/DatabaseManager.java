@@ -1,11 +1,9 @@
 package it.unitn.hci.feed;
 
-import java.sql.ResultSet;
-import java.util.HashSet;
 import java.util.List;
-import it.unitn.hci.feed.common.models.Course;
+import java.util.Map.Entry;
 import it.unitn.hci.feed.common.models.Feed;
-import it.unitn.hci.utils.ColourUtils;
+import it.unitn.hci.utils.TODOException;
 
 public class DatabaseManager
 {
@@ -56,6 +54,7 @@ public class DatabaseManager
     public final static String INSERT_COURSE = "INSERT INTO " + TABLE_COURSES + "(" + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + ") VALUES (?, ?)";
     public final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
 
+
     public static void init() throws Exception
     {
         Database db = null;
@@ -69,6 +68,9 @@ public class DatabaseManager
             db.executeStatement(CREATE_TABLE_ALIASES);
             db.executeStatement(CREATE_TABLE_USERS_COURSES);
             db.executeStatement(CREATE_TABLE_FEED);
+
+            for (Entry<String, List<String>> course : CourseAliasReader.getAliases().entrySet())
+                insertCourse(course.getKey(), course.getValue());
         }
         finally
         {
@@ -92,81 +94,57 @@ public class DatabaseManager
     }
 
 
-    public static void insertCourse(String coursename) throws Exception
+    public static void insertCourse(String officialName, List<String> aliases) throws Exception
     {
-        Database db = null;
-        try
-        {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_COURSES_COLOURS_AND_NAMES);
-            HashSet<Integer> colours = new HashSet<Integer>();
-
-            coursename = coursename.toUpperCase();
-            while (rs.next())
-            {
-                if (rs.getString(COLUMN_COURSE_NAME).equals(coursename)) return;
-                colours.add(rs.getInt(COLUMN_COURSE_COLOUR));
-            }
-
-            boolean isInContrast = false;
-            Integer generatedColour = 0;
-
-            do
-            {
-                generatedColour = Course.generateRandomColor();
-                if (ColourUtils.areInContrast(generatedColour, colours)) isInContrast = true;
-            }
-            while (!isInContrast);
-
-            db.executeStatement(INSERT_COURSE, generatedColour, coursename);
-        }
-        finally
-        {
-            Database.close(db);
-        }
+        throw new TODOException("Colle inserisci anche gli alias, ora inserisce solo il corso");
+        // Database db = null;
+        // try
+        // {
+        // db = Database.fromConnectionPool();
+        // ResultSet rs = db.executeQuery(GET_COURSES_COLOURS_AND_NAMES);
+        // HashSet<Integer> colours = new HashSet<Integer>();
+        //
+        // officialName = officialName.toUpperCase();
+        // while (rs.next())
+        // {
+        // if (rs.getString(COLUMN_COURSE_NAME).equals(officialName)) return;
+        // colours.add(rs.getInt(COLUMN_COURSE_COLOUR));
+        // }
+        //
+        // boolean isInContrast = false;
+        // Integer generatedColour = 0;
+        //
+        // do
+        // {
+        // generatedColour = Course.generateRandomColor();
+        // if (ColourUtils.areInContrast(generatedColour, colours)) isInContrast = true;
+        // }
+        // while (!isInContrast);
+        //
+        // db.executeStatement(INSERT_COURSE, generatedColour, officialName);
+        // }
+        // finally
+        // {
+        // Database.close(db);
+        // }
     }
 
 
-    public static void insertCourses(List<Feed> feeds) throws Exception
+    public static List<Feed> insertFeeds(List<Feed> feeds)
     {
-        for (Feed f : feeds)
-            insertCourse(f.getSubject().getStringName());
-    }
-  
-    public static void insertFeed(String coursename) throws Exception
-    {
-        // TODO
-    }
-    
-    
-    public static void insertFeeds(List<Feed> feeds)
-    {
-        // TODO
-    }
-    
-    public static List<Feed> getFeeds()
-    {
-        // TODO
-        return null;
+        throw new TODOException("ti passo una lista di feed, quelli che sono gia nel db li ignori, gli altri li inserisci e mi ritorni una lista di quelli che hai appena inserito");
     }
 
 
-    public static void main(String[] argv)
+    public static List<Feed> getFeeds(String courseName)
     {
-        Database db = null;
-        try
-        {
-            db = Database.fromConnectionPool();
-            init();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            Database.close(db);
-        }
+        throw new TODOException("Prende tutti i feed per quel corso");
+    }
+
+
+    public static void main(String[] argv) throws Exception
+    {
+        init();
     }
 
 }

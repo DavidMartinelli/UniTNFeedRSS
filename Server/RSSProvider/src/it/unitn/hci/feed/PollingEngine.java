@@ -1,6 +1,7 @@
 package it.unitn.hci.feed;
 
 import it.unitn.hci.feed.common.models.Feed;
+import it.unitn.hci.utils.GCMUtils;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,13 +16,12 @@ import org.jsoup.select.Elements;
 
 public class PollingEngine extends Thread
 {
-    private static final int SLEEP_MILLIS = 600000; //1 minute
+    private static final int SLEEP_MILLIS = 600000; // 1 minute
     private static final String UNITN_FEED_PATH = "http://www.science.unitn.it/cisca/avvisi/avvisi.php";
 
     private final URL UNITN_FEED_URL;
     private final Logger LOGGER;
     private long mModifiedSince;
-    private static final List<Feed> mCache = new ArrayList<Feed>();
 
 
     public PollingEngine()
@@ -58,21 +58,26 @@ public class PollingEngine extends Thread
         mModifiedSince = System.currentTimeMillis();
         final Document page = Jsoup.parse(connection.getInputStream(), "ISO-8859-1", UNITN_FEED_PATH);
         connection.disconnect();
-        Elements feeds = page.select("table.avviso tbody tr td font[size=5]");
+        Elements feedNodes = page.select("table.avviso tbody tr td font[size=5]");
 
-        synchronized (mCache)
+        List<Feed> feeds = new ArrayList<Feed>(feedNodes.size());
+        for (Element feed : feedNodes)
         {
-            mCache.clear();
-            for (Element feed : feeds)
-            {
-                Feed f = FeedAnalyzer.extract(feed.text());
-                mCache.add(f);
-            }
+            Feed f = FeedAnalyzer.extract(feed.text());
+            feeds.add(f);
+        }
+
+        feeds = DatabaseManager.insertFeeds(feeds);
+        if (feeds != null && !feeds.isEmpty())
+        {
+            System.out.println("===== PollingEngine: found " + feeds.size() + " new feeds. Calling GCM...");
+            GCMUtils.notify(feeds);
         }
 
         System.out.println("===== PollingEngine: now sleeps...");
     }
-    
+
+
     public static List<Feed> getFeeds()
     {
         return null;
@@ -87,7 +92,6 @@ public class PollingEngine extends Thread
             try
             {
                 pollFromUnitn();
-                checkDBIntegrity();
                 sleep(SLEEP_MILLIS);
             }
             catch (Exception e)
@@ -97,15 +101,4 @@ public class PollingEngine extends Thread
         }
     }
 
-
-    private void checkDBIntegrity() throws Exception
-    {
-        DatabaseManager.insertCourses(mCache);
-    }
-
-
-    public static List<Feed> getCache()
-    {
-        return mCache;
-    }
 }

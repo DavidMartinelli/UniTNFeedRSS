@@ -3,11 +3,9 @@ package it.unitn.hci.feed.android.utils;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.common.models.Course;
-import it.unitn.hci.feed.common.models.Course.CourseName;
 import it.unitn.hci.feed.common.models.Feed;
-import java.io.BufferedReader;
+import it.unitn.hci.utils.StreamUtils;
 import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +33,14 @@ public class RSSAsyncReader
     }
 
 
-    public static CallbackAsyncTask<List<Feed>> getFeedsAsync(final CourseName course, final Action<TaskResult<List<Feed>>> callback)
+    public static CallbackAsyncTask<List<Feed>> getFeedsAsync(final String courseName, final Action<TaskResult<List<Feed>>> callback)
     {
         CallbackAsyncTask<List<Feed>> task = new CallbackAsyncTask<List<Feed>>(callback)
         {
             @Override
             public List<Feed> doJob() throws Exception
             {
-                return getFeeds(course);
+                return getFeeds(courseName);
             }
         };
         task.execute();
@@ -51,10 +49,10 @@ public class RSSAsyncReader
     }
 
 
-    public static List<Feed> getFeeds(CourseName course) throws Exception
+    public static List<Feed> getFeeds(String courseName) throws Exception
     {
         HttpClient client = new DefaultHttpClient();
-        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + course, null, null);
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + courseName, null, null);
         HttpGet get = new HttpGet(uri);
 
         HttpEntity entity = null;
@@ -67,15 +65,23 @@ public class RSSAsyncReader
             if (line.getStatusCode() != 200) throw new FileNotFoundException(line.getStatusCode() + ": " + line.getReasonPhrase());
 
             entity = response.getEntity();
-            String json = extractString(entity);
+            String json = StreamUtils.readAll(entity.getContent());
 
             JSONArray jsonArray = new JSONArray(json);
             List<Feed> feeds = new ArrayList<Feed>(jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++)
             {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.fromType(CourseName.valueOf(jsonObject.getJSONObject("mCourse").getString("mName")), jsonObject.getJSONObject("mCourse").getInt("mColour"))));
+                JSONObject jsonFeed = jsonArray.getJSONObject(i);
+                JSONObject jsonCourse = jsonFeed.getJSONObject("course");
+
+                final int id = jsonFeed.getInt("id");
+                final String body = jsonFeed.getString("body");
+                final long timestamp = jsonFeed.getLong("timestamp");
+                
+                final int colour = jsonCourse.getInt("colour");
+
+                feeds.add(new Feed(id, body, timestamp, Course.notCached(courseName, colour)));
             }
 
             return feeds;
@@ -85,26 +91,4 @@ public class RSSAsyncReader
             if (entity != null) entity.consumeContent();
         }
     }
-
-
-    private static String extractString(HttpEntity entity) throws Exception
-    {
-        BufferedReader reader = null;
-        try
-        {
-            reader = new BufferedReader(new InputStreamReader(entity.getContent()));
-            StringBuilder b = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null)
-            {
-                b.append(line);
-            }
-            return b.toString();
-        }
-        finally
-        {
-            if (reader != null) reader.close();
-        }
-    }
-
 }

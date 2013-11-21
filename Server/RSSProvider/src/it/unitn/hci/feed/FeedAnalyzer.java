@@ -1,5 +1,7 @@
 package it.unitn.hci.feed;
 
+import java.util.List;
+import java.util.Map.Entry;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 
@@ -7,13 +9,25 @@ public class FeedAnalyzer
 {
     public static Feed extract(String body)
     {
-        Course.CourseName subject = Course.CourseName.GENERIC;
-        for (Course.CourseName s : Course.CourseName.values())
+        String subject = Course.GENERIC_COURSE_NAME;
+        for (Entry<String, List<String>> course : CourseAliasReader.getCache().entrySet())
         {
-            if (s == Course.CourseName.GENERIC) continue;
+            final String officialName = course.getKey();
+            final List<String> aliases = course.getValue();
+            aliases.add(officialName);
 
-            if (body.toUpperCase().contains(s.toString().replace('_', ' '))){ subject = s; break;}
+            final String lowerBody = body.toLowerCase();
+            for (String alias : aliases)
+            {
+                if (lowerBody.contains(alias.replace('_', ' ').toLowerCase()))
+                {
+                    subject = alias;
+                    break;
+                }
+            }
+            
+            if (!subject.equals(Course.GENERIC_COURSE_NAME)) break;
         }
-        return new Feed(-1, body, System.currentTimeMillis(), Course.fromType(subject));
+        return new Feed(-1, body, System.currentTimeMillis(), Course.notCached(subject));
     }
 }
