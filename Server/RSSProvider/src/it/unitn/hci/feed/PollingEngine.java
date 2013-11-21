@@ -3,7 +3,6 @@ package it.unitn.hci.feed;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.GCMUtils;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +29,10 @@ public class PollingEngine extends Thread
         mModifiedSince = -1;
         try
         {
+            DatabaseManager.init();
             UNITN_FEED_URL = new URL(UNITN_FEED_PATH);
         }
-        catch (MalformedURLException e)
+        catch (Exception e)
         {
             // should never happen
             throw new RuntimeException(e);
@@ -75,12 +75,6 @@ public class PollingEngine extends Thread
         }
 
         System.out.println("===== PollingEngine: now sleeps...");
-    }
-
-
-    public static List<Feed> getFeeds()
-    {
-        return null;
     }
 
 
