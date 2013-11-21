@@ -136,9 +136,27 @@ public class DatabaseManager
     }
 
 
+    public static List<String> getDepartments()
+    {
+        throw new TODOException("ti passo una un nulla, e tu me la dai... la lista di stringhe che sono i nomi dei dipartimenti dell'universita' di trento (TN-IT-UE-EURASIA-HEARTH-SOLAR_SISTEM-MILK_WAY_ANDROMEDA)");
+    }
+
+
     public static List<Feed> getFeeds(String courseName)
     {
         throw new TODOException("Prende tutti i feed per quel corso");
+    }
+
+
+    public static List<String> getDepartmentCourses(String departmentName)
+    {
+        throw new TODOException("Il nome di un dipartimentoe tu mi dai il nome di tutti i suoi corsi....afrojack");
+    }
+
+
+    public static void signupUser(String token)
+    {
+        throw new TODOException("Te hai capi'");
     }
 
 
