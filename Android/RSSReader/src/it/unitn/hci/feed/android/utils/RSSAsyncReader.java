@@ -24,7 +24,7 @@ public class RSSAsyncReader
 {
     public static final String PROTOCOL = "http";
     public static final int PORT = 6767;
-    public static final String IP = "192.168.1.27";
+    public static final String IP = "10.23.78.110";
     public static final String PATH = "/RssService/";
     public static final String BASE_URL = PROTOCOL + "//" + IP + ":" + PORT + PATH;
 
@@ -75,7 +75,7 @@ public class RSSAsyncReader
             for (int i = 0; i < jsonArray.length(); i++)
             {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.fromType(CourseName.valueOf(jsonObject.getJSONObject("mCourse").getString("mName")))));
+                feeds.add(new Feed(jsonObject.getInt("mId"), jsonObject.getString("mBody"), jsonObject.getLong("mTimeStamp"), Course.fromType(CourseName.valueOf(jsonObject.getJSONObject("mCourse").getString("mName")), jsonObject.getJSONObject("mCourse").getInt("mColour"))));
             }
 
             return feeds;

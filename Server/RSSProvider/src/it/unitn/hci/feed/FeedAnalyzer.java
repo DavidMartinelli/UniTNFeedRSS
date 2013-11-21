@@ -12,11 +12,7 @@ public class FeedAnalyzer
         {
             if (s == Course.CourseName.GENERIC) continue;
 
-            if (body.toUpperCase().contains(s.toString().replace('_', ' ')))
-            {
-                subject = s;
-                break;
-            }
+            if (body.toUpperCase().contains(s.toString().replace('_', ' '))){ subject = s; break;}
         }
         return new Feed(-1, body, System.currentTimeMillis(), Course.fromType(subject));
     }

@@ -72,6 +72,11 @@ public class PollingEngine extends Thread
 
         System.out.println("===== PollingEngine: now sleeps...");
     }
+    
+    public static List<Feed> getFeeds()
+    {
+        return null;
+    }
 
 
     @Override
@@ -82,6 +87,7 @@ public class PollingEngine extends Thread
             try
             {
                 pollFromUnitn();
+                checkDBIntegrity();
                 sleep(SLEEP_MILLIS);
             }
             catch (Exception e)
@@ -89,6 +95,12 @@ public class PollingEngine extends Thread
                 LOGGER.log(Level.SEVERE, e.toString());
             }
         }
+    }
+
+
+    private void checkDBIntegrity() throws Exception
+    {
+        DatabaseManager.insertCourses(mCache);
     }
 
 

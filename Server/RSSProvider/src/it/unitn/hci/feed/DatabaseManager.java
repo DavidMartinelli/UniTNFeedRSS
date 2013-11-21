@@ -2,8 +2,10 @@ package it.unitn.hci.feed;
 
 import java.sql.ResultSet;
 import java.util.HashSet;
+import java.util.List;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
+import it.unitn.hci.utils.ColourUtils;
 
 public class DatabaseManager
 {
@@ -52,8 +54,7 @@ public class DatabaseManager
 
     public final static String INSERT_FEED = "INSERT INTO " + TABLE_FEEDS + "(" + COLUMN_FEED_ID + ", " + COLUMN_FEED_BODY + ", " + COLUMN_FEED_FK_COURSE + ", " + COLUMN_FEED_TIMESTAMP + ") VALUES (?, ?, ?, ?)";
     public final static String INSERT_COURSE = "INSERT INTO " + TABLE_COURSES + "(" + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + ") VALUES (?, ?)";
-    public final static String GET_COURSES_COLOURS = "SELECT " + COLUMN_COURSE_COLOUR + " FROM " + TABLE_COURSES;
-
+    public final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
 
     public static void init() throws Exception
     {
@@ -97,27 +98,56 @@ public class DatabaseManager
         try
         {
             db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_COURSES_COLOURS);
+            ResultSet rs = db.executeQuery(GET_COURSES_COLOURS_AND_NAMES);
             HashSet<Integer> colours = new HashSet<Integer>();
 
+            coursename = coursename.toUpperCase();
             while (rs.next())
             {
+                if (rs.getString(COLUMN_COURSE_NAME).equals(coursename)) return;
                 colours.add(rs.getInt(COLUMN_COURSE_COLOUR));
             }
 
-            boolean inContrast = false;
+            boolean isInContrast = false;
             Integer generatedColour = 0;
-            while (!inContrast)
+
+            do
             {
                 generatedColour = Course.generateRandomColor();
-                // inContrast //=jan method
+                if (ColourUtils.areInContrast(generatedColour, colours)) isInContrast = true;
             }
+            while (!isInContrast);
+
             db.executeStatement(INSERT_COURSE, generatedColour, coursename);
         }
         finally
         {
             Database.close(db);
         }
+    }
+
+
+    public static void insertCourses(List<Feed> feeds) throws Exception
+    {
+        for (Feed f : feeds)
+            insertCourse(f.getSubject().getStringName());
+    }
+  
+    public static void insertFeed(String coursename) throws Exception
+    {
+        // TODO
+    }
+    
+    
+    public static void insertFeeds(List<Feed> feeds)
+    {
+        // TODO
+    }
+    
+    public static List<Feed> getFeeds()
+    {
+        // TODO
+        return null;
     }
 
 
@@ -128,7 +158,6 @@ public class DatabaseManager
         {
             db = Database.fromConnectionPool();
             init();
-            // TODO insert fake data
         }
         catch (Exception e)
         {
