@@ -40,42 +40,65 @@ public class PollingEngine extends Thread
     }
 
 
-    private void pollFromUnitn() throws Exception
+    private void pollFromUnitn()
     {
         System.out.println("===== PollingEngine: wake up...");
 
-        HttpURLConnection connection = (HttpURLConnection) UNITN_FEED_URL.openConnection();
-        connection.connect();
+        pollNewsPage(UNITN_FEED_URL, "table.avviso tbody tr td font[size=5]");
 
-        final long lastModified = connection.getLastModified();
-        if (lastModified != 0 && connection.getLastModified() < mModifiedSince)
+        System.out.println("===== PollingEngine: now sleeps...\n");
+    }
+
+
+    private void pollNewsPage(URL newsPageUrl, String cssSelector)
+    {
+        System.out.println();
+        try
         {
+            final String path = newsPageUrl.getPath();
+
+            System.out.println("PollingEngine: dumping " + path + "...");
+
+            HttpURLConnection connection = (HttpURLConnection) newsPageUrl.openConnection();
+            connection.connect();
+
+            final long lastModified = connection.getLastModified();
+            if (lastModified != 0 && connection.getLastModified() < mModifiedSince)
+            {
+                connection.disconnect();
+                System.out.println("PollingEngine: nothing new on " + path + ", going to sleep...");
+                return;
+            }
+
+            mModifiedSince = System.currentTimeMillis();
+            final Document page = Jsoup.parse(connection.getInputStream(), "ISO-8859-1", path);
             connection.disconnect();
-            System.out.println("==== PollingEngine: nothing new, going to sleep...");
-            return;
+            Elements feedNodes = page.select(cssSelector);
+
+            List<Feed> feeds = new ArrayList<Feed>(feedNodes.size());
+            final long timeStamp = System.currentTimeMillis();
+            for (Element feed : feedNodes)
+            {
+                Feed f = FeedAnalyzer.extract(feed.text(), timeStamp);
+                feeds.add(f);
+            }
+
+            feeds = DatabaseManager.insertFeeds(feeds);
+            if (feeds != null && !feeds.isEmpty())
+            {
+                System.out.println("PollingEngine: found " + feeds.size() + " new feeds on " + path + ". Calling GCM...");
+                GCMUtils.notify(feeds);
+            }
+            else
+            {
+                System.out.println("PollingEngine: nothing new on " + path + ", going to sleep...");
+            }
         }
-
-        mModifiedSince = System.currentTimeMillis();
-        final Document page = Jsoup.parse(connection.getInputStream(), "ISO-8859-1", UNITN_FEED_PATH);
-        connection.disconnect();
-        Elements feedNodes = page.select("table.avviso tbody tr td font[size=5]");
-
-        List<Feed> feeds = new ArrayList<Feed>(feedNodes.size());
-        final long timeStamp = System.currentTimeMillis();
-        for (Element feed : feedNodes)
+        catch (Exception e)
         {
-            Feed f = FeedAnalyzer.extract(feed.text(), timeStamp);
-            feeds.add(f);
+            e.printStackTrace();
         }
-
-        feeds = DatabaseManager.insertFeeds(feeds);
-        if (feeds != null && !feeds.isEmpty())
-        {
-            System.out.println("===== PollingEngine: found " + feeds.size() + " new feeds. Calling GCM...");
-            GCMUtils.notify(feeds);
-        }
-
-        System.out.println("===== PollingEngine: now sleeps...");
+        System.out.println();
     }
 
 
