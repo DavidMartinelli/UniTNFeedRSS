@@ -61,7 +61,7 @@ public class DialogUtils
                     }
                 });
 
-                lblTitle.setText(feed.getSubject().getStringName());
+                lblTitle.setText(feed.getCourse().getStringName());
                 lblBody.setText(feed.getBody());
 
                 return rootView;

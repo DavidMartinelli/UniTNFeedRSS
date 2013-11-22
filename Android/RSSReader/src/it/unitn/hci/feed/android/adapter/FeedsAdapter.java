@@ -57,9 +57,9 @@ public class FeedsAdapter extends BaseExpandableListAdapter
 
         Feed feed = (Feed) getChild(groupPosition, childPosition);
 
-        lblCourseName.setText(feed.getSubject().getStringName());
+        lblCourseName.setText(feed.getCourse().getStringName());
         lblCourseDescription.setText(feed.getBody());
-        imgCourseColor.setBackgroundColor(feed.getSubject().getColour());
+        imgCourseColor.setBackgroundColor(feed.getCourse().getColour());
         return convertView;
     }
 
