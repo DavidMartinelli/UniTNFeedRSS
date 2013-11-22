@@ -1,5 +1,6 @@
-package it.unitn.hci.feed.android.utils;
+package it.unitn.hci.feed.android;
 
+import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.common.models.Course;
@@ -18,7 +19,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class RSSAsyncReader
+public class UnitnApiAsync
 {
     public static final String PROTOCOL = "http";
     public static final int PORT = 6767;
@@ -27,9 +28,63 @@ public class RSSAsyncReader
     public static final String BASE_URL = PROTOCOL + "//" + IP + ":" + PORT + PATH;
 
 
-    private RSSAsyncReader()
+    private UnitnApiAsync()
     {
         // static methods only
+    }
+
+
+    public static CallbackAsyncTask<List<String>> getDepartmentsAsync(final Action<TaskResult<List<String>>> callback)
+    {
+        CallbackAsyncTask<List<String>> task = new CallbackAsyncTask<List<String>>(callback)
+        {
+            @Override
+            public List<String> doJob() throws Exception
+            {
+                return getDepartments();
+            }
+        };
+        task.execute();
+
+        return task;
+    }
+
+
+    public static List<String> getDepartments() throws Exception
+    {
+        List<String> deparments;
+
+        HttpClient client = new DefaultHttpClient();
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments", null, null);
+        HttpGet get = new HttpGet(uri);
+
+        HttpEntity entity = null;
+
+        try
+        {
+            HttpResponse response = client.execute(get);
+
+            StatusLine line = response.getStatusLine();
+            if (line.getStatusCode() != 200) throw new FileNotFoundException(line.getStatusCode() + ": " + line.getReasonPhrase());
+
+            entity = response.getEntity();
+            String json = StreamUtils.readAll(entity.getContent());
+            JSONArray jsonArray = new JSONArray(json);
+
+            deparments = new ArrayList<String>(jsonArray.length());
+
+            for (int i = 0; i < jsonArray.length(); i++)
+            {
+                JSONObject departmentJson = jsonArray.getJSONObject(i);
+
+                deparments.add(departmentJson.getString("name"));
+            }
+            return deparments;
+        }
+        finally
+        {
+            if (entity != null) entity.consumeContent();
+        }
     }
 
 
@@ -78,7 +133,7 @@ public class RSSAsyncReader
                 final int id = jsonFeed.getInt("id");
                 final String body = jsonFeed.getString("body");
                 final long timestamp = jsonFeed.getLong("timestamp");
-                
+
                 final int colour = jsonCourse.getInt("colour");
 
                 feeds.add(new Feed(id, body, timestamp, Course.notCached(courseName, colour)));
