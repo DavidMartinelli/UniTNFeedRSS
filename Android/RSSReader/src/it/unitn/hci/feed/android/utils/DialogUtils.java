@@ -30,7 +30,7 @@ public class DialogUtils
 {
 
     @SuppressWarnings("deprecation")
-    public static void showPopupWindowMenu(Context context, View anchor, OnClickListener manageFeedsListener, OnClickListener showAllFeedsListener, OnClickListener showNotificationListener)
+    public static void showPopupWindowMenu(Context context, View anchor, final OnClickListener manageFeedsListener, final OnClickListener showAllFeedsListener, final OnClickListener showNotificationListener)
     {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.fast_menu_layout, null);
@@ -39,14 +39,39 @@ public class DialogUtils
         TextView btnShowAllFeeds = (TextView) view.findViewById(R.id.btnShowAllFeeds);
         TextView btnEnableNotification = (TextView) view.findViewById(R.id.btnEnableNotification);
 
-        btnManageFeeds.setOnClickListener(manageFeedsListener);
-        btnShowAllFeeds.setOnClickListener(showAllFeedsListener);
-        btnEnableNotification.setOnClickListener(showNotificationListener);
-
         final PopupWindow popupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable());
         popupWindow.setOutsideTouchable(true);
         popupWindow.showAsDropDown(anchor);
+
+        btnManageFeeds.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                manageFeedsListener.onClick(v);
+            }
+        });
+        btnShowAllFeeds.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                showAllFeedsListener.onClick(v);
+            }
+        });
+        btnEnableNotification.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                showNotificationListener.onClick(v);
+            }
+        });
+
     }
 
 
@@ -155,6 +180,9 @@ public class DialogUtils
                 View lyTitle = rootView.findViewById(R.id.lyTitle);
                 final ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstCourses);
                 View button = rootView.findViewById(R.id.btnOk);
+                CourseAdapter adapter = new CourseAdapter(context, courses);
+                lstDepartments.setAdapter(adapter);
+
                 button.setOnClickListener(new OnClickListener()
                 {
                     @Override
@@ -163,9 +191,10 @@ public class DialogUtils
                         List<Course> result = new ArrayList<Course>();
                         for (int i = 0; i < lstDepartments.getChildCount(); i++)
                         {
-                            //TODO ricavare i field con il cb selected e ritornarli
+                            // TODO ricavare i field con il cb selected e ritornarli
                         }
                         action.invoke(result);
+                        dismiss();
                     }
                 });
 
@@ -177,9 +206,6 @@ public class DialogUtils
                         dismiss();
                     }
                 });
-
-                CourseAdapter adapter = new CourseAdapter(context, courses);
-                lstDepartments.setAdapter(adapter);
 
                 return rootView;
             }
