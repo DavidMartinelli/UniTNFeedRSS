@@ -6,7 +6,7 @@ import it.unitn.hci.feed.common.models.Feed;
 
 public class FeedAnalyzer
 {
-    public static Feed extract(String body) throws Exception
+    public static Feed extract(String body, long timeStamp) throws Exception
     {
         Course target = null;
         for (Course course : DatabaseManager.getAllCourses())
@@ -28,6 +28,6 @@ public class FeedAnalyzer
 
             if (target != null) break;
         }
-        return new Feed(-1, body, System.currentTimeMillis(), target == null ? Course.GENERIC_COURSE: target);
+        return new Feed(-1, body, timeStamp, target == null ? Course.GENERIC_COURSE: target);
     }
 }

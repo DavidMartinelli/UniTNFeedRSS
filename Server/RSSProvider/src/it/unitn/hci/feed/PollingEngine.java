@@ -61,9 +61,10 @@ public class PollingEngine extends Thread
         Elements feedNodes = page.select("table.avviso tbody tr td font[size=5]");
 
         List<Feed> feeds = new ArrayList<Feed>(feedNodes.size());
+        final long timeStamp = System.currentTimeMillis();
         for (Element feed : feedNodes)
         {
-            Feed f = FeedAnalyzer.extract(feed.text());
+            Feed f = FeedAnalyzer.extract(feed.text(), timeStamp);
             feeds.add(f);
         }
 
