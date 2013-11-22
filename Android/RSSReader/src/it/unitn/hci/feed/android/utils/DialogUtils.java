@@ -1,9 +1,11 @@
 package it.unitn.hci.feed.android.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.adapter.CourseAdapter;
 import it.unitn.hci.feed.android.adapter.DepartmentAdapter;
+import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 import android.app.Dialog;
@@ -142,7 +144,7 @@ public class DialogUtils
     }
 
 
-    public static void showCoursesSelector(final Context context, final List<Course> courses)
+    public static void showCoursesSelector(final Context context, final List<Course> courses, final Action<List<Course>> action)
     {
         final DialogFragment d = new DialogFragment()
         {
@@ -151,6 +153,22 @@ public class DialogUtils
             {
                 View rootView = inflater.inflate(R.layout.courses_chooser_layout, container, false);
                 View lyTitle = rootView.findViewById(R.id.lyTitle);
+                final ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstCourses);
+                View button = rootView.findViewById(R.id.btnOk);
+                button.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        List<Course> result = new ArrayList<Course>();
+                        for (int i = 0; i < lstDepartments.getChildCount(); i++)
+                        {
+                            //TODO ricavare i field con il cb selected e ritornarli
+                        }
+                        action.invoke(result);
+                    }
+                });
+
                 lyTitle.setOnClickListener(new OnClickListener()
                 {
                     @Override
@@ -160,7 +178,6 @@ public class DialogUtils
                     }
                 });
 
-                ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstCourses);
                 CourseAdapter adapter = new CourseAdapter(context, courses);
                 lstDepartments.setAdapter(adapter);
 

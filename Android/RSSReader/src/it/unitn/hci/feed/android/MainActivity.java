@@ -141,7 +141,14 @@ public class MainActivity extends FragmentActivity
                                 @Override
                                 public void invoke(TaskResult<List<Course>> param)
                                 {
-                                    DialogUtils.showCoursesSelector(MainActivity.this, param.result);
+                                    DialogUtils.showCoursesSelector(MainActivity.this, param.result, new Action<List<Course>>()
+                                    {
+                                        @Override
+                                        public void invoke(List<Course> param)
+                                        {
+                                            System.out.println(param);
+                                        }
+                                    });
                                 }
                             });
                         }
