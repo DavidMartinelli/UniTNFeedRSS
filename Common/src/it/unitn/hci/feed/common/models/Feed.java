@@ -92,20 +92,13 @@ public class Feed implements Model
     public boolean equals(Object obj)
     {
         if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (obj == null || !(obj instanceof Feed)) return false;
+
         Feed other = (Feed) obj;
-        if (mBody == null)
-        {
-            if (other.mBody != null) return false;
-        }
-        else if (!mBody.equals(other.mBody)) return false;
-        if (mCourse == null)
-        {
-            if (other.mCourse != null) return false;
-        }
-        else if (!mCourse.equals(other.mCourse)) return false;
-        return true;
+        if ((mBody == null && other.mBody != null) || !mBody.equals(other.mBody)) return false;
+
+        if (mCourse == null && other.mCourse != null) return false;
+        return mCourse.equals(other.mCourse);
     }
 
 }

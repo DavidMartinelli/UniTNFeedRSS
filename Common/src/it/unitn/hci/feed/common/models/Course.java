@@ -93,4 +93,14 @@ public class Course implements Model
         Random rand = new Random();
         return rand.nextInt();
     }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || !(obj instanceof Course)) return false;
+        if (obj == this) return true;
+        Course casted = (Course) obj;
+        return casted.getName().equals(getName()) && casted.getId() == getId();
+    }
 }

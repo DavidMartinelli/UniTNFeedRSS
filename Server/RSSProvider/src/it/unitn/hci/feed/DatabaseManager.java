@@ -152,8 +152,8 @@ public class DatabaseManager
     public static List<Feed> insertFeeds(List<Feed> feeds) throws Exception
     {
         Set<Feed> storedFeeds = new HashSet<Feed>(getFeeds());
+        
         List<Feed> newFeeds = new ArrayList<Feed>();
-
         for (Feed feed : feeds)
         {
             if (!storedFeeds.contains(feed))
