@@ -78,17 +78,6 @@ public class Feed implements Model
 
 
     @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((mBody == null) ? 0 : mBody.hashCode());
-        result = prime * result + ((mCourse == null) ? 0 : mCourse.hashCode());
-        return result;
-    }
-
-
-    @Override
     public boolean equals(Object obj)
     {
         if (this == obj) return true;
@@ -97,8 +86,8 @@ public class Feed implements Model
         Feed other = (Feed) obj;
         if ((mBody == null && other.mBody != null) || !mBody.equals(other.mBody)) return false;
 
-        if (mCourse == null && other.mCourse != null) return false;
-        return mCourse.equals(other.mCourse);
+        if (mCourse == null && other.mCourse == null) return true;
+        return mCourse != null && mCourse.equals(other.mCourse);
     }
 
 }

@@ -28,6 +28,6 @@ public class FeedAnalyzer
 
             if (target != null) break;
         }
-        return new Feed(-1, body, timeStamp, target == null ? Course.GENERIC_COURSE: target);
+        return new Feed(-1, body, timeStamp, target == null ? Course.GENERIC_COURSE : target);
     }
 }
