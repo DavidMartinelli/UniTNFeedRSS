@@ -23,8 +23,8 @@ public class UnitnApiAsync
 {
     public static final String PROTOCOL = "http";
     public static final int PORT = 6767;
-    public static final String IP = "10.23.78.110";
-    public static final String PATH = "/RssService/";
+    public static final String IP = "10.23.81.179";
+    public static final String PATH = "/rssservice/";
     public static final String BASE_URL = PROTOCOL + "//" + IP + ":" + PORT + PATH;
 
 
@@ -69,7 +69,7 @@ public class UnitnApiAsync
 
             entity = response.getEntity();
             String json = StreamUtils.readAll(entity.getContent());
-            JSONArray jsonArray = new JSONArray(json);
+            JSONArray jsonArray = new JSONObject(json).getJSONArray("department");
 
             deparments = new ArrayList<String>(jsonArray.length());
 
@@ -120,7 +120,7 @@ public class UnitnApiAsync
             entity = response.getEntity();
             String json = StreamUtils.readAll(entity.getContent());
 
-            JSONArray jsonArray = new JSONArray(json);
+            JSONArray jsonArray = new JSONObject(json).getJSONArray("feed");
             List<Feed> feeds = new ArrayList<Feed>(jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++)

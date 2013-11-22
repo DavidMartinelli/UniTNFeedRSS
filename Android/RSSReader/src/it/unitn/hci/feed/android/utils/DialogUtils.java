@@ -95,9 +95,18 @@ public class DialogUtils
             public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
             {
                 View rootView = inflater.inflate(R.layout.departments_layout, container, false);
+                View lyTitle = rootView.findViewById(R.id.lyTitle);
+                lyTitle.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        dismiss();
+                    }
+                });
                 
                 ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstDepartments);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.activity_list_item, departments);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, departments);
                 lstDepartments.setAdapter(adapter);
 
                 return rootView;

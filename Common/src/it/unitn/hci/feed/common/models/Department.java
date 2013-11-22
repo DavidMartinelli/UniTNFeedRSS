@@ -14,9 +14,8 @@ public class Department
     private int mId;
 
 
-    public Department()
+    Department()
     {
-
     }
 
 

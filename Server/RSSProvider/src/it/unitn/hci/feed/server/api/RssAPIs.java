@@ -1,7 +1,9 @@
 package it.unitn.hci.feed.server.api;
 
+import java.util.ArrayList;
 import java.util.List;
 import it.unitn.hci.feed.DatabaseManager;
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.FormParam;
@@ -42,11 +44,15 @@ public class RssAPIs
     {
         try
         {
-            return ResponseUtils.fromObject(DatabaseManager.getDepartments());
+            //DatabaseManager.getDepartments()
+            List<Department> dep = new ArrayList<Department>();
+            dep.add(new Department("Prego"));
+            dep.add(new Department("Lavoro"));
+
+            return ResponseUtils.fromObject(dep);
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
     }

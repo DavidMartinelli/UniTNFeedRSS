@@ -12,7 +12,7 @@ public class Feed implements Model
     @XmlElement(name = "id")
     private int mId;
 
-    @XmlElement(name = "timeStamp")
+    @XmlElement(name = "timestamp")
     private long mTimeStamp;
 
     @XmlElement(name = "course")

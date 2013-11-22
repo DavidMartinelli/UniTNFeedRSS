@@ -59,6 +59,7 @@ public class MainActivity extends FragmentActivity
                 if (exception != null)
                 {
                     Toast.makeText(MainActivity.this, "Something went wrong: " + exception + ", " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                    exception.printStackTrace();
                     return;
                 }
 
@@ -118,7 +119,6 @@ public class MainActivity extends FragmentActivity
                 public void invoke(TaskResult<List<String>> param)
                 {
                     pDialog.dismiss();
-                    
                     List<String> result = param.result;
                     if(param.exception != null || result.isEmpty())
                     {
@@ -127,7 +127,7 @@ public class MainActivity extends FragmentActivity
                         return;
                     }
                     
-                    DialogUtils.showDepartmentsList(getApplicationContext(), result);
+                    DialogUtils.showDepartmentsList(MainActivity.this, result);
                 }
             });
         }
