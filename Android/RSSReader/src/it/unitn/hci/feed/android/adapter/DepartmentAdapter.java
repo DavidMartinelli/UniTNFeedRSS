@@ -27,7 +27,7 @@ public class DepartmentAdapter extends ArrayAdapter<String>
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        if (convertView == null) convertView = mInflater.inflate(R.layout.feed_content_layout, null);
+        if (convertView == null) convertView = mInflater.inflate(R.layout.department_item_layout, null);
         TextView departmentName = (TextView) convertView.findViewById(R.id.lblDepartmentName);
         
         departmentName.setText(mDepartments.get(position));
