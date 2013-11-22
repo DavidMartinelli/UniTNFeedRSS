@@ -1,8 +1,12 @@
 package it.unitn.hci.feed.android.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.android.adapter.CourseAdapter;
 import it.unitn.hci.feed.android.adapter.DepartmentAdapter;
+import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
+import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 import android.app.Dialog;
 import android.content.Context;
@@ -16,15 +20,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class DialogUtils
 {
 
     @SuppressWarnings("deprecation")
-    public static void showPopupWindowMenu(Context context, View anchor, OnClickListener manageFeedsListener, OnClickListener showAllFeedsListener, OnClickListener showNotificationListener)
+    public static void showPopupWindowMenu(Context context, View anchor, final OnClickListener manageFeedsListener, final OnClickListener showAllFeedsListener, final OnClickListener showNotificationListener)
     {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.fast_menu_layout, null);
@@ -33,14 +39,39 @@ public class DialogUtils
         TextView btnShowAllFeeds = (TextView) view.findViewById(R.id.btnShowAllFeeds);
         TextView btnEnableNotification = (TextView) view.findViewById(R.id.btnEnableNotification);
 
-        btnManageFeeds.setOnClickListener(manageFeedsListener);
-        btnShowAllFeeds.setOnClickListener(showAllFeedsListener);
-        btnEnableNotification.setOnClickListener(showNotificationListener);
-
         final PopupWindow popupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable());
         popupWindow.setOutsideTouchable(true);
         popupWindow.showAsDropDown(anchor);
+
+        btnManageFeeds.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                manageFeedsListener.onClick(v);
+            }
+        });
+        btnShowAllFeeds.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                showAllFeedsListener.onClick(v);
+            }
+        });
+        btnEnableNotification.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                showNotificationListener.onClick(v);
+            }
+        });
+
     }
 
 
@@ -87,14 +118,14 @@ public class DialogUtils
     }
 
 
-    public static void showDepartmentsList(final Context context, final List<String> departments)
+    public static void showDepartmentsList(final Context context, final List<String> departments, final OnItemClickListener listener)
     {
         final DialogFragment d = new DialogFragment()
         {
             @Override
             public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
             {
-                View rootView = inflater.inflate(R.layout.departments_layout, container, false);
+                View rootView = inflater.inflate(R.layout.departments_chooser_layout, container, false);
                 View lyTitle = rootView.findViewById(R.id.lyTitle);
                 lyTitle.setOnClickListener(new OnClickListener()
                 {
@@ -104,10 +135,77 @@ public class DialogUtils
                         dismiss();
                     }
                 });
-                
+
                 ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstDepartments);
+                lstDepartments.setOnItemClickListener(new OnItemClickListener()
+                {
+                    @Override
+                    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+                    {
+                        listener.onItemClick(arg0, arg1, arg2, arg3);
+                        dismiss();
+                    }
+                });
                 DepartmentAdapter adapter = new DepartmentAdapter(context, departments);
                 lstDepartments.setAdapter(adapter);
+
+                return rootView;
+            }
+
+
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState)
+            {
+                Dialog dialog = super.onCreateDialog(savedInstanceState);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                return dialog;
+            }
+        };
+
+        FragmentManager manager = ((FragmentActivity) context).getSupportFragmentManager();
+
+        d.setCancelable(true);
+        d.show(manager, "departments");
+    }
+
+
+    public static void showCoursesSelector(final Context context, final List<Course> courses, final Action<List<Course>> action)
+    {
+        final DialogFragment d = new DialogFragment()
+        {
+            @Override
+            public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
+            {
+                View rootView = inflater.inflate(R.layout.courses_chooser_layout, container, false);
+                View lyTitle = rootView.findViewById(R.id.lyTitle);
+                final ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstCourses);
+                View button = rootView.findViewById(R.id.btnOk);
+                CourseAdapter adapter = new CourseAdapter(context, courses);
+                lstDepartments.setAdapter(adapter);
+
+                button.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        List<Course> result = new ArrayList<Course>();
+                        for (int i = 0; i < lstDepartments.getChildCount(); i++)
+                        {
+                            // TODO ricavare i field con il cb selected e ritornarli
+                        }
+                        action.invoke(result);
+                        dismiss();
+                    }
+                });
+
+                lyTitle.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        dismiss();
+                    }
+                });
 
                 return rootView;
             }

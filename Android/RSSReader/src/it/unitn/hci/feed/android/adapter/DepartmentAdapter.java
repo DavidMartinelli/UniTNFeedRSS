@@ -18,7 +18,7 @@ public class DepartmentAdapter extends ArrayAdapter<String>
 
     public DepartmentAdapter(Context context, List<String> departments)
     {
-        super(context, R.layout.department_item_layout, departments);
+        super(context, R.layout.department_chooser_item_layout, departments);
         mDepartments = departments;
         mContext = context;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -27,7 +27,7 @@ public class DepartmentAdapter extends ArrayAdapter<String>
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        if (convertView == null) convertView = mInflater.inflate(R.layout.department_item_layout, null);
+        if (convertView == null) convertView = mInflater.inflate(R.layout.department_chooser_item_layout, null);
         TextView departmentName = (TextView) convertView.findViewById(R.id.lblDepartmentName);
         
         departmentName.setText(mDepartments.get(position));

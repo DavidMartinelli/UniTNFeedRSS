@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
@@ -396,7 +395,6 @@ public class DatabaseManager
         Database db = null;
         try
         {
-            System.out.println(departmentName + " " + link + " " + CSSSelector);
             db = Database.fromConnectionPool();
             db.executeStatement(INSERT_DEPARTMENT, departmentName, link, CSSSelector);
         }

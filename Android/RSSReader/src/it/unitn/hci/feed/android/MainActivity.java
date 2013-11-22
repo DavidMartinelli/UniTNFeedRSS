@@ -12,11 +12,14 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
+import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
@@ -112,22 +115,44 @@ public class MainActivity extends FragmentActivity
             final ProgressDialog pDialog = new ProgressDialog(MainActivity.this);
             pDialog.setMessage("Loading departments");
             pDialog.show();
-            
+
             UnitnApiAsync.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<String>>>()
             {
                 @Override
                 public void invoke(TaskResult<List<String>> param)
                 {
                     pDialog.dismiss();
-                    List<String> result = param.result;
-                    if(param.exception != null || result.isEmpty())
+                    final List<String> result = param.result;
+                    if (param.exception != null || result.isEmpty())
                     {
                         param.exception.printStackTrace();
                         // TODO mostare dialog "an error has occurred bla bla"
                         return;
                     }
-                    
-                    DialogUtils.showDepartmentsList(MainActivity.this, result);
+
+                    DialogUtils.showDepartmentsList(MainActivity.this, result, new OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapter, View view, int position, long id)
+                        {
+                            String dep = result.get(position);
+                            UnitnApiAsync.getCoursesAsync(dep, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
+                            {
+                                @Override
+                                public void invoke(TaskResult<List<Course>> param)
+                                {
+                                    DialogUtils.showCoursesSelector(MainActivity.this, param.result, new Action<List<Course>>()
+                                    {
+                                        @Override
+                                        public void invoke(List<Course> param)
+                                        {
+                                            System.out.println(param);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }
