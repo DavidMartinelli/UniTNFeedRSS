@@ -1,0 +1,10 @@
+Economia e management|http://www.unitn.it/economia
+Facolta di Giurisprudenza|http://www.unitn.it/giurisprudenza
+Fisica|http://www.unitn.it/dphys
+Ingegneria civile, ambientale e meccanica|http://www.unitn.it/dicam
+Ingegneria e scienza dell’informazione|http://www.disi.unitn.it/it
+Ingegneria industriale|http://www.unitn.it/dii
+Lettere e filosofia|http://www.unitn.it/lettere
+Matematica|http://www.unitn.it/dmath
+Psicologia e scienze cognitive|http://www.unitn.it/cogsci
+Sociologia e ricerca sociale|http://www.unitn.it/sociologia
