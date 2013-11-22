@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.ColourUtils;
 import it.unitn.hci.utils.TODOException;
@@ -58,7 +59,7 @@ public class DatabaseManager
 
     private final static String GET_ALIASES_BY_COURSE_NAME = "SELECT " + COLUMN_ALIAS_VALUE + " FROM " + TABLE_ALIASES + " JOIN " + TABLE_COURSES + " ON " + COLUMN_ALIAS_FK_COURSE + "=" + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=?";
     private final static String GET_ALL_COURSES = "SELECT * FROM " + TABLE_COURSES;
-    private final static String GET_ALL_FEEDS = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " +  TABLE_FEEDS + "." + COLUMN_FEED_FK_COURSE + " = " + TABLE_COURSES + "." + COLUMN_COURSE_ID;
+    private final static String GET_ALL_FEEDS = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + TABLE_FEEDS + "." + COLUMN_FEED_FK_COURSE + " = " + TABLE_COURSES + "." + COLUMN_COURSE_ID;
     private final static String GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_FEED_FK_COURSE + " = " + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=? AND " + COLUMN_COURSE_ID + ">?";
     private final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
     private final static String GET_COURSES_NAME_BY_DEPARTMENT_NAME = "SELECT * FROM " + TABLE_COURSES + " JOIN " + TABLE_DEPARTMENTS_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " JOIN " + TABLE_DEPARTMENTS + " JOIN " + COLUMN_DEPARTMENT_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + "=?";
@@ -166,20 +167,21 @@ public class DatabaseManager
     }
 
 
-    public static List<String> getDepartments() throws Exception
+    public static List<Department> getDepartments() throws Exception
     {
-        List<String> deparmentNames = null;
+        List<Department> deparmentNames = null;
         Database db = null;
         try
         {
             db = Database.fromConnectionPool();
             ResultSet rs = db.executeQuery(GET_DEPARTMENTS_NAMES);
-            deparmentNames = new ArrayList<String>();
-            
-            while(rs.next()){
-                deparmentNames.add(rs.getString(COLUMN_DEPARTMENT_NAME));
+            deparmentNames = new ArrayList<Department>();
+
+            while (rs.next())
+            {
+                deparmentNames.add(new Department(rs.getString(COLUMN_DEPARTMENT_NAME)));
             }
-            
+
             return deparmentNames;
         }
         finally
@@ -187,7 +189,8 @@ public class DatabaseManager
             Database.close(db);
         }
     }
-    
+
+
     public static Set<String> getAliases(String courseName) throws Exception
     {
         Set<String> aliases = null;
@@ -197,18 +200,19 @@ public class DatabaseManager
             db = Database.fromConnectionPool();
             ResultSet rs = db.executeQuery(GET_ALIASES_BY_COURSE_NAME, courseName);
             aliases = new HashSet<String>();
-            
-            while(rs.next()){
+
+            while (rs.next())
+            {
                 aliases.add(rs.getString(COLUMN_ALIAS_VALUE));
             }
-            
+
             return aliases;
         }
         finally
         {
             Database.close(db);
         }
-   
+
     }
 
 
@@ -314,13 +318,13 @@ public class DatabaseManager
         Database db = null;
         Course course = null;
         Set<String> aliases = null;
-        
+
         try
         {
             db = Database.fromConnectionPool();
             ResultSet rs = db.executeQuery(GET_ALL_COURSES);
             courses = new ArrayList<Course>();
-            
+
             while (rs.next())
             {
                 aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
@@ -335,7 +339,7 @@ public class DatabaseManager
             Database.close(db);
         }
     }
-    
+
     public static List<Feed> getAllFeedsAfterIdForCourse(Long id, String courseName) throws Exception{
         List<Feed> feeds = null;
         Feed feed;
@@ -362,7 +366,7 @@ public class DatabaseManager
         {
             Database.close(db);
         }
-        
+
     }
 
 }

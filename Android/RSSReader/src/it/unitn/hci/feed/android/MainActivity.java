@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.adapter.FeedsAdapter;
+import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
@@ -37,7 +38,7 @@ public class MainActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
 
         mCoursesList = (ExpandableListView) findViewById(R.id.lstCourses);
         btnMenu = (ImageView) findViewById(R.id.btnMenu);
@@ -79,7 +80,7 @@ public class MainActivity extends FragmentActivity
                     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
                     {
                         List<String> mDates = new ArrayList<String>(mCourses.keySet());
-                        DialogUtils.showListOfSongs(MainActivity.this, mCourses.get(mDates.get(groupPosition)).get(childPosition));
+                        DialogUtils.showFeed(MainActivity.this, mCourses.get(mDates.get(groupPosition)).get(childPosition));
                         return true;
                     }
                 });
@@ -90,7 +91,7 @@ public class MainActivity extends FragmentActivity
     }
 
 
-    private static OnClickListener onBtnMenuClicked(final Context context)
+    private OnClickListener onBtnMenuClicked(final Context context)
     {
         return new OnClickListener()
         {
@@ -102,7 +103,37 @@ public class MainActivity extends FragmentActivity
         };
     }
 
-    private static final OnClickListener mOnManageFeedsCkicked = new OnClickListener()
+    private final OnClickListener mOnManageFeedsCkicked = new OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            final ProgressDialog pDialog = new ProgressDialog(MainActivity.this);
+            pDialog.setMessage("Loading departments");
+            pDialog.show();
+            
+            UnitnApiAsync.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<String>>>()
+            {
+                @Override
+                public void invoke(TaskResult<List<String>> param)
+                {
+                    pDialog.dismiss();
+                    
+                    List<String> result = param.result;
+                    if(param.exception != null || result.isEmpty())
+                    {
+                        param.exception.printStackTrace();
+                        // TODO mostare dialog "an error has occurred bla bla"
+                        return;
+                    }
+                    
+                    DialogUtils.showDepartmentsList(getApplicationContext(), result);
+                }
+            });
+        }
+    };
+
+    private final OnClickListener mOnShowAllFeedsCkicked = new OnClickListener()
     {
         @Override
         public void onClick(View v)
@@ -111,16 +142,7 @@ public class MainActivity extends FragmentActivity
         }
     };
 
-    private static final OnClickListener mOnShowAllFeedsCkicked = new OnClickListener()
-    {
-        @Override
-        public void onClick(View v)
-        {
-
-        }
-    };
-
-    private static final OnClickListener mOnEnableNotificationCkicked = new OnClickListener()
+    private final OnClickListener mOnEnableNotificationCkicked = new OnClickListener()
     {
         @Override
         public void onClick(View v)

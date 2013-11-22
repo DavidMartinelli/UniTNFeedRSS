@@ -3,6 +3,7 @@ package it.unitn.hci.feed.server.api;
 import java.util.List;
 import it.unitn.hci.feed.DatabaseManager;
 import it.unitn.hci.feed.common.models.Feed;
+import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -11,6 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 @Path("/rssservice")
 public class RssAPIs
@@ -20,10 +22,13 @@ public class RssAPIs
     @Produces(MediaType.APPLICATION_JSON)
     public List<Feed> getCourseFeeds(@PathParam("coursename") String courseName) throws Exception
     {
-        try{
-        System.out.print("here" + courseName);
-        return DatabaseManager.getFeeds(courseName);
-        } catch (Exception e) {
+        try
+        {
+            System.out.print("here" + courseName);
+            return DatabaseManager.getFeeds(courseName);
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
             return null;
         }
@@ -33,9 +38,17 @@ public class RssAPIs
     @GET
     @Path("/departments")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getDepartments() throws Exception
+    public Response getDepartments()
     {
-        return DatabaseManager.getDepartments();
+        try
+        {
+            return ResponseUtils.fromObject(DatabaseManager.getDepartments());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
@@ -56,4 +69,5 @@ public class RssAPIs
         DatabaseManager.signupUser(token);
         return Response.ok().build();
     }
+
 }

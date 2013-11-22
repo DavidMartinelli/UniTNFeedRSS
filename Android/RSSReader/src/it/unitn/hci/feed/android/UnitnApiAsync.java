@@ -75,9 +75,7 @@ public class UnitnApiAsync
 
             for (int i = 0; i < jsonArray.length(); i++)
             {
-                JSONObject departmentJson = jsonArray.getJSONObject(i);
-
-                deparments.add(departmentJson.getString("name"));
+                deparments.add(jsonArray.getJSONObject(i).getString("name"));
             }
             return deparments;
         }
