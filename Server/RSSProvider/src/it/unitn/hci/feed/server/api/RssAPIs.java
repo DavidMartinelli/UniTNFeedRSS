@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import it.unitn.hci.feed.DatabaseManager;
 import it.unitn.hci.feed.common.models.Department;
-import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -22,17 +21,15 @@ public class RssAPIs
     @GET
     @Path("/{coursename}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Feed> getCourseFeeds(@PathParam("coursename") String courseName) throws Exception
+    public Response getCourseFeeds(@PathParam("coursename") String courseName)
     {
         try
         {
-            System.out.print("here" + courseName);
-            return DatabaseManager.getFeeds(courseName);
+            return ResponseUtils.fromObject(DatabaseManager.getFeeds(courseName));
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            return null;
+            return ResponseUtils.fromException(e);
         }
     }
 
@@ -44,7 +41,7 @@ public class RssAPIs
     {
         try
         {
-            //DatabaseManager.getDepartments()
+            // DatabaseManager.getDepartments()
             List<Department> dep = new ArrayList<Department>();
             dep.add(new Department("Prego"));
             dep.add(new Department("Lavoro"));
