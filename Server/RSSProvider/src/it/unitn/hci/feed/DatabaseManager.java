@@ -59,6 +59,7 @@ public class DatabaseManager
     private final static String GET_ALIASES_BY_COURSE_NAME = "SELECT " + COLUMN_ALIAS_VALUE + " FROM " + TABLE_ALIASES + " JOIN " + TABLE_COURSES + " ON " + COLUMN_ALIAS_FK_COURSE + "=" + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=?";
     private final static String GET_ALL_COURSES = "SELECT * FROM " + TABLE_COURSES;
     private final static String GET_ALL_FEEDS = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " +  TABLE_FEEDS + "." + COLUMN_FEED_FK_COURSE + " = " + TABLE_COURSES + "." + COLUMN_COURSE_ID;
+    private final static String GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_FEED_FK_COURSE + " = " + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=? AND " + COLUMN_COURSE_ID + ">?";
     private final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
     private final static String GET_COURSES_NAME_BY_DEPARTMENT_NAME = "SELECT * FROM " + TABLE_COURSES + " JOIN " + TABLE_DEPARTMENTS_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " JOIN " + TABLE_DEPARTMENTS + " JOIN " + COLUMN_DEPARTMENT_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + "=?";
     private final static String GET_FEEDS_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_FEED_FK_COURSE + " WHERE " + COLUMN_COURSE_NAME + "=?";
@@ -333,6 +334,35 @@ public class DatabaseManager
         {
             Database.close(db);
         }
+    }
+    
+    public static List<Feed> getAllFeedsAfterIdForCourse(Long id, String courseName) throws Exception{
+        List<Feed> feeds = null;
+        Feed feed;
+        Course course;
+        Database db = null;
+        Set<String> aliases = null;
+        try
+        {
+            db = Database.fromConnectionPool();
+            ResultSet rs = db.executeQuery(GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME, courseName, id);
+            feeds = new ArrayList<Feed>();
+
+            while (rs.next())
+            {
+                aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
+                course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
+                feeds.add(feed);
+            }
+
+            return feeds;
+        }
+        finally
+        {
+            Database.close(db);
+        }
+        
     }
 
 }
