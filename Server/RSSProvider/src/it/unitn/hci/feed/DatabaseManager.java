@@ -2,6 +2,7 @@ package it.unitn.hci.feed;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -84,6 +85,8 @@ public class DatabaseManager
             db.executeStatement(CREATE_TABLE_USERS_COURSES);
             db.executeStatement(CREATE_TABLE_FEED);
 
+            insertCourse(Course.GENERIC_COURSE_NAME, Arrays.asList(Course.GENERIC_COURSE_NAME));
+
             for (Entry<String, List<String>> course : CourseAliasReader.getAliases().entrySet())
                 insertCourse(course.getKey(), course.getValue());
         }
@@ -152,11 +155,21 @@ public class DatabaseManager
     public static List<Feed> insertFeeds(List<Feed> feeds) throws Exception
     {
         Set<Feed> storedFeeds = new HashSet<Feed>(getFeeds());
-        
+
         List<Feed> newFeeds = new ArrayList<Feed>();
         for (Feed feed : feeds)
         {
-            if (!storedFeeds.contains(feed))
+            boolean any = false;
+            for (Feed stored : storedFeeds)
+            {
+                if (stored.equals(feed))
+                {
+                    any = true;
+                    break;
+                }
+            }
+
+            if (!any)
             {
                 insertFeed(feed);
                 newFeeds.add(feed);
@@ -340,7 +353,9 @@ public class DatabaseManager
         }
     }
 
-    public static List<Feed> getAllFeedsAfterIdForCourse(Long id, String courseName) throws Exception{
+
+    public static List<Feed> getAllFeedsAfterIdForCourse(Long id, String courseName) throws Exception
+    {
         List<Feed> feeds = null;
         Feed feed;
         Course course;
