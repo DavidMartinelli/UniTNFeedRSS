@@ -319,12 +319,6 @@ public class DatabaseManager
     }
 
 
-    public static void main(String[] argv) throws Exception
-    {
-        init();
-    }
-
-
     public static List<Course> getAllCourses() throws Exception
     {
         List<Course> courses = null;
@@ -381,7 +375,18 @@ public class DatabaseManager
         {
             Database.close(db);
         }
+    }
 
+
+    public static List<Course> getCoursesOfDepartment(String department)
+    {
+        throw new TODOException("ti do il dipartimento, tu mi dai i corsi che fanno parte di quel dipartimento");
+    }
+
+
+    public static void main(String[] argv) throws Exception
+    {
+        init();
     }
 
 }

@@ -1,9 +1,6 @@
 package it.unitn.hci.feed.server.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import it.unitn.hci.feed.DatabaseManager;
-import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -13,11 +10,27 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 @Path("/rssservice")
 public class RssAPIs
 {
+
+    @GET
+    @Path("/{coursename}/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response signupUser(@PathParam("coursename") String courseName, @PathParam("id") long id)
+    {
+        try
+        {
+            return ResponseUtils.fromObject(DatabaseManager.getAllFeedsAfterIdForCourse(id, courseName));
+        }
+        catch (Exception e)
+        {
+            return ResponseUtils.fromException(e);
+        }
+    }
+
+
     @GET
     @Path("/{coursename}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -35,22 +48,33 @@ public class RssAPIs
 
 
     @GET
+    @Path("/departments/{department}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCourseOfDepartments(@PathParam("department") String department)
+    {
+        try
+        {
+            return ResponseUtils.fromObject(DatabaseManager.getCoursesOfDepartment(department));
+        }
+        catch (Exception e)
+        {
+            return ResponseUtils.fromException(e);
+        }
+    }
+
+
+    @GET
     @Path("/departments")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDepartments()
     {
         try
         {
-            // DatabaseManager.getDepartments()
-            List<Department> dep = new ArrayList<Department>();
-            dep.add(new Department("Prego"));
-            dep.add(new Department("Lavoro"));
-
-            return ResponseUtils.fromObject(dep);
+            return ResponseUtils.fromObject(DatabaseManager.getDepartments());
         }
         catch (Exception e)
         {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            return ResponseUtils.fromException(e);
         }
     }
 
@@ -58,9 +82,16 @@ public class RssAPIs
     @GET
     @Path("/courses/{department}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getDepartmentCourses(@PathParam("department") String departmentName) throws Exception
+    public Response getDepartmentCourses(@PathParam("department") String departmentName)
     {
-        return DatabaseManager.getDepartmentCourses(departmentName);
+        try
+        {
+            return ResponseUtils.fromObject(DatabaseManager.getDepartmentCourses(departmentName));
+        }
+        catch (Exception e)
+        {
+            return ResponseUtils.fromException(e);
+        }
     }
 
 
@@ -69,8 +100,15 @@ public class RssAPIs
     @Produces(MediaType.APPLICATION_JSON)
     public Response signupUser(@FormParam("token") String token)
     {
-        DatabaseManager.signupUser(token);
-        return Response.ok().build();
+        try
+        {
+            DatabaseManager.signupUser(token);
+            return ResponseUtils.ok();
+        }
+        catch (Exception e)
+        {
+            return ResponseUtils.fromException(e);
+        }
     }
 
 }
