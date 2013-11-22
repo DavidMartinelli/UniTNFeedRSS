@@ -2,6 +2,7 @@ package it.unitn.hci.feed.android.utils;
 
 import java.util.List;
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.android.adapter.DepartmentAdapter;
 import it.unitn.hci.feed.common.models.Feed;
 import android.app.Dialog;
 import android.content.Context;
@@ -106,7 +107,7 @@ public class DialogUtils
                 });
                 
                 ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstDepartments);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, departments);
+                DepartmentAdapter adapter = new DepartmentAdapter(context, departments);
                 lstDepartments.setAdapter(adapter);
 
                 return rootView;
