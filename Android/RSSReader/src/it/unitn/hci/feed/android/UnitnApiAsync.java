@@ -33,7 +33,7 @@ public class UnitnApiAsync
         {
             // Should never happen
             e.printStackTrace();
-            IP = "che_bello_hci";
+            IP = "10.23.81.179";
         }
     }
     public static final String PROTOCOL = "http";
@@ -45,6 +45,59 @@ public class UnitnApiAsync
     private UnitnApiAsync()
     {
         // static methods only
+    }
+
+
+    public static CallbackAsyncTask<List<Course>> getCoursesAsync(final String department, final Action<TaskResult<List<Course>>> callback)
+    {
+        CallbackAsyncTask<List<Course>> task = new CallbackAsyncTask<List<Course>>(callback)
+        {
+            @Override
+            public List<Course> doJob() throws Exception
+            {
+                return getCourses(department);
+            }
+        };
+        task.execute();
+
+        return task;
+    }
+
+
+    public static List<Course> getCourses(String department) throws Exception
+    {
+        List<Course> deparments;
+
+        HttpClient client = new DefaultHttpClient();
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "courses/" + department, null, null);
+        HttpGet get = new HttpGet(uri);
+
+        HttpEntity entity = null;
+
+        try
+        {
+            HttpResponse response = client.execute(get);
+
+            StatusLine line = response.getStatusLine();
+            if (line.getStatusCode() != 200) throw new FileNotFoundException(line.getStatusCode() + ": " + line.getReasonPhrase());
+
+            entity = response.getEntity();
+            String json = StreamUtils.readAll(entity.getContent());
+            JSONArray jsonArray = new JSONObject(json).getJSONArray("course");
+
+            deparments = new ArrayList<Course>(jsonArray.length());
+
+            for (int i = 0; i < jsonArray.length(); i++)
+            {
+                JSONObject o = jsonArray.getJSONObject(i);
+                deparments.add(new Course(o.getInt("id"), o.getString("name"), o.getInt("colour"), null));
+            }
+            return deparments;
+        }
+        finally
+        {
+            if (entity != null) entity.consumeContent();
+        }
     }
 
 

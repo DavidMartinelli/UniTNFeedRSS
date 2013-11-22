@@ -1,6 +1,8 @@
 package it.unitn.hci.feed.server.api;
 
+import java.util.ArrayList;
 import it.unitn.hci.feed.DatabaseManager;
+import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -86,7 +88,13 @@ public class RssAPIs
     {
         try
         {
-            return ResponseUtils.fromObject(DatabaseManager.getDepartmentCourses(departmentName));
+            //return ResponseUtils.fromObject(DatabaseManager.getDepartmentCourses(departmentName));
+            ArrayList<Course> l = new ArrayList<Course>();
+            l.add(new Course(1, "AAAA", 123123, null));
+            l.add(new Course(2, "BBBB", 123123, null));
+            l.add(new Course(3, "CCCC", 123123, null));
+
+            return ResponseUtils.fromObject(l);
         }
         catch (Exception e)
         {

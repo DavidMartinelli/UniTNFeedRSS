@@ -115,4 +115,11 @@ public class Course implements Model
         Course casted = (Course) obj;
         return casted.getName().equals(getName()) && casted.getId() == getId();
     }
+    
+    
+    @Override
+    public String toString()
+    {
+        return "id: "+ mId + ", name: " + mName + ", colour: " + mColour;
+    }
 }
