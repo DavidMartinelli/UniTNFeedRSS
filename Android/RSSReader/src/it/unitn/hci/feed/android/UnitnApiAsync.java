@@ -21,9 +21,23 @@ import org.json.JSONObject;
 
 public class UnitnApiAsync
 {
+    public static String IP;
+
+    static
+    {
+        try
+        {
+            IP = StreamUtils.readAll(App.getContext().getAssets().open("ip.txt"));
+        }
+        catch (Exception e)
+        {
+            // Should never happen
+            e.printStackTrace();
+            IP = "che_bello_hci";
+        }
+    }
     public static final String PROTOCOL = "http";
     public static final int PORT = 6767;
-    public static final String IP = "10.23.81.179";
     public static final String PATH = "/rssservice/";
     public static final String BASE_URL = PROTOCOL + "//" + IP + ":" + PORT + PATH;
 
