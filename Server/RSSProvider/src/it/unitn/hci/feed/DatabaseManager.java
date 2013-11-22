@@ -1,5 +1,7 @@
 package it.unitn.hci.feed;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,10 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.ColourUtils;
+import it.unitn.hci.utils.StreamUtils;
 import it.unitn.hci.utils.TODOException;
 
 public class DatabaseManager
@@ -31,6 +35,8 @@ public class DatabaseManager
 
     private final static String COLUMN_DEPARTMENT_NAME = "department_name";
     private final static String COLUMN_DEPARTMENT_ID = "department_id";
+    private final static String COLUMN_DEPARTMENT_LINK = "departiment_link";
+    private final static String COLUMN_DEPARTMENT_CSS_SELECTOR = "department_css_selector";
     private final static String COLUMN_DEPARTMENT_COURSE_ID = "departments_course_id";
     private final static String COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS = "departments_course_fk_departments";
     private final static String COLUMN_DEPARTMENT_COURSE_FK_COURSES = "departments_course_fk_courses";
@@ -50,7 +56,7 @@ public class DatabaseManager
     private final static String COLUMN_FEED_FK_COURSE = "feed_fk_course";
     private final static String COLUMN_FEED_TIMESTAMP = "feed_timestamp";
 
-    private final static String CREATE_TABLE_DEPARTMENRS = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS + " ( " + COLUMN_DEPARTMENT_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_NAME + " VARCHAR(200))";
+    private final static String CREATE_TABLE_DEPARTMENRS = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS + " ( " + COLUMN_DEPARTMENT_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_NAME + " VARCHAR(200), " + COLUMN_DEPARTMENT_LINK + " VARCHAR(500), " + COLUMN_DEPARTMENT_CSS_SELECTOR + " VARCHAR(200))";
     private final static String CREATE_TABLE_DEPARTMENTS_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS_COURSES + " ( " + COLUMN_DEPARTMENT_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "), " + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " INTEGER REFERENCES " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_ID + "))";
     private final static String CREATE_TABLE_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_COURSES + " ( " + COLUMN_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_COURSE_NAME + " VARCHAR(60), " + COLUMN_COURSE_COLOUR + " INTEGER UNIQUE)";
     private final static String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " ( " + COLUMN_USER_ID + " INTEGER PRIMARY KEY, " + COLUMN_USER_TOKEN + " VARCHAR(256))";
@@ -65,10 +71,11 @@ public class DatabaseManager
     private final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
     private final static String GET_COURSES_NAME_BY_DEPARTMENT_NAME = "SELECT * FROM " + TABLE_COURSES + " JOIN " + TABLE_DEPARTMENTS_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " JOIN " + TABLE_DEPARTMENTS + " JOIN " + COLUMN_DEPARTMENT_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + "=?";
     private final static String GET_FEEDS_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_FEED_FK_COURSE + " WHERE " + COLUMN_COURSE_NAME + "=?";
-    private final static String GET_DEPARTMENTS_NAMES = "SELECT " + COLUMN_DEPARTMENT_NAME + " FROM " + TABLE_DEPARTMENTS;
+    private final static String GET_DEPARTMENTS = "SELECT " + COLUMN_DEPARTMENT_NAME + ", " + COLUMN_DEPARTMENT_LINK + ", " + COLUMN_DEPARTMENT_CSS_SELECTOR + " FROM " + TABLE_DEPARTMENTS;
     private final static String INSERT_ALIAS = "INSERT INTO " + TABLE_ALIASES + "(" + COLUMN_ALIAS_VALUE + ", " + COLUMN_ALIAS_FK_COURSE + ") VALUES ( ?, ?)";
     private final static String INSERT_COURSE = "INSERT INTO " + TABLE_COURSES + "(" + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + ") VALUES (?, ?)";
     private final static String INSERT_FEED = "INSERT INTO " + TABLE_FEEDS + "(" + COLUMN_FEED_BODY + ", " + COLUMN_FEED_FK_COURSE + ", " + COLUMN_FEED_TIMESTAMP + ") VALUES (?, ?, ?)";
+    private final static String INSERT_DEPARTMENT = "INSERT INTO " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_NAME + ", " + COLUMN_DEPARTMENT_LINK + ", " + COLUMN_DEPARTMENT_CSS_SELECTOR + ") VALUES (?, ?, ?)";
 
 
     public static void init() throws Exception
@@ -187,12 +194,12 @@ public class DatabaseManager
         try
         {
             db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_DEPARTMENTS_NAMES);
+            ResultSet rs = db.executeQuery(GET_DEPARTMENTS);
             deparmentNames = new ArrayList<Department>();
 
             while (rs.next())
             {
-                deparmentNames.add(new Department(rs.getString(COLUMN_DEPARTMENT_NAME)));
+                deparmentNames.add(new Department(rs.getString(COLUMN_DEPARTMENT_NAME), rs.getString(COLUMN_DEPARTMENT_LINK), rs.getString(COLUMN_DEPARTMENT_CSS_SELECTOR)));
             }
 
             return deparmentNames;
@@ -384,9 +391,43 @@ public class DatabaseManager
     }
 
 
+    private static void insertDepartment(String departmentName, String link, String CSSSelector) throws Exception
+    {
+        Database db = null;
+        try
+        {
+            System.out.println(departmentName + " " + link + " " + CSSSelector);
+            db = Database.fromConnectionPool();
+            db.executeStatement(INSERT_DEPARTMENT, departmentName, link, CSSSelector);
+        }
+        finally
+        {
+            if (db != null) db.close();
+        }
+    }
+
+
+    public static void insertDepartments(List<Department> departments) throws Exception
+    {
+        for (Department department : departments)
+            insertDepartment(department.getName(), department.getLink(), department.getCSSSelector());
+    }
+
+
     public static void main(String[] argv) throws Exception
     {
         init();
+        final File f = new File("resources/departments.txt");
+        FileInputStream fileInputStream = new FileInputStream(f);
+        List<String> list = StreamUtils.readLines(fileInputStream);
+        List<Department> departments = new ArrayList<Department>();
+        for (String department : list)
+        {
+            int separatorPosition = department.indexOf('|');
+            String name = department.substring(0, separatorPosition);
+            String link = department.substring(separatorPosition + 1, department.length());
+            departments.add(new Department(name, "prova", link));
+        }
+        insertDepartments(departments);
     }
-
 }

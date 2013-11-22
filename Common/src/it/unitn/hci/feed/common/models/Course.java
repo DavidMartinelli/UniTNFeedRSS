@@ -30,6 +30,10 @@ public class Course implements Model
     {
     }
 
+    public Course(String name)
+    {
+        mName = name;
+    }
 
     public Course(int id, String name, int colour, Set<String> aliases)
     {

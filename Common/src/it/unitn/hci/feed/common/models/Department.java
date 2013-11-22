@@ -13,15 +13,20 @@ public class Department
     @XmlElement(name = "id")
     private int mId;
 
+    private String mCSSSelector;
+    private String mLink;
+
 
     Department()
     {
     }
 
 
-    public Department(String name)
+    public Department(String name, String CSSSelector, String link)
     {
         mName = name;
+        mCSSSelector = CSSSelector;
+        mLink = link;
     }
 
 
@@ -34,5 +39,17 @@ public class Department
     public int getId()
     {
         return mId;
+    }
+
+
+    public String getCSSSelector()
+    {
+        return mCSSSelector;
+    }
+
+
+    public String getLink()
+    {
+        return mLink;
     }
 }
