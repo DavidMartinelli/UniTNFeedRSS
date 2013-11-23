@@ -24,3 +24,8 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+ip.txt
+
+#databases
+*.db
