@@ -187,7 +187,7 @@ public class UnitnApiAsync
             entity = response.getEntity();
             String json = StreamUtils.readAll(entity.getContent());
 
-            JSONArray jsonArray = new JSONObject(json).getJSONArray("feed");
+            JSONArray jsonArray = new JSONArray(json);
             List<Feed> feeds = new ArrayList<Feed>(jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++)
