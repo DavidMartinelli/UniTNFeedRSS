@@ -5,9 +5,9 @@ import java.io.FileInputStream;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
@@ -56,7 +56,7 @@ public class DatabaseManager
     private final static String COLUMN_FEED_TIMESTAMP = "feed_timestamp";
 
     private final static String CREATE_TABLE_DEPARTMENRS = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS + " ( " + COLUMN_DEPARTMENT_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_NAME + " VARCHAR(200), " + COLUMN_DEPARTMENT_LINK + " VARCHAR(500), " + COLUMN_DEPARTMENT_CSS_SELECTOR + " VARCHAR(200))";
-    private final static String CREATE_TABLE_DEPARTMENTS_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS_COURSES + " ( " + COLUMN_DEPARTMENT_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "), " + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " INTEGER REFERENCES " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_ID + "))";
+    private final static String CREATE_TABLE_DEPARTMENTS_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS_COURSES + " ( " + COLUMN_DEPARTMENT_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "), " + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " REFERENCES " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_ID + "))";
     private final static String CREATE_TABLE_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_COURSES + " ( " + COLUMN_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_COURSE_NAME + " VARCHAR(60), " + COLUMN_COURSE_COLOUR + " INTEGER UNIQUE)";
     private final static String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " ( " + COLUMN_USER_ID + " INTEGER PRIMARY KEY, " + COLUMN_USER_TOKEN + " VARCHAR(256))";
     private final static String CREATE_TABLE_ALIASES = "CREATE TABLE IF NOT EXISTS " + TABLE_ALIASES + " ( " + COLUMN_ALIAS_ID + " INTEGER PRIMARY KEY, " + COLUMN_ALIAS_VALUE + " VARCHAR(70), " + COLUMN_ALIAS_FK_COURSE + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "))";
@@ -75,6 +75,9 @@ public class DatabaseManager
     private final static String INSERT_COURSE = "INSERT INTO " + TABLE_COURSES + "(" + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + ") VALUES (?, ?)";
     private final static String INSERT_FEED = "INSERT INTO " + TABLE_FEEDS + "(" + COLUMN_FEED_BODY + ", " + COLUMN_FEED_FK_COURSE + ", " + COLUMN_FEED_TIMESTAMP + ") VALUES (?, ?, ?)";
     private final static String INSERT_DEPARTMENT = "INSERT INTO " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_NAME + ", " + COLUMN_DEPARTMENT_LINK + ", " + COLUMN_DEPARTMENT_CSS_SELECTOR + ") VALUES (?, ?, ?)";
+    private final static String INSERT_COURSE_DEPARTMENT_CHAIN = "INSERT INTO " + TABLE_DEPARTMENTS_COURSES + "( " + COLUMN_DEPARTMENT_COURSE_FK_COURSES + ", " + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " ) VALUES(?, ?)";
+    private final static String GET_COUESE_ID = "SELECT " + COLUMN_COURSE_ID + " FROM " + TABLE_COURSES + " WHERE " + COLUMN_COURSE_NAME + " = ?";
+    private final static String GET_DEPARTMENT_ID = "SELECT " + COLUMN_DEPARTMENT_ID + " FROM " + TABLE_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + " = ?";
 
 
     public static void init() throws Exception
@@ -93,8 +96,42 @@ public class DatabaseManager
 
             insertCourse(Course.GENERIC_COURSE_NAME, Arrays.asList(Course.GENERIC_COURSE_NAME));
 
-            for (Entry<String, List<String>> course : CourseAliasReader.getAliases().entrySet())
-                insertCourse(course.getKey(), course.getValue());
+            for (Course course : CourseAliasReader.getAliases())
+            {
+                insertCourse(course.getName(), course.getAliases());
+                insertCourseDepartmentChain(course);
+            }
+        }
+        finally
+        {
+            Database.close(db);
+        }
+    }
+
+
+    private static void insertCourseDepartmentChain(Course course) throws Exception
+    {
+        Database db = null;
+        ResultSet rs = null;
+        try
+        {
+            db = Database.fromConnectionPool();
+
+            for (Department department : course.getDepartment())
+            {
+                int departmentId = 0;
+                int courseId = 0;
+
+                rs = db.executeQuery(GET_DEPARTMENT_ID, department.getName());
+                if (rs.next()) departmentId = rs.getInt(COLUMN_DEPARTMENT_ID);
+
+                rs = db.executeQuery(GET_COUESE_ID, course.getName());
+                if (rs.next()) courseId = rs.getInt(COLUMN_COURSE_ID);
+
+                if (departmentId == 0 && courseId == 0) throw new Exception("Error retriving ids");
+                db.executeStatement(INSERT_COURSE_DEPARTMENT_CHAIN, courseId, departmentId);
+            }
+
         }
         finally
         {
@@ -118,7 +155,7 @@ public class DatabaseManager
     }
 
 
-    public static void insertCourse(String officialName, List<String> aliases) throws Exception
+    public static void insertCourse(String officialName, Collection<String> aliases) throws Exception
     {
         Database db = null;
         try
@@ -417,10 +454,10 @@ public class DatabaseManager
         init();
         final File f = new File("resources/departments.txt");
         FileInputStream fileInputStream = new FileInputStream(f);
-        List<String> list = StreamUtils.readLines(fileInputStream);
         List<Department> departments = new ArrayList<Department>();
-        for (String department : list)
+        for (String department : StreamUtils.readLines(fileInputStream))
         {
+            if (department.replace(" ", "").isEmpty()) continue;
             int separatorPosition = department.indexOf('|');
             String name = department.substring(0, separatorPosition);
             String link = department.substring(separatorPosition + 1, department.length());

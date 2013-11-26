@@ -2,6 +2,7 @@ package it.unitn.hci.feed.common.models;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -24,6 +25,8 @@ public class Course implements Model
     private int mColour;
 
     private Set<String> mAliases;
+    
+    private List<Department> mDepartments;
 
 
     Course()
@@ -44,6 +47,15 @@ public class Course implements Model
         mAliases = aliases;
     }
 
+    public Course(int id, String name, int colour, Set<String> aliases, List<Department> departments)
+    {
+        super();
+        mId = id;
+        mName = name;
+        mColour = colour;
+        mAliases = aliases;
+        mDepartments = departments;
+    }    
 
     public int getId()
     {
@@ -120,6 +132,11 @@ public class Course implements Model
     @Override
     public String toString()
     {
-        return "id: "+ mId + ", name: " + mName + ", colour: " + mColour;
+        return "id: "+ mId + ", name: " + mName + ", aliases: " + mAliases + ", colour: " + mColour + ", departments: " + mDepartments;
+    }
+    
+    public List<Department> getDepartment()
+    {
+        return mDepartments;
     }
 }
