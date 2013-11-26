@@ -17,14 +17,19 @@ public class FeedAnalyzer
             final Collection<Alias> aliases = course.getAliases();
             final String lowerBody = body.toLowerCase();
 
-            aliases.add(new Alias(officialName, null));
-
-            for (Alias alias : aliases)
+            if (lowerBody.contains(officialName.replace('_', ' ').toLowerCase()))
             {
-                if (lowerBody.contains(alias.getValue().replace('_', ' ').toLowerCase()))
+                target = course;
+            }
+            else
+            {
+                for (Alias alias : aliases)
                 {
-                    target = course;
-                    break;
+                    if (lowerBody.contains(alias.getValue().replace('_', ' ').toLowerCase()))
+                    {
+                        target = course;
+                        break;
+                    }
                 }
             }
 

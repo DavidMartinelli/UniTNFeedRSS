@@ -1,7 +1,9 @@
 package it.unitn.hci.feed;
 
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -302,13 +304,41 @@ public class DatabaseManager
     }
 
 
-    public static List<Feed> getCourses(long lastRecivedCourseId, Course course) throws Exception
+    public static List<Feed> getFeeds(long lastRecivedCourseId, String courseName) throws Exception
     {
+        Course course = getCourse(courseName);
+
         List<Feed> f = new ArrayList<Feed>();
         for (Feed s : course.getFeeds())
             if (s.getId() > lastRecivedCourseId) f.add(s);
 
         return f;
+    }
+
+
+    public static Collection<Feed> getFeeds(String courseName) throws Exception
+    {
+        return getCourse(courseName).getFeeds();
+    }
+
+
+    private static Course getCourse(String courseName) throws Exception
+    {
+        DatabaseManager db = null;
+        try
+        {
+            db = fromConnectionPool();
+            Dao<Course, Integer> dao = createCourseDao(db);
+
+            Course course = dao.queryForEq("mName", courseName).get(0);
+            if (course == null) throw new FileNotFoundException("Course named \"" + courseName + "\" does not exist");
+            return course;
+        }
+        finally
+
+        {
+            close(db);
+        }
     }
 
 

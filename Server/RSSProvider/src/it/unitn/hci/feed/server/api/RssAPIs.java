@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import it.unitn.hci.feed.DatabaseManager;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.utils.ResponseUtils;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,7 +23,7 @@ public class RssAPIs
     {
         try
         {
-            if (id != null) return ResponseUtils.fromObject(DatabaseManager.getCourses(id, courseName));
+            if (id != null) return ResponseUtils.fromObject(DatabaseManager.getFeeds(id, courseName));
             return ResponseUtils.fromObject(DatabaseManager.getFeeds(courseName));
 
         }
@@ -68,23 +66,6 @@ public class RssAPIs
         try
         {
             return ResponseUtils.fromObject(DatabaseManager.getDepartments());
-        }
-        catch (Exception e)
-        {
-            return ResponseUtils.fromException(e);
-        }
-    }
-
-
-    @POST
-    @Path("/users/signup")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response signupUser(@FormParam("token") String token)
-    {
-        try
-        {
-            DatabaseManager.signupUser(token);
-            return ResponseUtils.ok();
         }
         catch (Exception e)
         {
