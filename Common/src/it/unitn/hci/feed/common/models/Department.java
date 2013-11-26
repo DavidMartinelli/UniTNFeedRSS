@@ -1,27 +1,39 @@
 package it.unitn.hci.feed.common.models;
 
+import java.util.Collection;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
 @XmlRootElement
+@DatabaseTable
 public class Department
 {
 
+    @DatabaseField(generatedId = true)
+    @XmlElement(name = "id")
+    private long mId;
+
+    @DatabaseField(unique = true)
     @XmlElement(name = "name")
     private String mName;
 
-    @XmlElement(name = "id")
-    private int mId;
-
+    @DatabaseField
     private String mCSSSelector;
+
+    @DatabaseField
     private String mBulletinNewsUrl;
 
-    private Set<Course> mCourses;
+    @ForeignCollectionField(eager = true)
+    private Collection<Course> mCourses;
 
 
     Department()
     {
+        // for the orm
     }
 
 
@@ -31,6 +43,7 @@ public class Department
         mCSSSelector = CSSSelector;
         mBulletinNewsUrl = bulletinNewsURL;
         mCourses = courses;
+        if (mCourses == null) return;
         for (Course c : mCourses)
         {
             c.setDepartment(this);
@@ -38,7 +51,7 @@ public class Department
     }
 
 
-    public Set<Course> getCourses()
+    public Collection<Course> getCourses()
     {
         return mCourses;
     }
@@ -50,7 +63,7 @@ public class Department
     }
 
 
-    public int getId()
+    public long getId()
     {
         return mId;
     }
@@ -75,5 +88,11 @@ public class Department
         for (Course course : mCourses)
             builder.append("\t" + course + "\n");
         return builder.toString();
+    }
+
+
+    public void setId(long id)
+    {
+        mId = id;
     }
 }

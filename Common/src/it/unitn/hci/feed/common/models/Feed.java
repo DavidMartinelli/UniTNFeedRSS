@@ -2,26 +2,35 @@ package it.unitn.hci.feed.common.models;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 @XmlRootElement
+@DatabaseTable
 public class Feed implements Model
 {
-    @XmlElement(name = "body")
-    private String mBody;
 
     @XmlElement(name = "id")
+    @DatabaseField(generatedId = true)
     private int mId;
 
+    @XmlElement(name = "body")
+    @DatabaseField
+    private String mBody;
+
     @XmlElement(name = "timestamp")
+    @DatabaseField
     private long mTimeStamp;
 
     @XmlElement(name = "course")
+    @DatabaseField(foreign = true)
     private Course mCourse;
 
 
     Feed()
     {
-    };
+        // for the orm
+    }
 
 
     public Feed(int id, String body, long timeStamp, Course course)
@@ -90,4 +99,9 @@ public class Feed implements Model
         return mCourse != null && mCourse.equals(other.mCourse);
     }
 
+
+    public void setCourse(Course course)
+    {
+        mCourse = course;
+    }
 }

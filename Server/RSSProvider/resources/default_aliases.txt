@@ -1,5 +1,5 @@
 
-#Economia e management!http://www.unitn.it/economia
+#Economia e management!http://www.unitn.it/economia!TODODISCOVER
 
 =Probabilità e statistica
 -Prob.
@@ -8,7 +8,7 @@
 =Diritto privato
 -Dir. priv
 
-#Facolta di Giurisprudenza!http://www.unitn.it/giurisprudenza
+#Facolta di Giurisprudenza!http://www.unitn.it/giurisprudenza!TODODISCOVER
 
 =Diritto romano
 -Dir. romano
@@ -16,7 +16,7 @@
 =Filosofia dell'arte
 -Fil. dell'arte
 
-#Ingegneria civile, ambientale e meccanica!http://www.unitn.it/dicam
+#Ingegneria civile, ambientale e meccanica!http://www.unitn.it/dicam!TODODISCOVER
 
 =ANALISI_MATEMATICA_I
 -Analisi matematica 1
@@ -33,7 +33,7 @@
 -An. matematica 3
 -An. mat. III
 
-#Ingegneria e scienza dell'informazione!http://www.disi.unitn.it/it
+#Ingegneria e scienza dell'informazione!http://www.science.unitn.it/cisca/avvisi/avvisi.php!table.avviso tbody tr td font[size=5]
 
 =MATEMATICA_DISCRETA_I
 -matematica discreta 1
@@ -44,7 +44,7 @@
 =ARCHITETTURA_DEGLI_ELABORATORI
 -Arch. elab
 
-=MATEMATICA_DISCRETA_I
+=MATEMATICA_DISCRETA_II
 -Mat. disc 2
 
 =PROGRAMMAZIONE_2

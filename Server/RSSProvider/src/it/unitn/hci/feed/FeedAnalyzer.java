@@ -1,25 +1,27 @@
 package it.unitn.hci.feed;
 
-import java.util.Set;
+import java.util.Collection;
+import it.unitn.hci.feed.common.models.Alias;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 
 public class FeedAnalyzer
 {
-    public static Feed extract(String body, long timeStamp) throws Exception
+    public static Feed extract(String body, long timeStamp, Department department) throws Exception
     {
         Course target = null;
-        for (Course course : DatabaseManager.getAllCourses())
+        for (Course course : department.getCourses())
         {
             final String officialName = course.getName();
-            final Set<String> aliases = course.getAliases();
+            final Collection<Alias> aliases = course.getAliases();
             final String lowerBody = body.toLowerCase();
 
-            aliases.add(officialName);
+            aliases.add(new Alias(officialName, null));
 
-            for (String alias : aliases)
+            for (Alias alias : aliases)
             {
-                if (lowerBody.contains(alias.replace('_', ' ').toLowerCase()))
+                if (lowerBody.contains(alias.getValue().replace('_', ' ').toLowerCase()))
                 {
                     target = course;
                     break;

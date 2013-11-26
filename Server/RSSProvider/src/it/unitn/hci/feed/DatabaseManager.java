@@ -1,454 +1,320 @@
 package it.unitn.hci.feed;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+import it.unitn.hci.feed.common.models.Alias;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
-import it.unitn.hci.utils.ColourUtils;
-import it.unitn.hci.utils.StreamUtils;
-import it.unitn.hci.utils.TODOException;
 
 public class DatabaseManager
 {
 
-    private DatabaseManager()
+    private static final ThreadLocal<DatabaseManager> connectionPool = new ThreadLocal<DatabaseManager>();
+    private static final String DATABASE_NAME = "feeds.db";
+    private ConnectionSource mConnectionSource;
+
+
+    public static DatabaseManager fromConnectionPool() throws Exception
     {
-        // static methods only
+        DatabaseManager local = connectionPool.get();
+        if (local == null || !local.mConnectionSource.isOpen())
+        {
+            local = createConnection(DATABASE_NAME);
+        }
+        return local;
     }
 
-    private final static String TABLE_DEPARTMENTS = "Departments";
-    private final static String TABLE_DEPARTMENTS_COURSES = "DepartmentsCourses";
-    private final static String TABLE_COURSES = "Courses";
-    private final static String TABLE_USERS = "Users";
-    private final static String TABLE_ALIASES = "Aliases";
-    private final static String TABLE_USERS_COURSES = "Departments";
-    private final static String TABLE_FEEDS = "Feeds";
 
-    private final static String COLUMN_DEPARTMENT_NAME = "department_name";
-    private final static String COLUMN_DEPARTMENT_ID = "department_id";
-    private final static String COLUMN_DEPARTMENT_LINK = "departiment_link";
-    private final static String COLUMN_DEPARTMENT_CSS_SELECTOR = "department_css_selector";
-    private final static String COLUMN_DEPARTMENT_COURSE_ID = "departments_course_id";
-    private final static String COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS = "departments_course_fk_departments";
-    private final static String COLUMN_DEPARTMENT_COURSE_FK_COURSES = "departments_course_fk_courses";
-    private final static String COLUMN_COURSE_ID = "course_id";
-    private final static String COLUMN_COURSE_NAME = "course_name";
-    private final static String COLUMN_COURSE_COLOUR = "course_colour";
-    private final static String COLUMN_ALIAS_ID = "alias_id";
-    private final static String COLUMN_ALIAS_VALUE = "alias_value";
-    private final static String COLUMN_ALIAS_FK_COURSE = "alias_fk_course";
-    private final static String COLUMN_USER_COURSE_ID = "user_course_id";
-    private final static String COLUMN_USER_COURSE_FK_COURSES = "user_course_fk_courses";
-    private final static String COLUMN_USER_COURSE_FK_USERS = "user_course_fk_users";
-    private final static String COLUMN_USER_ID = "user_id";
-    private final static String COLUMN_USER_TOKEN = "user_token";
-    private final static String COLUMN_FEED_ID = "feed_id";
-    private final static String COLUMN_FEED_BODY = "feed_body";
-    private final static String COLUMN_FEED_FK_COURSE = "feed_fk_course";
-    private final static String COLUMN_FEED_TIMESTAMP = "feed_timestamp";
+    private static DatabaseManager createConnection(String databaseName) throws Exception
+    {
+        Class.forName("org.sqlite.JDBC");
+        return new DatabaseManager("jdbc:sqlite:" + databaseName);
+    }
 
-    private final static String CREATE_TABLE_DEPARTMENRS = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS + " ( " + COLUMN_DEPARTMENT_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_NAME + " VARCHAR(200), " + COLUMN_DEPARTMENT_LINK + " VARCHAR(500), " + COLUMN_DEPARTMENT_CSS_SELECTOR + " VARCHAR(200))";
-    private final static String CREATE_TABLE_DEPARTMENTS_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_DEPARTMENTS_COURSES + " ( " + COLUMN_DEPARTMENT_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "), " + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " REFERENCES " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_ID + "))";
-    private final static String CREATE_TABLE_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_COURSES + " ( " + COLUMN_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_COURSE_NAME + " VARCHAR(60), " + COLUMN_COURSE_COLOUR + " INTEGER UNIQUE)";
-    private final static String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " ( " + COLUMN_USER_ID + " INTEGER PRIMARY KEY, " + COLUMN_USER_TOKEN + " VARCHAR(256))";
-    private final static String CREATE_TABLE_ALIASES = "CREATE TABLE IF NOT EXISTS " + TABLE_ALIASES + " ( " + COLUMN_ALIAS_ID + " INTEGER PRIMARY KEY, " + COLUMN_ALIAS_VALUE + " VARCHAR(70), " + COLUMN_ALIAS_FK_COURSE + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "))";
-    private final static String CREATE_TABLE_USERS_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS_COURSES + " ( " + COLUMN_USER_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_USER_COURSE_FK_COURSES + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "), " + COLUMN_USER_COURSE_FK_USERS + " INTEGER REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + "))";
-    private final static String CREATE_TABLE_FEED = "CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " ( " + COLUMN_FEED_ID + " INTEGER PRIMARY KEY, " + COLUMN_FEED_FK_COURSE + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + ")," + COLUMN_FEED_TIMESTAMP + " INTEGER, " + COLUMN_FEED_BODY + " TEXT)";
-    private final static String GET_COURSES_BY_DEPARTMENT_NAME = "SELECT * FROM " + TABLE_COURSES + " JOIN " + TABLE_DEPARTMENTS_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " JOIN " + TABLE_DEPARTMENTS + " JOIN " + COLUMN_DEPARTMENT_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + "=?";
-    private final static String GET_ALIASES_BY_COURSE_NAME = "SELECT " + COLUMN_ALIAS_VALUE + " FROM " + TABLE_ALIASES + " JOIN " + TABLE_COURSES + " ON " + COLUMN_ALIAS_FK_COURSE + "=" + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=?";
-    private final static String GET_ALL_COURSES = "SELECT * FROM " + TABLE_COURSES;
-    private final static String GET_ALL_FEEDS = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + TABLE_FEEDS + "." + COLUMN_FEED_FK_COURSE + " = " + TABLE_COURSES + "." + COLUMN_COURSE_ID;
-    private final static String GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_FEED_FK_COURSE + " = " + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=? AND " + COLUMN_COURSE_ID + ">?";
-    private final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
-    private final static String GET_FEEDS_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_FEED_FK_COURSE + " WHERE " + COLUMN_COURSE_NAME + "=?";
-    private final static String GET_DEPARTMENTS = "SELECT " + COLUMN_DEPARTMENT_NAME + ", " + COLUMN_DEPARTMENT_LINK + ", " + COLUMN_DEPARTMENT_CSS_SELECTOR + " FROM " + TABLE_DEPARTMENTS;
-    private final static String INSERT_ALIAS = "INSERT INTO " + TABLE_ALIASES + "(" + COLUMN_ALIAS_VALUE + ", " + COLUMN_ALIAS_FK_COURSE + ") VALUES ( ?, ?)";
-    private final static String INSERT_COURSE = "INSERT INTO " + TABLE_COURSES + "(" + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + ") VALUES (?, ?)";
-    private final static String INSERT_FEED = "INSERT INTO " + TABLE_FEEDS + "(" + COLUMN_FEED_BODY + ", " + COLUMN_FEED_FK_COURSE + ", " + COLUMN_FEED_TIMESTAMP + ") VALUES (?, ?, ?)";
-    private final static String INSERT_DEPARTMENT = "INSERT INTO " + TABLE_DEPARTMENTS + "(" + COLUMN_DEPARTMENT_NAME + ", " + COLUMN_DEPARTMENT_LINK + ", " + COLUMN_DEPARTMENT_CSS_SELECTOR + ") VALUES (?, ?, ?)";
-    private final static String INSERT_COURSE_DEPARTMENT_CHAIN = "INSERT INTO " + TABLE_DEPARTMENTS_COURSES + "( " + COLUMN_DEPARTMENT_COURSE_FK_COURSES + ", " + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " ) VALUES(?, ?)";
-    private final static String GET_COUESE_ID = "SELECT " + COLUMN_COURSE_ID + " FROM " + TABLE_COURSES + " WHERE " + COLUMN_COURSE_NAME + " = ?";
-    private final static String GET_DEPARTMENT_ID = "SELECT " + COLUMN_DEPARTMENT_ID + " FROM " + TABLE_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + " = ?";
+
+    private DatabaseManager(String jdbcURL)
+    {
+        try
+        {
+            mConnectionSource = new JdbcConnectionSource(jdbcURL);
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static Dao<Feed, Integer> createFeedDao(DatabaseManager db) throws Exception
+    {
+        return DaoManager.createDao(db.mConnectionSource, Feed.class);
+    }
+
+
+    private static Dao<Course, Integer> createCourseDao(DatabaseManager db) throws Exception
+    {
+        return DaoManager.createDao(db.mConnectionSource, Course.class);
+    }
+
+
+    private static Dao<Department, Integer> createDepartmentDao(DatabaseManager db) throws Exception
+    {
+        return DaoManager.createDao(db.mConnectionSource, Department.class);
+    }
+
+
+    private static Dao<Alias, Integer> createAliasDao(DatabaseManager db) throws Exception
+    {
+        return DaoManager.createDao(db.mConnectionSource, Alias.class);
+    }
+
+
+    private void close() throws Exception
+    {
+        mConnectionSource.close();
+    }
+
+
+    private static void close(DatabaseManager db) throws Exception
+    {
+        if (db != null) db.close();
+    }
 
 
     public static void init() throws Exception
     {
-        Database db = null;
+        DatabaseManager db = null;
         try
         {
-            db = Database.fromConnectionPool();
-            db.executeStatement(CREATE_TABLE_DEPARTMENRS);
-            db.executeStatement(CREATE_TABLE_DEPARTMENTS_COURSES);
-            db.executeStatement(CREATE_TABLE_COURSES);
-            db.executeStatement(CREATE_TABLE_USERS);
-            db.executeStatement(CREATE_TABLE_ALIASES);
-            db.executeStatement(CREATE_TABLE_USERS_COURSES);
-            db.executeStatement(CREATE_TABLE_FEED);
+            db = fromConnectionPool();
+            TableUtils.createTableIfNotExists(db.mConnectionSource, Department.class);
+            TableUtils.createTableIfNotExists(db.mConnectionSource, Course.class);
+            TableUtils.createTableIfNotExists(db.mConnectionSource, Alias.class);
+            TableUtils.createTableIfNotExists(db.mConnectionSource, Feed.class);
 
-            insertCourse(Course.GENERIC_COURSE_NAME, Arrays.asList(Course.GENERIC_COURSE_NAME));
-
-            for (Course course : ResourceParser.getAliases())
-            {
-                insertCourse(course.getName(), course.getAliases());
-                insertCourseDepartmentChain(course);
-            }
+            insertDepartments(ResourceParser.getDepartments());
         }
         finally
         {
-            Database.close(db);
-        }
-    }
-
-
-    private static void insertCourseDepartmentChain(Course course) throws Exception
-    {
-        Database db = null;
-        ResultSet rs = null;
-        try
-        {
-            db = Database.fromConnectionPool();
-
-            for (Department department : course.getDepartment())
-            {
-                int departmentId = 0;
-                int courseId = 0;
-
-                rs = db.executeQuery(GET_DEPARTMENT_ID, department.getName());
-                if (rs.next()) departmentId = rs.getInt(COLUMN_DEPARTMENT_ID);
-
-                rs = db.executeQuery(GET_COUESE_ID, course.getName());
-                if (rs.next()) courseId = rs.getInt(COLUMN_COURSE_ID);
-
-                if (departmentId == 0 && courseId == 0) throw new Exception("Error retriving ids");
-                db.executeStatement(INSERT_COURSE_DEPARTMENT_CHAIN, courseId, departmentId);
-            }
-
-        }
-        finally
-        {
-            Database.close(db);
+            close(db);
         }
     }
 
 
     public static void insertFeed(Feed feed) throws Exception
     {
-        Database db = null;
+        DatabaseManager db = null;
         try
         {
-            db = Database.fromConnectionPool();
-            db.executeStatement(INSERT_FEED, feed.getBody(), feed.getCourse().getId(), feed.getTimeStamp());
+            db = fromConnectionPool();
+            insertFeed(feed, createFeedDao(db));
         }
         finally
         {
-            Database.close(db);
+            close(db);
         }
     }
 
 
-    public static void insertCourse(String officialName, Collection<String> aliases) throws Exception
+    private static void insertFeed(Feed feed, Dao<Feed, Integer> feedDao) throws Exception
     {
-        Database db = null;
+        if (feed.getCourse() == null) throw new IllegalArgumentException("You must supply a course");
+        feedDao.create(feed);
+    }
+
+
+    public static void insertCourse(Course course) throws Exception
+    {
+        DatabaseManager db = null;
         try
         {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_COURSES_COLOURS_AND_NAMES);
-            HashSet<Integer> colours = new HashSet<Integer>();
+            db = fromConnectionPool();
+            Dao<Course, Integer> courseDao = createCourseDao(db);
+            if (course.getDepartment() == null) throw new IllegalArgumentException("You must supply a department");
 
-            officialName = officialName.toUpperCase();
-            while (rs.next())
+            courseDao.create(course);
+            if (course.getFeeds() == null) return;
+
+            final Dao<Feed, Integer> feedDao = createFeedDao(db);
+            for (Feed f : course.getFeeds())
             {
-                if (rs.getString(COLUMN_COURSE_NAME).equals(officialName)) return;
-                colours.add(rs.getInt(COLUMN_COURSE_COLOUR));
+                f.setCourse(course);
+                insertFeed(f, feedDao);
             }
 
-            boolean isInContrast = false;
-            Integer generatedColour = 0;
-
-            do
+            final Dao<Alias, Integer> aliasDao = createAliasDao(db);
+            for (Alias alias : course.getAliases())
             {
-                generatedColour = Course.generateRandomColor();
-                if (ColourUtils.areInContrast(generatedColour, colours)) isInContrast = true;
+                alias.setCourse(course);
+                aliasDao.create(alias);
             }
-            while (!isInContrast);
 
-            Long course_id = db.executeInsert(INSERT_COURSE, generatedColour, officialName);
-
-            for (String alias : aliases)
-            {
-                db.executeStatement(INSERT_ALIAS, alias, course_id);
-            }
         }
         finally
         {
-            Database.close(db);
+            close(db);
         }
     }
 
 
     public static List<Feed> insertFeeds(List<Feed> feeds) throws Exception
     {
-        Set<Feed> storedFeeds = new HashSet<Feed>(getFeeds());
-
-        List<Feed> newFeeds = new ArrayList<Feed>();
-        for (Feed feed : feeds)
+        DatabaseManager db = null;
+        try
         {
-            boolean any = false;
-            for (Feed stored : storedFeeds)
+            db = fromConnectionPool();
+            Dao<Feed, Integer> feedDao = createFeedDao(db);
+            Set<Feed> storedFeeds = new HashSet<Feed>(getFeeds());
+
+            List<Feed> newFeeds = new ArrayList<Feed>();
+            for (Feed feed : feeds)
             {
-                if (stored.equals(feed))
+                if (feed.getCourse() == null || !feed.getCourse().isPersistent()) throw new IllegalArgumentException("You must supply a course");
+
+                boolean any = false;
+                for (Feed stored : storedFeeds)
                 {
-                    any = true;
-                    break;
+                    if (stored.equals(feed))
+                    {
+                        any = true;
+                        break;
+                    }
+                }
+
+                if (!any)
+                {
+                    insertFeed(feed, feedDao);
+                    newFeeds.add(feed);
                 }
             }
-
-            if (!any)
-            {
-                insertFeed(feed);
-                newFeeds.add(feed);
-            }
+            return newFeeds;
         }
-
-        return newFeeds;
+        finally
+        {
+            close(db);
+        }
     }
 
 
     public static List<Department> getDepartments() throws Exception
     {
-        List<Department> deparmentNames = null;
-        Database db = null;
+        DatabaseManager db = null;
         try
         {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_DEPARTMENTS);
-            deparmentNames = new ArrayList<Department>();
-
-            while (rs.next())
-            {
-                deparmentNames.add(new Department(rs.getString(COLUMN_DEPARTMENT_NAME), rs.getString(COLUMN_DEPARTMENT_LINK), rs.getString(COLUMN_DEPARTMENT_CSS_SELECTOR)));
-            }
-
-            return deparmentNames;
+            db = fromConnectionPool();
+            return createDepartmentDao(db).queryForAll();
         }
         finally
         {
-            Database.close(db);
+            close(db);
         }
-    }
-
-
-    public static Set<String> getAliases(String courseName) throws Exception
-    {
-        Set<String> aliases = null;
-        Database db = null;
-        try
-        {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_ALIASES_BY_COURSE_NAME, courseName);
-            aliases = new HashSet<String>();
-
-            while (rs.next())
-            {
-                aliases.add(rs.getString(COLUMN_ALIAS_VALUE));
-            }
-
-            return aliases;
-        }
-        finally
-        {
-            Database.close(db);
-        }
-
     }
 
 
     public static List<Feed> getFeeds() throws Exception
     {
-        List<Feed> feeds = null;
-        Database db = null;
+        DatabaseManager db = null;
         try
         {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_ALL_FEEDS);
-            feeds = new ArrayList<Feed>();
-
-            while (rs.next())
-            {
-                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                final Feed feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
-                feeds.add(feed);
-            }
-
-            return feeds;
+            db = fromConnectionPool();
+            return createFeedDao(db).queryForAll();
         }
         finally
         {
-            Database.close(db);
+            close(db);
         }
     }
 
 
-    public static List<Feed> getFeeds(String courseName) throws Exception
+    public static void insertDepartment(Department department) throws Exception
     {
-        List<Feed> feeds = null;
-        Database db = null;
+        DatabaseManager db = null;
         try
         {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_FEEDS_BY_COURSE_NAME, courseName);
-            feeds = new ArrayList<Feed>();
-
-            while (rs.next())
-            {
-                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                final Feed feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
-                feeds.add(feed);
-            }
-
-            return feeds;
+            db = fromConnectionPool();
+            insertDepartment(department, createDepartmentDao(db), createCourseDao(db), createAliasDao(db), createFeedDao(db));
         }
         finally
         {
-            Database.close(db);
-        }
-    }
-
-
-    public static void signupUser(String token)
-    {
-        throw new TODOException("Te hai capi'");
-    }
-
-
-    public static List<Course> getAllCourses() throws Exception
-    {
-        List<Course> courses = null;
-        Database db = null;
-
-        try
-        {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_ALL_COURSES);
-            courses = new ArrayList<Course>();
-
-            while (rs.next())
-            {
-                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                courses.add(course);
-            }
-
-            return courses;
-        }
-        finally
-        {
-            Database.close(db);
-        }
-    }
-
-
-    public static List<Feed> getCourses(long lastRecivedCourseId, String courseName) throws Exception
-    {
-        List<Feed> feeds = null;
-        Database db = null;
-
-        try
-        {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME, courseName, lastRecivedCourseId);
-            feeds = new ArrayList<Feed>();
-
-            while (rs.next())
-            {
-                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                final Feed feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
-                feeds.add(feed);
-            }
-
-            return feeds;
-        }
-        finally
-        {
-            Database.close(db);
-        }
-    }
-
-
-    public static List<Course> getDepartmentCourses(String departmentName) throws Exception
-    {
-        List<Course> courses = null;
-        Database db = null;
-
-        try
-        {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_COURSES_BY_DEPARTMENT_NAME, departmentName);
-            courses = new ArrayList<Course>();
-
-            while (rs.next())
-            {
-                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                courses.add(course);
-            }
-
-            return courses;
-        }
-        finally
-        {
-            Database.close(db);
-        }
-    }
-
-
-    private static void insertDepartment(String departmentName, String link, String CSSSelector) throws Exception
-    {
-        Database db = null;
-        try
-        {
-            db = Database.fromConnectionPool();
-            db.executeStatement(INSERT_DEPARTMENT, departmentName, link, CSSSelector);
-        }
-        finally
-        {
-            if (db != null) db.close();
+            close(db);
         }
     }
 
 
     public static void insertDepartments(List<Department> departments) throws Exception
     {
-        for (Department department : departments)
-            insertDepartment(department.getName(), department.getBulletinNewsURL(), department.getCSSSelector());
+        DatabaseManager db = null;
+        try
+        {
+            db = fromConnectionPool();
+            final Dao<Department, Integer> dao = createDepartmentDao(db);
+            final Dao<Course, Integer> courseDao = createCourseDao(db);
+            final Dao<Alias, Integer> aliasDao = createAliasDao(db);
+            final Dao<Feed, Integer> feedDao = createFeedDao(db);
+
+            for (Department department : departments)
+                insertDepartment(department, dao, courseDao, aliasDao, feedDao);
+        }
+        finally
+        {
+            close(db);
+        }
+    }
+
+
+    private static void insertDepartment(Department department, Dao<Department, Integer> departmentDao, Dao<Course, Integer> courseDao, Dao<Alias, Integer> aliasDao, Dao<Feed, Integer> feedDao) throws Exception
+    {
+        departmentDao.createOrUpdate(department);
+
+        for (Course c : department.getCourses())
+        {
+            c.setDepartment(department);
+            courseDao.createOrUpdate(c);
+
+            if (c.getAliases() != null)
+            {
+                for (Alias a : c.getAliases())
+                {
+                    a.setCourse(c);
+                    aliasDao.createOrUpdate(a);
+                }
+            }
+
+            if (c.getFeeds() != null)
+            {
+                for (Feed f : c.getFeeds())
+                {
+                    f.setCourse(c);
+                    feedDao.create(f);
+                }
+            }
+        }
+
+    }
+
+
+    public static List<Feed> getCourses(long lastRecivedCourseId, Course course) throws Exception
+    {
+        List<Feed> f = new ArrayList<Feed>();
+        for (Feed s : course.getFeeds())
+            if (s.getId() > lastRecivedCourseId) f.add(s);
+
+        return f;
     }
 
 
     public static void main(String[] argv) throws Exception
     {
         init();
-        final File f = new File("resources/departments.txt");
-        FileInputStream fileInputStream = new FileInputStream(f);
-        List<Department> departments = new ArrayList<Department>();
-        for (String department : StreamUtils.readLines(fileInputStream))
-        {
-            if (department.replace(" ", "").isEmpty()) continue;
-            int separatorPosition = department.indexOf('|');
-            final String name = department.substring(0, separatorPosition);
-            final String link = department.substring(separatorPosition + 1, department.length());
-            departments.add(new Department(name, "prova", link));
-        }
-        insertDepartments(departments);
     }
+
 }

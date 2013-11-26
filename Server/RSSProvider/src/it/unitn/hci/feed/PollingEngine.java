@@ -1,5 +1,6 @@
 package it.unitn.hci.feed;
 
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.GCMUtils;
 import java.net.HttpURLConnection;
@@ -16,9 +17,7 @@ import org.jsoup.select.Elements;
 public class PollingEngine extends Thread
 {
     private static final int SLEEP_MILLIS = 600000; // 1 minute
-    private static final String UNITN_FEED_PATH = "http://www.science.unitn.it/cisca/avvisi/avvisi.php";
 
-    private final URL UNITN_FEED_URL;
     private final Logger LOGGER;
     private long mModifiedSince;
 
@@ -30,7 +29,6 @@ public class PollingEngine extends Thread
         try
         {
             DatabaseManager.init();
-            UNITN_FEED_URL = new URL(UNITN_FEED_PATH);
         }
         catch (Exception e)
         {
@@ -40,19 +38,31 @@ public class PollingEngine extends Thread
     }
 
 
-    private void pollFromUnitn()
+    private void pollFromUnitn() throws Exception
     {
         System.out.println("===== PollingEngine: wake up...");
 
-        pollNewsPage(UNITN_FEED_URL, "table.avviso tbody tr td font[size=5]");
+        for (Department d : DatabaseManager.getDepartments())
+        {
+            try
+            {
+                pollNewsPage(d);
+            }
+            catch (Exception e)
+            {
+                // something bad happened, failing cowardly
+                e.printStackTrace();
+            }
+        }
 
         System.out.println("===== PollingEngine: now sleeps...\n");
     }
 
 
-    private void pollNewsPage(URL newsPageUrl, String cssSelector)
+    private void pollNewsPage(Department department) throws Exception
     {
-        System.out.println();
+        final URL newsPageUrl = new URL(department.getBulletinNewsURL());
+        final String cssSelector = department.getCSSSelector();
         try
         {
             final String path = newsPageUrl.getPath();
@@ -79,7 +89,7 @@ public class PollingEngine extends Thread
             final long timeStamp = System.currentTimeMillis();
             for (Element feed : feedNodes)
             {
-                Feed f = FeedAnalyzer.extract(feed.text(), timeStamp);
+                Feed f = FeedAnalyzer.extract(feed.text(), timeStamp, department);
                 feeds.add(f);
             }
 
