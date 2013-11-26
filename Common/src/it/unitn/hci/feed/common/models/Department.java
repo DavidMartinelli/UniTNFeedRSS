@@ -52,4 +52,10 @@ public class Department
     {
         return mLink;
     }
+    
+    @Override
+    public String toString()
+    {
+        return mName;
+    }
 }
