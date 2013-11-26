@@ -2,7 +2,6 @@ package it.unitn.hci.feed.common.models;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -25,18 +24,26 @@ public class Course implements Model
     private int mColour;
 
     private Set<String> mAliases;
-    
-    private List<Department> mDepartments;
+
+    private Department mDepartment;
+
+
+    public void setDepartment(Department department)
+    {
+        mDepartment = department;
+    }
 
 
     Course()
     {
     }
 
+
     public Course(String name)
     {
         mName = name;
     }
+
 
     public Course(int id, String name, int colour, Set<String> aliases)
     {
@@ -47,15 +54,17 @@ public class Course implements Model
         mAliases = aliases;
     }
 
-    public Course(int id, String name, int colour, Set<String> aliases, List<Department> departments)
+
+    public Course(int id, String name, int colour, Set<String> aliases, Department department)
     {
         super();
         mId = id;
         mName = name;
         mColour = colour;
         mAliases = aliases;
-        mDepartments = departments;
-    }    
+        mDepartment = department;
+    }
+
 
     public int getId()
     {
@@ -84,6 +93,12 @@ public class Course implements Model
     public Set<String> getAliases()
     {
         return mAliases;
+    }
+
+
+    public Department getDepartment()
+    {
+        return mDepartment;
     }
 
 
@@ -127,16 +142,12 @@ public class Course implements Model
         Course casted = (Course) obj;
         return casted.getName().equals(getName()) && casted.getId() == getId();
     }
-    
-    
+
+
     @Override
     public String toString()
     {
-        return "id: "+ mId + ", name: " + mName + ", aliases: " + mAliases + ", colour: " + mColour + ", departments: " + mDepartments;
+        return "id: " + mId + ", name: " + mName + ", aliases: " + mAliases + ", colour: " + mColour + ", department: " + mDepartment.getName();
     }
-    
-    public List<Department> getDepartment()
-    {
-        return mDepartments;
-    }
+
 }

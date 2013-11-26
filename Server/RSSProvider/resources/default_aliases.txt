@@ -1,60 +1,104 @@
-=ANALISI_MATEMATICA_I <> Ingegneria e scienza dell’informazione
+
+#Economia e management!http://www.unitn.it/economia
+
+=Probabilità e statistica
+-Prob.
+-Prob. e statistica
+
+=Diritto privato
+-Dir. priv
+
+#Facolta di Giurisprudenza!http://www.unitn.it/giurisprudenza
+
+=Diritto romano
+-Dir. romano
+
+=Filosofia dell'arte
+-Fil. dell'arte
+
+#Ingegneria civile, ambientale e meccanica!http://www.unitn.it/dicam
+
+=ANALISI_MATEMATICA_I
 -Analisi matematica 1
 -An. matematica 1
 -An. mat. I
 
-=ANALISI_MATEMATICA_II <> Ingegneria civile, ambientale e meccanica
+=ANALISI_MATEMATICA_II
 -Analisi matematica 2
 -An. matematica 2
 -An. mat. II
 
-=ANALISI_MATEMATICA_III <> Ingegneria civile, ambientale e meccanica
+=ANALISI_MATEMATICA_III
 -Analisi matematica 3
 -An. matematica 3
 -An. mat. III
 
+#Ingegneria e scienza dell'informazione!http://www.disi.unitn.it/it
 
-=MATEMATICA_DISCRETA_I <> Ingegneria e scienza dell’informazione
+=MATEMATICA_DISCRETA_I
 -matematica discreta 1
 
-=PROGRAMMAZIONE_I <> Ingegneria e scienza dell’informazione
+=PROGRAMMAZIONE_I
 -programmazione 1
 
-=ARCHITETTURE_DEGLI_ELABORATORI <> Ingegneria e scienza dell’informazione
+=ARCHITETTURA_DEGLI_ELABORATORI
+-Arch. elab
 
-=MATEMATICA_DISCRETA_I <> Ingegneria e scienza dell’informazione
--matematica discreta 2
+=MATEMATICA_DISCRETA_I
+-Mat. disc 2
 
-=PROGRAMMAZIONE_2 <> Ingegneria e scienza dell’informazione
+=PROGRAMMAZIONE_2
+-Prog. 2
 
-=PROGRAMMAZIONE_FUNZIONALE <> Ingegneria e scienza dell’informazione
+=PROGRAMMAZIONE_FUNZIONALE
+-Funzionale
 
-=CALCOLO_DELLE_PROBABILITÀ_E_STATISTICA <> Ingegneria e scienza dell’informazione
+=CALCOLO_DELLE_PROBABILITÀ_E_STATISTICA
+-cal prob stat
 
-=BASI_DI_DATI <> Ingegneria e scienza dell’informazione
+=BASI_DI_DATI
+-Database
 
-=INGEGNERIA_DEL_SOFTWARE <> Ingegneria e scienza dell’informazione
+=INGEGNERIA_DEL_SOFTWARE
+-Softeng
 
-=ALGORITMI_E_STRUTTURE_DATI <> Ingegneria e scienza dell’informazione
+=ALGORITMI_E_STRUTTURE_DATI
+-Asd
 
-=RETI_DI_CALCOLATORI <> Ingegneria e scienza dell’informazione
+=RETI_DI_CALCOLATORI
+-Reti 1
 
-=SISTEMI_OPERATIVI <> Ingegneria e scienza dell’informazione
+=SISTEMI_OPERATIVI
+-Sisop
 
-=FISICA <> Ingegneria e scienza dell’informazione
+=FISICA
+-Fisica
 
-=ALGORITMI_AVANZATI <> Ingegneria e scienza dell’informazione
+=ALGORITMI_AVANZATI
+-Alg. avanzati
 
-=LINGUAGGI_FORMALI_E_COMPILATORI <> Ingegneria e scienza dell’informazione
+=LINGUAGGI_FORMALI_E_COMPILATORI
+-lfc
 
-=LINGUAGGI_DI_PROGRAMMAZIONE <> Ingegneria e scienza dell’informazione
+=LINGUAGGI_DI_PROGRAMMAZIONE
+-Ling. di programmazione
 
-=PROGRAMMAZIONE_PER_IL_WEB <> Ingegneria e scienza dell’informazione
+=PROGRAMMAZIONE_PER_IL_WEB
+-Prog web
 
-=SISTEMI_OPERATIVI_I <> Ingegneria e scienza dell’informazione
--sistemi operativi 1
+=SISTEMI_OPERATIVI_I
+-sisop
 
-=RETI_DI_CALCOLATORI:_APPLICAZIONI <> Ingegneria e scienza dell’informazione
+=RETI_DI_CALCOLATORI_APPLICAZIONI
+-Reti app
 
-=SISTEMI_INFORMATIVI <> Ingegneria e scienza dell’informazione
+=SISTEMI_INFORMATIVI
+-Kuuper
+
+
+
+
+
+
+
 

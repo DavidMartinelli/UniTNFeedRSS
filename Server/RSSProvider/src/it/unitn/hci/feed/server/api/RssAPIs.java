@@ -10,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -18,29 +19,15 @@ public class RssAPIs
 {
 
     @GET
-    @Path("/{coursename}/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response signupUser(@PathParam("coursename") String courseName, @PathParam("id") long id)
-    {
-        try
-        {
-            return ResponseUtils.fromObject(DatabaseManager.getAllFeedsAfterIdForCourse(id, courseName));
-        }
-        catch (Exception e)
-        {
-            return ResponseUtils.fromException(e);
-        }
-    }
-
-
-    @GET
     @Path("/{coursename}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCourseFeeds(@PathParam("coursename") String courseName)
+    public Response getFeeds(@PathParam("coursename") String courseName, @QueryParam("lastReceivedId") Long id)
     {
         try
         {
+            if (id != null) return ResponseUtils.fromObject(DatabaseManager.getCourses(id, courseName));
             return ResponseUtils.fromObject(DatabaseManager.getFeeds(courseName));
+
         }
         catch (Exception e)
         {
@@ -50,13 +37,21 @@ public class RssAPIs
 
 
     @GET
-    @Path("/departments/{department}")
+    @Path("/departments/{departmentName}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCourseOfDepartments(@PathParam("department") String department)
+    public Response getDepartmentCourses(@PathParam("departmentName") String department)
     {
         try
         {
-            return ResponseUtils.fromObject(DatabaseManager.getCoursesOfDepartment(department));
+            // TODO temp hack
+            // return ResponseUtils.fromObject(DatabaseManager.getDepartmentCourses(department));
+
+            ArrayList<Course> l = new ArrayList<Course>();
+            l.add(new Course(1, "AAAA", 123123, null));
+            l.add(new Course(2, "BBBB", 123123, null));
+            l.add(new Course(3, "CCCC", 123123, null));
+
+            return ResponseUtils.fromObject(l);
         }
         catch (Exception e)
         {
@@ -73,28 +68,6 @@ public class RssAPIs
         try
         {
             return ResponseUtils.fromObject(DatabaseManager.getDepartments());
-        }
-        catch (Exception e)
-        {
-            return ResponseUtils.fromException(e);
-        }
-    }
-
-
-    @GET
-    @Path("/courses/{department}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDepartmentCourses(@PathParam("department") String departmentName)
-    {
-        try
-        {
-            //return ResponseUtils.fromObject(DatabaseManager.getDepartmentCourses(departmentName));
-            ArrayList<Course> l = new ArrayList<Course>();
-            l.add(new Course(1, "AAAA", 123123, null));
-            l.add(new Course(2, "BBBB", 123123, null));
-            l.add(new Course(3, "CCCC", 123123, null));
-
-            return ResponseUtils.fromObject(l);
         }
         catch (Exception e)
         {

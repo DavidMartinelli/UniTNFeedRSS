@@ -95,7 +95,7 @@ public class DatabaseManager
 
             insertCourse(Course.GENERIC_COURSE_NAME, Arrays.asList(Course.GENERIC_COURSE_NAME));
 
-            for (Course course : CourseAliasReader.getAliases())
+            for (Course course : ResourceParser.getAliases())
             {
                 insertCourse(course.getName(), course.getAliases());
                 insertCourseDepartmentChain(course);
@@ -325,30 +325,6 @@ public class DatabaseManager
     }
 
 
-    public static List<String> getDepartmentCourses(String departmentName) throws Exception
-    {
-        List<String> coursesNames = null;
-        Database db = null;
-        try
-        {
-            db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_COURSES_BY_DEPARTMENT_NAME, departmentName);
-            coursesNames = new ArrayList<String>();
-
-            while (rs.next())
-            {
-                coursesNames.add(rs.getString(COLUMN_COURSE_NAME));
-            }
-
-            return coursesNames;
-        }
-        finally
-        {
-            Database.close(db);
-        }
-    }
-
-
     public static void signupUser(String token)
     {
         throw new TODOException("Te hai capi'");
@@ -382,7 +358,7 @@ public class DatabaseManager
     }
 
 
-    public static List<Feed> getAllFeedsAfterIdForCourse(Long id, String courseName) throws Exception
+    public static List<Feed> getCourses(long lastRecivedCourseId, String courseName) throws Exception
     {
         List<Feed> feeds = null;
         Database db = null;
@@ -390,7 +366,7 @@ public class DatabaseManager
         try
         {
             db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME, courseName, id);
+            ResultSet rs = db.executeQuery(GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME, courseName, lastRecivedCourseId);
             feeds = new ArrayList<Feed>();
 
             while (rs.next())
@@ -410,7 +386,7 @@ public class DatabaseManager
     }
 
 
-    public static List<Course> getCoursesOfDepartment(String departmentName) throws Exception
+    public static List<Course> getDepartmentCourses(String departmentName) throws Exception
     {
         List<Course> courses = null;
         Database db = null;
@@ -424,7 +400,7 @@ public class DatabaseManager
             while (rs.next())
             {
                 final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID),rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
                 courses.add(course);
             }
 
@@ -455,7 +431,7 @@ public class DatabaseManager
     public static void insertDepartments(List<Department> departments) throws Exception
     {
         for (Department department : departments)
-            insertDepartment(department.getName(), department.getLink(), department.getCSSSelector());
+            insertDepartment(department.getName(), department.getBulletinNewsURL(), department.getCSSSelector());
     }
 
 

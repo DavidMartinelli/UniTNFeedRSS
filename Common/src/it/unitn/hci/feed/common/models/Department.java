@@ -1,5 +1,6 @@
 package it.unitn.hci.feed.common.models;
 
+import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -14,7 +15,9 @@ public class Department
     private int mId;
 
     private String mCSSSelector;
-    private String mLink;
+    private String mBulletinNewsUrl;
+
+    private Set<Course> mCourses;
 
 
     Department()
@@ -22,11 +25,22 @@ public class Department
     }
 
 
-    public Department(String name, String CSSSelector, String link)
+    public Department(String name, String CSSSelector, String bulletinNewsURL, Set<Course> courses)
     {
         mName = name;
         mCSSSelector = CSSSelector;
-        mLink = link;
+        mBulletinNewsUrl = bulletinNewsURL;
+        mCourses = courses;
+        for (Course c : mCourses)
+        {
+            c.setDepartment(this);
+        }
+    }
+
+
+    public Set<Course> getCourses()
+    {
+        return mCourses;
     }
 
 
@@ -48,14 +62,18 @@ public class Department
     }
 
 
-    public String getLink()
+    public String getBulletinNewsURL()
     {
-        return mLink;
+        return mBulletinNewsUrl;
     }
-    
+
+
     @Override
     public String toString()
     {
-        return mName;
+        StringBuilder builder = new StringBuilder(mName + "\n");
+        for (Course course : mCourses)
+            builder.append("\t" + course + "\n");
+        return builder.toString();
     }
 }
