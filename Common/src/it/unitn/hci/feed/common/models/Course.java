@@ -24,7 +24,6 @@ public class Course implements Model
     private Integer mId;
 
     @DatabaseField(uniqueCombo = true)
-    @XmlElement(name = "name")
     private String mName;
 
     @DatabaseField
@@ -39,6 +38,13 @@ public class Course implements Model
 
     @DatabaseField(foreign = true, uniqueCombo = true)
     private Department mDepartment;
+
+
+    @XmlElement(name = "name")
+    public String getDisplayName()
+    {
+        return mName.replace('_', ' ').toLowerCase();
+    }
 
 
     public void setDepartment(Department department)
