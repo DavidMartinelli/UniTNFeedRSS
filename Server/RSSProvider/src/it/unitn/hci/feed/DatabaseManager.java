@@ -304,9 +304,9 @@ public class DatabaseManager
     }
 
 
-    public static List<Feed> getFeeds(long lastRecivedCourseId, String courseName) throws Exception
+    public static List<Feed> getFeeds(long lastRecivedCourseId, int courseId) throws Exception
     {
-        Course course = getCourse(courseName);
+        Course course = getCourse(courseId);
 
         List<Feed> f = new ArrayList<Feed>();
         for (Feed s : course.getFeeds())
@@ -316,13 +316,13 @@ public class DatabaseManager
     }
 
 
-    public static Collection<Feed> getFeeds(String courseName) throws Exception
+    public static Collection<Feed> getFeeds(int courseId) throws Exception
     {
-        return getCourse(courseName).getFeeds();
+        return getCourse(courseId).getFeeds();
     }
 
 
-    private static Course getCourse(String courseName) throws Exception
+    private static Course getCourse(int courseId) throws Exception
     {
         DatabaseManager db = null;
         try
@@ -330,8 +330,8 @@ public class DatabaseManager
             db = fromConnectionPool();
             Dao<Course, Integer> dao = createCourseDao(db);
 
-            Course course = dao.queryForEq("mName", courseName).get(0);
-            if (course == null) throw new FileNotFoundException("Course named \"" + courseName + "\" does not exist");
+            Course course = dao.queryForId(courseId);
+            if (course == null) throw new FileNotFoundException("Course  #" + courseId + " does not exist");
             return course;
         }
         finally

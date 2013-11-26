@@ -15,14 +15,14 @@ public class RssAPIs
 {
 
     @GET
-    @Path("/{coursename}")
+    @Path("/{courseId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getFeeds(@PathParam("coursename") String courseName, @QueryParam("lastReceivedId") Long id)
+    public Response getFeeds(@PathParam("courseId") int courseId, @QueryParam("lastReceivedId") Long id)
     {
         try
         {
-            if (id != null) return ResponseUtils.fromObject(DatabaseManager.getFeeds(id, courseName));
-            return ResponseUtils.fromObject(DatabaseManager.getFeeds(courseName));
+            if (id != null) return ResponseUtils.fromObject(DatabaseManager.getFeeds(id, courseId));
+            return ResponseUtils.fromObject(DatabaseManager.getFeeds(courseId));
 
         }
         catch (Exception e)
