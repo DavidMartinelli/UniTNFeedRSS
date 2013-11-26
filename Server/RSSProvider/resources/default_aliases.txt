@@ -52,7 +52,7 @@
 =PROGRAMMAZIONE_PER_IL_WEB <> Ingegneria e scienza dell’informazione
 
 =SISTEMI_OPERATIVI_I <> Ingegneria e scienza dell’informazione
--sistemi operativi 2
+-sistemi operativi 1
 
 =RETI_DI_CALCOLATORI:_APPLICAZIONI <> Ingegneria e scienza dell’informazione
 

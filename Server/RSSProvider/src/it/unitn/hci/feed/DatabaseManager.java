@@ -62,13 +62,12 @@ public class DatabaseManager
     private final static String CREATE_TABLE_ALIASES = "CREATE TABLE IF NOT EXISTS " + TABLE_ALIASES + " ( " + COLUMN_ALIAS_ID + " INTEGER PRIMARY KEY, " + COLUMN_ALIAS_VALUE + " VARCHAR(70), " + COLUMN_ALIAS_FK_COURSE + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "))";
     private final static String CREATE_TABLE_USERS_COURSES = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS_COURSES + " ( " + COLUMN_USER_COURSE_ID + " INTEGER PRIMARY KEY, " + COLUMN_USER_COURSE_FK_COURSES + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + "), " + COLUMN_USER_COURSE_FK_USERS + " INTEGER REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + "))";
     private final static String CREATE_TABLE_FEED = "CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " ( " + COLUMN_FEED_ID + " INTEGER PRIMARY KEY, " + COLUMN_FEED_FK_COURSE + " REFERENCES " + TABLE_COURSES + "(" + COLUMN_COURSE_ID + ")," + COLUMN_FEED_TIMESTAMP + " INTEGER, " + COLUMN_FEED_BODY + " TEXT)";
-
+    private final static String GET_COURSES_BY_DEPARTMENT_NAME = "SELECT * FROM " + TABLE_COURSES + " JOIN " + TABLE_DEPARTMENTS_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " JOIN " + TABLE_DEPARTMENTS + " JOIN " + COLUMN_DEPARTMENT_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + "=?";
     private final static String GET_ALIASES_BY_COURSE_NAME = "SELECT " + COLUMN_ALIAS_VALUE + " FROM " + TABLE_ALIASES + " JOIN " + TABLE_COURSES + " ON " + COLUMN_ALIAS_FK_COURSE + "=" + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=?";
     private final static String GET_ALL_COURSES = "SELECT * FROM " + TABLE_COURSES;
     private final static String GET_ALL_FEEDS = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + TABLE_FEEDS + "." + COLUMN_FEED_FK_COURSE + " = " + TABLE_COURSES + "." + COLUMN_COURSE_ID;
     private final static String GET_ALL_FEEDS_AFTER_ID_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_FEED_FK_COURSE + " = " + COLUMN_COURSE_ID + " WHERE " + COLUMN_COURSE_NAME + "=? AND " + COLUMN_COURSE_ID + ">?";
     private final static String GET_COURSES_COLOURS_AND_NAMES = "SELECT " + COLUMN_COURSE_COLOUR + ", " + COLUMN_COURSE_NAME + " FROM " + TABLE_COURSES;
-    private final static String GET_COURSES_NAME_BY_DEPARTMENT_NAME = "SELECT * FROM " + TABLE_COURSES + " JOIN " + TABLE_DEPARTMENTS_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_COURSES + " JOIN " + TABLE_DEPARTMENTS + " JOIN " + COLUMN_DEPARTMENT_ID + "=" + COLUMN_DEPARTMENT_COURSE_FK_DEPARTMENTS + " WHERE " + COLUMN_DEPARTMENT_NAME + "=?";
     private final static String GET_FEEDS_BY_COURSE_NAME = "SELECT * FROM " + TABLE_FEEDS + " JOIN " + TABLE_COURSES + " ON " + COLUMN_COURSE_ID + "=" + COLUMN_FEED_FK_COURSE + " WHERE " + COLUMN_COURSE_NAME + "=?";
     private final static String GET_DEPARTMENTS = "SELECT " + COLUMN_DEPARTMENT_NAME + ", " + COLUMN_DEPARTMENT_LINK + ", " + COLUMN_DEPARTMENT_CSS_SELECTOR + " FROM " + TABLE_DEPARTMENTS;
     private final static String INSERT_ALIAS = "INSERT INTO " + TABLE_ALIASES + "(" + COLUMN_ALIAS_VALUE + ", " + COLUMN_ALIAS_FK_COURSE + ") VALUES ( ?, ?)";
@@ -275,10 +274,7 @@ public class DatabaseManager
     public static List<Feed> getFeeds() throws Exception
     {
         List<Feed> feeds = null;
-        Feed feed;
-        Course course;
         Database db = null;
-        Set<String> aliases = null;
         try
         {
             db = Database.fromConnectionPool();
@@ -287,9 +283,9 @@ public class DatabaseManager
 
             while (rs.next())
             {
-                aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
+                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
+                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                final Feed feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
                 feeds.add(feed);
             }
 
@@ -305,10 +301,7 @@ public class DatabaseManager
     public static List<Feed> getFeeds(String courseName) throws Exception
     {
         List<Feed> feeds = null;
-        Feed feed;
-        Course course;
         Database db = null;
-        Set<String> aliases = null;
         try
         {
             db = Database.fromConnectionPool();
@@ -317,9 +310,9 @@ public class DatabaseManager
 
             while (rs.next())
             {
-                aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
+                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
+                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                final Feed feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
                 feeds.add(feed);
             }
 
@@ -339,7 +332,7 @@ public class DatabaseManager
         try
         {
             db = Database.fromConnectionPool();
-            ResultSet rs = db.executeQuery(GET_COURSES_NAME_BY_DEPARTMENT_NAME, departmentName);
+            ResultSet rs = db.executeQuery(GET_COURSES_BY_DEPARTMENT_NAME, departmentName);
             coursesNames = new ArrayList<String>();
 
             while (rs.next())
@@ -366,8 +359,6 @@ public class DatabaseManager
     {
         List<Course> courses = null;
         Database db = null;
-        Course course = null;
-        Set<String> aliases = null;
 
         try
         {
@@ -377,8 +368,8 @@ public class DatabaseManager
 
             while (rs.next())
             {
-                aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
+                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
                 courses.add(course);
             }
 
@@ -394,10 +385,8 @@ public class DatabaseManager
     public static List<Feed> getAllFeedsAfterIdForCourse(Long id, String courseName) throws Exception
     {
         List<Feed> feeds = null;
-        Feed feed;
-        Course course;
         Database db = null;
-        Set<String> aliases = null;
+
         try
         {
             db = Database.fromConnectionPool();
@@ -406,9 +395,9 @@ public class DatabaseManager
 
             while (rs.next())
             {
-                aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
-                course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
-                feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
+                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
+                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID), rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                final Feed feed = new Feed(rs.getInt(COLUMN_FEED_ID), rs.getString(COLUMN_FEED_BODY), rs.getLong(COLUMN_FEED_TIMESTAMP), course);
                 feeds.add(feed);
             }
 
@@ -421,9 +410,30 @@ public class DatabaseManager
     }
 
 
-    public static List<Course> getCoursesOfDepartment(String department)
+    public static List<Course> getCoursesOfDepartment(String departmentName) throws Exception
     {
-        throw new TODOException("ti do il dipartimento, tu mi dai i corsi che fanno parte di quel dipartimento");
+        List<Course> courses = null;
+        Database db = null;
+
+        try
+        {
+            db = Database.fromConnectionPool();
+            ResultSet rs = db.executeQuery(GET_COURSES_BY_DEPARTMENT_NAME, departmentName);
+            courses = new ArrayList<Course>();
+
+            while (rs.next())
+            {
+                final Set<String> aliases = getAliases(rs.getString(COLUMN_COURSE_NAME));
+                final Course course = new Course(rs.getInt(COLUMN_COURSE_ID),rs.getString(COLUMN_COURSE_NAME), rs.getInt(COLUMN_COURSE_COLOUR), aliases);
+                courses.add(course);
+            }
+
+            return courses;
+        }
+        finally
+        {
+            Database.close(db);
+        }
     }
 
 
@@ -459,8 +469,8 @@ public class DatabaseManager
         {
             if (department.replace(" ", "").isEmpty()) continue;
             int separatorPosition = department.indexOf('|');
-            String name = department.substring(0, separatorPosition);
-            String link = department.substring(separatorPosition + 1, department.length());
+            final String name = department.substring(0, separatorPosition);
+            final String link = department.substring(separatorPosition + 1, department.length());
             departments.add(new Department(name, "prova", link));
         }
         insertDepartments(departments);
