@@ -1,8 +1,6 @@
 package it.unitn.hci.feed.server.api;
 
-import java.util.ArrayList;
 import it.unitn.hci.feed.DatabaseManager;
-import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,21 +33,13 @@ public class RssAPIs
 
 
     @GET
-    @Path("/departments/{departmentName}")
+    @Path("/departments/{departmentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDepartmentCourses(@PathParam("departmentName") String department)
+    public Response getDepartmentCourses(@PathParam("departmentId") int departmentId)
     {
         try
         {
-            // TODO temp hack
-            // return ResponseUtils.fromObject(DatabaseManager.getDepartmentCourses(department));
-
-            ArrayList<Course> l = new ArrayList<Course>();
-            l.add(new Course(1, "AAAA", 123123, null));
-            l.add(new Course(2, "BBBB", 123123, null));
-            l.add(new Course(3, "CCCC", 123123, null));
-
-            return ResponseUtils.fromObject(l);
+            return ResponseUtils.fromObject(DatabaseManager.getCourses(departmentId));
         }
         catch (Exception e)
         {

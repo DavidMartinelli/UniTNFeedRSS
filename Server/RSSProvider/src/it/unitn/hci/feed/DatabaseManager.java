@@ -347,4 +347,23 @@ public class DatabaseManager
         init();
     }
 
+
+    public static Collection<Course> getCourses(int departmentId) throws Exception
+    {
+        DatabaseManager db = null;
+        try
+        {
+            db = fromConnectionPool();
+            Dao<Department, Integer> dao = createDepartmentDao(db);
+            if (!dao.idExists(departmentId)) throw new FileNotFoundException("Department #" + departmentId + " does not exist");
+
+            return dao.queryForId(departmentId).getCourses();
+        }
+        finally
+
+        {
+            close(db);
+        }
+    }
+
 }

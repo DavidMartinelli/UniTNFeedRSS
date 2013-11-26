@@ -21,9 +21,9 @@ public class ResponseUtils
 
     public static Response fromException(Exception e)
     {
-        if (e instanceof FileNotFoundException) return Response.status(Status.NOT_FOUND).entity(ERROR_404).build();
-        if (e instanceof IllegalArgumentException) return Response.status(Status.BAD_REQUEST).entity(ERROR_400).build();
-        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ERROR_500).build();
+        if (e instanceof FileNotFoundException) return Response.status(Status.NOT_FOUND).entity(ERROR_404 + ": " + e.getMessage()).build();
+        if (e instanceof IllegalArgumentException) return Response.status(Status.BAD_REQUEST).entity(ERROR_400 + ": " + e.getMessage()).build();
+        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ERROR_500 + ": " + e.getMessage()).build();
     }
 
 
