@@ -13,6 +13,7 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -116,13 +117,13 @@ public class MainActivity extends FragmentActivity
             pDialog.setMessage("Loading departments");
             pDialog.show();
 
-            UnitnApiAsync.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<String>>>()
+            UnitnApiAsync.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<Department>>>()
             {
                 @Override
-                public void invoke(TaskResult<List<String>> param)
+                public void invoke(TaskResult<List<Department>> param)
                 {
                     pDialog.dismiss();
-                    final List<String> result = param.result;
+                    final List<Department> result = param.result;
                     if (param.exception != null || result.isEmpty())
                     {
                         param.exception.printStackTrace();
@@ -135,7 +136,7 @@ public class MainActivity extends FragmentActivity
                         @Override
                         public void onItemClick(AdapterView<?> adapter, View view, int position, long id)
                         {
-                            String dep = result.get(position);
+                            Department dep = result.get(position);
                             UnitnApiAsync.getCoursesAsync(dep, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
                             {
                                 @Override

@@ -4,6 +4,7 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.StreamUtils;
 import java.io.FileNotFoundException;
@@ -21,25 +22,11 @@ import org.json.JSONObject;
 
 public class UnitnApiAsync
 {
-    public static String IP;
-
-    static
-    {
-        try
-        {
-            IP = StreamUtils.readAll(App.getContext().getAssets().open("ip.txt"));
-        }
-        catch (Exception e)
-        {
-            // Should never happen
-            e.printStackTrace();
-            IP = "10.23.81.179";
-        }
-    }
+    public static String IP = "192.168.0.107";
     public static final String PROTOCOL = "http";
     public static final int PORT = 6767;
     public static final String PATH = "/rssservice/";
-    public static final String BASE_URL = PROTOCOL + "//" + IP + ":" + PORT + PATH;
+    public static final String BASE_URL = PROTOCOL + "://" + IP + ":" + PORT + PATH;
 
 
     private UnitnApiAsync()
@@ -48,7 +35,7 @@ public class UnitnApiAsync
     }
 
 
-    public static CallbackAsyncTask<List<Course>> getCoursesAsync(final String department, final Action<TaskResult<List<Course>>> callback)
+    public static CallbackAsyncTask<List<Course>> getCoursesAsync(final Department department, final Action<TaskResult<List<Course>>> callback)
     {
         CallbackAsyncTask<List<Course>> task = new CallbackAsyncTask<List<Course>>(callback)
         {
@@ -64,12 +51,12 @@ public class UnitnApiAsync
     }
 
 
-    public static List<Course> getCourses(String department) throws Exception
+    public static List<Course> getCourses(Department department) throws Exception
     {
         List<Course> deparments;
 
         HttpClient client = new DefaultHttpClient();
-        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "courses/" + department, null, null);
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments/" + department.getId(), null, null);
         HttpGet get = new HttpGet(uri);
 
         HttpEntity entity = null;
@@ -83,7 +70,7 @@ public class UnitnApiAsync
 
             entity = response.getEntity();
             String json = StreamUtils.readAll(entity.getContent());
-            JSONArray jsonArray = new JSONObject(json).getJSONArray("course");
+            JSONArray jsonArray = new JSONArray(json);
 
             deparments = new ArrayList<Course>(jsonArray.length());
 
@@ -101,12 +88,12 @@ public class UnitnApiAsync
     }
 
 
-    public static CallbackAsyncTask<List<String>> getDepartmentsAsync(final Action<TaskResult<List<String>>> callback)
+    public static CallbackAsyncTask<List<Department>> getDepartmentsAsync(final Action<TaskResult<List<Department>>> callback)
     {
-        CallbackAsyncTask<List<String>> task = new CallbackAsyncTask<List<String>>(callback)
+        CallbackAsyncTask<List<Department>> task = new CallbackAsyncTask<List<Department>>(callback)
         {
             @Override
-            public List<String> doJob() throws Exception
+            public List<Department> doJob() throws Exception
             {
                 return getDepartments();
             }
@@ -117,9 +104,9 @@ public class UnitnApiAsync
     }
 
 
-    public static List<String> getDepartments() throws Exception
+    public static List<Department> getDepartments() throws Exception
     {
-        List<String> deparments;
+        List<Department> deparments;
 
         HttpClient client = new DefaultHttpClient();
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments", null, null);
@@ -136,13 +123,15 @@ public class UnitnApiAsync
 
             entity = response.getEntity();
             String json = StreamUtils.readAll(entity.getContent());
-            JSONArray jsonArray = new JSONObject(json).getJSONArray("department");
-
-            deparments = new ArrayList<String>(jsonArray.length());
+            JSONArray jsonArray = new JSONArray(json);
+            deparments = new ArrayList<Department>(jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++)
             {
-                deparments.add(jsonArray.getJSONObject(i).getString("name"));
+                JSONObject o = jsonArray.getJSONObject(i);
+                Department tmp = new Department(o.getString("name"), null, null, null);
+                tmp.setId(o.getLong("id"));
+                deparments.add(tmp);
             }
             return deparments;
         }

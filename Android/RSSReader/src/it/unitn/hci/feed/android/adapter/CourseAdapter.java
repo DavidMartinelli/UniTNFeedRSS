@@ -26,9 +26,9 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnItemClickLi
         super(context, R.layout.courses_chooser_layout, courses);
         mCourses = courses;
         mContext = context;
-        mSelected = new ArrayList<Boolean>(mCourses.size());
+        mSelected = new ArrayList<Boolean>();
         for (int i = 0; i < mCourses.size(); i++)
-            mSelected.set(i, false);
+            mSelected.add(i, false);
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

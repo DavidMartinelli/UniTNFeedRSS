@@ -7,6 +7,7 @@ import it.unitn.hci.feed.android.adapter.CourseAdapter;
 import it.unitn.hci.feed.android.adapter.DepartmentAdapter;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import android.app.Dialog;
 import android.content.Context;
@@ -118,7 +119,7 @@ public class DialogUtils
     }
 
 
-    public static void showDepartmentsList(final Context context, final List<String> departments, final OnItemClickListener listener)
+    public static void showDepartmentsList(final Context context, final List<Department> departments, final OnItemClickListener listener)
     {
         final DialogFragment d = new DialogFragment()
         {
