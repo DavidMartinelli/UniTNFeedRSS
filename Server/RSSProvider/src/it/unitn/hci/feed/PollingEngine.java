@@ -2,7 +2,6 @@ package it.unitn.hci.feed;
 
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
-import it.unitn.hci.utils.GCMUtils;
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -31,7 +30,7 @@ public class PollingEngine extends Thread
         {
             File f = new File("feeds.db");
             if (f.exists()) f.delete();
-            
+
             DatabaseManager.init();
         }
         catch (Exception e)
@@ -98,15 +97,8 @@ public class PollingEngine extends Thread
             }
 
             feeds = DatabaseManager.insertFeeds(feeds);
-            if (feeds != null && !feeds.isEmpty())
-            {
-                System.out.println("PollingEngine: found " + feeds.size() + " new feeds on " + path + ". Calling GCM...");
-                GCMUtils.notify(feeds);
-            }
-            else
-            {
-                System.out.println("PollingEngine: nothing new on " + path + ", going to sleep...");
-            }
+            if (feeds != null && !feeds.isEmpty()) System.out.println("PollingEngine: found " + feeds.size() + " new feeds on " + path + ". Calling GCM...");
+            else System.out.println("PollingEngine: nothing new on " + path + ", going to sleep...");
         }
         catch (Exception e)
         {

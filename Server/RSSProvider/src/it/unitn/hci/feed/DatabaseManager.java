@@ -25,29 +25,23 @@ public class DatabaseManager
     private ConnectionSource mConnectionSource;
 
 
-    public static DatabaseManager fromConnectionPool() throws Exception
+    private static DatabaseManager fromConnectionPool() throws Exception
     {
         DatabaseManager local = connectionPool.get();
         if (local == null || !local.mConnectionSource.isOpen())
         {
-            local = createConnection(DATABASE_NAME);
+            local = new DatabaseManager(DATABASE_NAME);
         }
         return local;
     }
 
 
-    private static DatabaseManager createConnection(String databaseName) throws Exception
-    {
-        Class.forName("org.sqlite.JDBC");
-        return new DatabaseManager("jdbc:sqlite:" + databaseName);
-    }
-
-
-    private DatabaseManager(String jdbcURL)
+    private DatabaseManager(String databaseName) throws Exception
     {
         try
         {
-            mConnectionSource = new JdbcConnectionSource(jdbcURL);
+            Class.forName("org.sqlite.JDBC");
+            mConnectionSource = new JdbcConnectionSource("jdbc:sqlite:" + databaseName);
         }
         catch (SQLException e)
         {
@@ -80,15 +74,9 @@ public class DatabaseManager
     }
 
 
-    private void close() throws Exception
-    {
-        mConnectionSource.close();
-    }
-
-
     private static void close(DatabaseManager db) throws Exception
     {
-        if (db != null) db.close();
+        if (db != null) db.mConnectionSource.close();
     }
 
 
@@ -335,16 +323,9 @@ public class DatabaseManager
             return course;
         }
         finally
-
         {
             close(db);
         }
-    }
-
-
-    public static void main(String[] argv) throws Exception
-    {
-        init();
     }
 
 
@@ -356,14 +337,18 @@ public class DatabaseManager
             db = fromConnectionPool();
             Dao<Department, Integer> dao = createDepartmentDao(db);
             if (!dao.idExists(departmentId)) throw new FileNotFoundException("Department #" + departmentId + " does not exist");
-
             return dao.queryForId(departmentId).getCourses();
         }
         finally
-
         {
             close(db);
         }
+    }
+
+
+    public static void main(String[] argv) throws Exception
+    {
+        init();
     }
 
 }
