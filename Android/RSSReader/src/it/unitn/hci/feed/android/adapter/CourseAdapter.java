@@ -26,6 +26,8 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListen
         super(context, R.layout.courses_chooser_layout, courses);
         mCourses = courses;
         mContext = context;
+
+        if (mCourses == null) return;
         mSelected = new ArrayList<Boolean>();
         for (int i = 0; i < mCourses.size(); i++)
             mSelected.add(i, false);
