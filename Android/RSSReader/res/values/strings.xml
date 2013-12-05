@@ -14,5 +14,6 @@
     <string name="an_error_has_occurred_loadings_departments">An error has occurred loading department. Try Later.</string>
     <string name="ok">Ok</string>
     <string name="an_error_has_occurred_loadings_courses">An error has occurred loading courses. Try Later.</string>
+    <string name="an_error_has_occurred_saving_your_subscription">An error has occurred saving your subscription. Try Later.</string>
 
 </resources>

@@ -150,9 +150,17 @@ public class MainActivity extends FragmentActivity
                                     DialogUtils.showCoursesSelector(MainActivity.this, param.result, new Action<List<Course>>()
                                     {
                                         @Override
-                                        public void invoke(List<Course> param)
+                                        public void invoke(List<Course> courses)
                                         {
-                                            SharedUtils.saveCourses(param, MainActivity.this);
+                                            SharedUtils.saveCourses(courses, MainActivity.this);
+                                            try
+                                            {
+                                                DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                                            }
                                         }
                                     });
                                 }
