@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/RSSCommon"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="lib" path="libs/ormlite-android-4.47.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -20,16 +20,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class UnitnApiAsync
+public class UnitnApi
 {
-    public static String IP = "192.168.0.107";
-    public static final String PROTOCOL = "http";
-    public static final int PORT = 6767;
-    public static final String PATH = "/rssservice/";
-    public static final String BASE_URL = PROTOCOL + "://" + IP + ":" + PORT + PATH;
+    private static String IP = "192.168.0.107";
+    private static final String PROTOCOL = "http";
+    private static final int PORT = 6767;
+    private static final String PATH = "/rssservice/";
 
 
-    private UnitnApiAsync()
+    private UnitnApi()
     {
         // static methods only
     }
@@ -142,14 +141,14 @@ public class UnitnApiAsync
     }
 
 
-    public static CallbackAsyncTask<List<Feed>> getFeedsAsync(final String courseName, final Action<TaskResult<List<Feed>>> callback)
+    public static CallbackAsyncTask<List<Feed>> getFeedsAsync(final Course course, final Long lastReceivedFeed, final Action<TaskResult<List<Feed>>> callback)
     {
         CallbackAsyncTask<List<Feed>> task = new CallbackAsyncTask<List<Feed>>(callback)
         {
             @Override
             public List<Feed> doJob() throws Exception
             {
-                return getFeeds(courseName);
+                return getFeeds(course, lastReceivedFeed);
             }
         };
         task.execute();
@@ -158,14 +157,13 @@ public class UnitnApiAsync
     }
 
 
-    public static List<Feed> getFeeds(String courseName) throws Exception
+    public static List<Feed> getFeeds(Course course, Long lastSavedFeed) throws Exception
     {
         HttpClient client = new DefaultHttpClient();
-        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + courseName, null, null);
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + course.getId(), "lastReceivedId=" + lastSavedFeed, null);
         HttpGet get = new HttpGet(uri);
 
         HttpEntity entity = null;
-
         try
         {
             HttpResponse response = client.execute(get);
@@ -182,15 +180,12 @@ public class UnitnApiAsync
             for (int i = 0; i < jsonArray.length(); i++)
             {
                 JSONObject jsonFeed = jsonArray.getJSONObject(i);
-                JSONObject jsonCourse = jsonFeed.getJSONObject("course");
 
                 final int id = jsonFeed.getInt("id");
                 final String body = jsonFeed.getString("body");
                 final long timestamp = jsonFeed.getLong("timestamp");
 
-                final int colour = jsonCourse.getInt("colour");
-
-                feeds.add(new Feed(id, body, timestamp, Course.notCached(courseName, colour)));
+                feeds.add(new Feed(id, body, timestamp, course));
             }
 
             return feeds;

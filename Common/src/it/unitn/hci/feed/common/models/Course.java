@@ -180,4 +180,10 @@ public class Course implements Model
         return "id: " + mId + ", name: " + mName + ", aliases: " + mAliases + ", colour: " + mColour + ", department: " + mDepartment.getName();
     }
 
+
+    public void setId(long id)
+    {
+        mId = (int) id;
+    }
+
 }

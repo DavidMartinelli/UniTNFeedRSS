@@ -7,7 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @XmlRootElement
 @DatabaseTable
-public class Feed implements Model
+public class Feed implements Model, Comparable<Feed>
 {
 
     @XmlElement(name = "id")
@@ -103,5 +103,12 @@ public class Feed implements Model
     public void setCourse(Course course)
     {
         mCourse = course;
+    }
+
+
+    @Override
+    public int compareTo(Feed o)
+    {
+        return Long.valueOf(o.mTimeStamp).compareTo(mTimeStamp);
     }
 }
