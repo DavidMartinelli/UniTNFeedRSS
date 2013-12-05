@@ -57,7 +57,8 @@ public class UnitnApi
         HttpClient client = new DefaultHttpClient();
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments/" + department.getId(), null, null);
         HttpGet get = new HttpGet(uri);
-
+        get.setHeader("Accept", "application/json");
+        
         HttpEntity entity = null;
 
         try
