@@ -2,7 +2,6 @@ package it.unitn.hci.feed;
 
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
-import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,8 +27,8 @@ public class PollingEngine extends Thread
         mModifiedSince = -1;
         try
         {
-            File f = new File("feeds.db");
-            if (f.exists()) f.delete();
+            // File f = new File("feeds.db");
+            // if (f.exists()) f.delete();
 
             DatabaseManager.init();
         }

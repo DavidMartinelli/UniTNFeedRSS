@@ -4,11 +4,9 @@ import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
@@ -125,10 +123,20 @@ public class DatabaseManager
     }
 
 
-    private static void insertFeed(Feed feed, Dao<Feed, Integer> feedDao) throws Exception
+    private static boolean insertFeed(Feed feed, Dao<Feed, Integer> feedDao) throws Exception
     {
+
         if (feed.getCourse() == null) throw new IllegalArgumentException("You must supply a course");
-        feedDao.create(feed);
+        try
+        {
+            feedDao.create(feed);
+            return true;
+        }
+        catch (Exception e)
+        {
+            // duplicate feed
+            return false;
+        }
     }
 
 
@@ -174,28 +182,12 @@ public class DatabaseManager
         {
             db = fromConnectionPool();
             Dao<Feed, Integer> feedDao = createFeedDao(db);
-            Set<Feed> storedFeeds = new HashSet<Feed>(getFeeds());
 
             List<Feed> newFeeds = new ArrayList<Feed>();
             for (Feed feed : feeds)
             {
                 if (feed.getCourse() == null || !feed.getCourse().isPersistent()) throw new IllegalArgumentException("You must supply a course");
-
-                boolean any = false;
-                for (Feed stored : storedFeeds)
-                {
-                    if (stored.equals(feed))
-                    {
-                        any = true;
-                        break;
-                    }
-                }
-
-                if (!any)
-                {
-                    insertFeed(feed, feedDao);
-                    newFeeds.add(feed);
-                }
+                if (insertFeed(feed, feedDao)) newFeeds.add(feed);
             }
             return newFeeds;
         }
@@ -274,7 +266,15 @@ public class DatabaseManager
 
     private static void insertDepartment(Department department, Dao<Department, Integer> departmentDao, Dao<Course, Integer> courseDao, Dao<Alias, Integer> aliasDao, Dao<Feed, Integer> feedDao) throws Exception
     {
-        departmentDao.createOrUpdate(department);
+        try
+        {
+            departmentDao.createIfNotExists(department);
+        }
+        catch (Exception e)
+        {
+            // name not unique, same department
+            return;
+        }
 
         for (Course c : department.getCourses())
         {

@@ -15,7 +15,7 @@ public class Feed implements Model, Comparable<Feed>
     private int mId;
 
     @XmlElement(name = "body")
-    @DatabaseField
+    @DatabaseField(uniqueCombo = true)
     private String mBody;
 
     @XmlElement(name = "timestamp")
@@ -23,7 +23,7 @@ public class Feed implements Model, Comparable<Feed>
     private long mTimeStamp;
 
     @XmlElement(name = "course")
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, uniqueCombo = true)
     private Course mCourse;
 
 
