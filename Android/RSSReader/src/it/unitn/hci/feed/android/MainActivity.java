@@ -186,7 +186,13 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-
+            try
+            {
+                SharedUtils.toogleNotificationPreference(MainActivity.this);
+            }
+            catch (Exception e)
+            { // TODO pensare a cosa fare
+            }
         }
     };
 

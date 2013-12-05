@@ -12,6 +12,7 @@ public class SharedUtils
 {
     private static final String SHARED_NAME = "prefs";
     private static final String KEY = "courses";
+    private static final String NOTIFICATION_PREFERENCES_KEY = "notification";
 
 
     private SharedUtils()
@@ -39,5 +40,20 @@ public class SharedUtils
         for (int i = 0; i < array.length(); i++)
             courses.add(array.getLong(i));
         return courses;
+    }
+
+
+    public static void toogleNotificationPreference(Context context) throws Exception
+    {
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
+        Editor editor = preferences.edit();
+        editor.putBoolean(NOTIFICATION_PREFERENCES_KEY, !isNotificationsEnabled(context));
+        editor.commit();
+    }
+
+
+    public static boolean isNotificationsEnabled(Context context) throws Exception
+    {
+        return context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE).getBoolean(NOTIFICATION_PREFERENCES_KEY, true);
     }
 }
