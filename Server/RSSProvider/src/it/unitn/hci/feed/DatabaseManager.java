@@ -5,7 +5,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -20,18 +22,19 @@ import it.unitn.hci.feed.common.models.Feed;
 public class DatabaseManager
 {
 
-    private static final ThreadLocal<DatabaseManager> connectionPool = new ThreadLocal<DatabaseManager>();
+    private static final Map<Long, DatabaseManager> POOL = new Hashtable<Long, DatabaseManager>();
     private static final String DATABASE_NAME = "feeds.db";
     private ConnectionSource mConnectionSource;
+    private int mInner;
 
 
     private static DatabaseManager fromConnectionPool() throws Exception
     {
-        DatabaseManager local = connectionPool.get();
-        if (local == null || !local.mConnectionSource.isOpen())
-        {
-            local = new DatabaseManager(DATABASE_NAME);
-        }
+        DatabaseManager local = POOL.get(Thread.currentThread().getId());
+
+        if (local == null || !local.mConnectionSource.isOpen()) local = new DatabaseManager(DATABASE_NAME);
+        POOL.put(Thread.currentThread().getId(), local);
+
         return local;
     }
 
@@ -42,6 +45,7 @@ public class DatabaseManager
         {
             Class.forName("org.sqlite.JDBC");
             mConnectionSource = new JdbcConnectionSource("jdbc:sqlite:" + databaseName);
+            mInner = 0;
         }
         catch (SQLException e)
         {
@@ -76,7 +80,13 @@ public class DatabaseManager
 
     private static void close(DatabaseManager db) throws Exception
     {
-        if (db != null) db.mConnectionSource.close();
+        if (db == null) return;
+        if (db.mInner != 0)
+        {
+            db.mInner--;
+            return;
+        }
+        if (db.mConnectionSource.isOpen()) db.mConnectionSource.close();
     }
 
 
@@ -158,6 +168,7 @@ public class DatabaseManager
 
     public static List<Feed> insertFeeds(List<Feed> feeds) throws Exception
     {
+        if (feeds == null || feeds.isEmpty()) return null;
         DatabaseManager db = null;
         try
         {
