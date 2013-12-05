@@ -50,5 +50,10 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnItemClickLi
     {
         mSelected.set(position, !mSelected.get(position));
     }
+    
+    public List<Boolean> getSelected()
+    {
+        return mSelected;
+    }
 
 }

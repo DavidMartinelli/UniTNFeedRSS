@@ -181,7 +181,7 @@ public class DialogUtils
                 View lyTitle = rootView.findViewById(R.id.lyTitle);
                 final ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstCourses);
                 View button = rootView.findViewById(R.id.btnOk);
-                CourseAdapter adapter = new CourseAdapter(context, courses);
+                final CourseAdapter adapter = new CourseAdapter(context, courses);
                 lstDepartments.setAdapter(adapter);
 
                 button.setOnClickListener(new OnClickListener()
@@ -190,10 +190,12 @@ public class DialogUtils
                     public void onClick(View v)
                     {
                         List<Course> result = new ArrayList<Course>();
-                        for (int i = 0; i < lstDepartments.getChildCount(); i++)
+                        List<Boolean> selectedCourse = adapter.getSelected();
+                        for(int i = 0; i<courses.size(); i++)
                         {
-                            // TODO ricavare i field con il cb selected e ritornarli
+                            if(selectedCourse.get(i)) result.add(courses.get(i));
                         }
+                        
                         action.invoke(result);
                         dismiss();
                     }

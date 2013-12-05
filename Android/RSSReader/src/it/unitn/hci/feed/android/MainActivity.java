@@ -1,16 +1,17 @@
 package it.unitn.hci.feed.android;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
+import it.unitn.hci.feed.android.utils.SharedUtils;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
 import android.os.Bundle;
-import android.provider.CalendarContract.Instances;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -163,6 +164,11 @@ public class MainActivity extends FragmentActivity
                                                                                                             try
                                                                                                             {
                                                                                                                 DatabaseManager.instantiate(MainActivity.this).syncCourses(w);
+                                                                                                                List<Long> ids = new ArrayList<Long>();
+                                                                                                                for (Course kw3 : w)
+                                                                                                                    ids.add((long) kw3.getId());
+
+                                                                                                                SharedUtils.saveCourses(ids, MainActivity.this);
                                                                                                             }
                                                                                                             catch (Exception e)
                                                                                                             {
@@ -171,12 +177,13 @@ public class MainActivity extends FragmentActivity
                                                                                                                         {
                                                                                                                             {
                                                                                                                                 {
-                                                                                                                                    try{
+                                                                                                                                    try
+                                                                                                                                    {
                                                                                                                                         // print exception here
                                                                                                                                     }
-                                                                                                                                    catch(Exception e3)
+                                                                                                                                    catch (Exception e3)
                                                                                                                                     {
-                                                                                                                                        if((((((e instanceof FileNotFoundException)))))) e.printStackTrace();
+                                                                                                                                        if ((((((e instanceof FileNotFoundException)))))) e.printStackTrace();
                                                                                                                                     }
                                                                                                                                 }
                                                                                                                             }
