@@ -9,8 +9,10 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -30,6 +32,20 @@ import android.widget.AdapterView.OnItemClickListener;
 public class DialogUtils
 {
 
+    public static void show(String message, String title, Context context, boolean isCancellable, Integer icon, String positiveButtonText, DialogInterface.OnClickListener positiveButtonListener)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message);
+        if (title != null) builder.setTitle(title);
+        builder.setCancelable(isCancellable);
+        if (icon != null) builder.setIcon(icon);
+        if (positiveButtonText != null) builder.setPositiveButton(positiveButtonText, positiveButtonListener);
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+
+    //
     @SuppressWarnings("deprecation")
     public static void showPopupWindowMenu(Context context, View anchor, final OnClickListener manageFeedsListener, final OnClickListener showAllFeedsListener, final OnClickListener showNotificationListener)
     {
@@ -191,11 +207,11 @@ public class DialogUtils
                     {
                         List<Course> result = new ArrayList<Course>();
                         List<Boolean> selectedCourse = adapter.getSelected();
-                        for(int i = 0; i<courses.size(); i++)
+                        for (int i = 0; i < courses.size(); i++)
                         {
-                            if(selectedCourse.get(i)) result.add(courses.get(i));
+                            if (selectedCourse.get(i)) result.add(courses.get(i));
                         }
-                        
+
                         action.invoke(result);
                         dismiss();
                     }

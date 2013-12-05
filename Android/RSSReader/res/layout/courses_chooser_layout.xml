@@ -39,6 +39,7 @@
         android:layout_below="@+id/lyTitle"
         android:background="@color/black"
         android:divider="@color/strip_line"
+        android:layout_above="@+id/btnOk"
         android:dividerHeight="1dp"
         tools:listitem="@layout/courses_chooser_item_layout" >
     </ListView>
@@ -47,7 +48,7 @@
         android:id="@+id/btnOk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/lstCourses"
+        android:layout_alignParentBottom="true"
         android:text="Ok" />
 
 </RelativeLayout>

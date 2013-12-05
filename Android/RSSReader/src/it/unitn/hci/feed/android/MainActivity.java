@@ -1,9 +1,13 @@
 package it.unitn.hci.feed.android;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.android.adapter.FeedsAdapter;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
@@ -11,22 +15,28 @@ import it.unitn.hci.feed.android.utils.DialogUtils;
 import it.unitn.hci.feed.android.utils.SharedUtils;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
+import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 
 public class MainActivity extends FragmentActivity
 {
-    // private ExpandableListAdapter mCoursesAdapter;
-    // private ExpandableListView mCoursesList;
+    private ExpandableListAdapter mCoursesAdapter;
+    private ExpandableListView mCoursesList;
 
-    // private Map<String, List<Feed>> mCourses;
+    private Map<String, List<Feed>> mCourses;
     private ImageView btnMenu;
 
 
@@ -36,17 +46,16 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        // mCoursesList = (ExpandableListView) findViewById(R.id.lstCourses);
+        mCoursesList = (ExpandableListView) findViewById(R.id.lstCourses);
         btnMenu = (ImageView) findViewById(R.id.btnMenu);
 
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setTitle("Loading feeds");
-        dialog.setMessage("Please wait...");
-        dialog.setCancelable(false);
-        dialog.show();
-
-        // TODO leggere dal tatapeis
-
+        // final ProgressDialog dialog = new ProgressDialog(this);
+        // dialog.setTitle("Loading feeds");
+        // dialog.setMessage("Please wait...");
+        // dialog.setCancelable(false);
+        // dialog.show();
+        //
+        // TODO prendere da db i feeds e ordinarli per data
         // UnitnApi.getFeedsAsync("ANALISI_MATEMATICA_III", new Action<TaskResult<List<Feed>>>()
         // {
         // @Override
@@ -107,157 +116,59 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-            final ProgressDialog seppia = new ProgressDialog(MainActivity.this);
-            seppia.setMessage("Loading departments");
-            seppia.show();
+            final ProgressDialog pDialog = new ProgressDialog(MainActivity.this);
+            pDialog.setMessage(getString(R.string.loadings_departments));
+            pDialog.show();
+
+            UnitnApi.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<Department>>>()
             {
-                UnitnApi.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<Department>>>()
+                @Override
+                public void invoke(TaskResult<List<Department>> param)
                 {
-                    @Override
-                    public void invoke(TaskResult<List<Department>> m2XiLa33MbeRRseTTebLell0)
+                    pDialog.dismiss();
+                    final List<Department> result = param.result;
+                    if (param.exception != null || result.isEmpty())
                     {
-                        seppia.dismiss();
-                        final List<Department> k4 = m2XiLa33MbeRRseTTebLell0.result;
-                        if (m2XiLa33MbeRRseTTebLell0.exception != null || k4.isEmpty())
-                        {
-                            m2XiLa33MbeRRseTTebLell0.exception.printStackTrace();
-                            // TODO mostare dialog "an error has occurred bla bla"
-                            return;
-                        }
-
-                        DialogUtils.showDepartmentsList(MainActivity.this, k4, new OnItemClickListener()
-                        {
-                            @Override
-                            public void onItemClick(AdapterView<?> adapter, View view, int labello, long id)
-                            {
-                                {
-                                    Department h1 = k4.get(labello);
-                                    {
-                                        UnitnApi.getCoursesAsync(h1, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
-                                        {
-                                            @Override
-                                            public void invoke(TaskResult<List<Course>> k)
-                                            {
-                                                {
-                                                    try
-                                                    {
-                                                        DialogUtils.showCoursesSelector(MainActivity.this, k.result, new Action<List<Course>>()
-                                                        {
-
-                                                            @Override
-                                                            public void invoke(List<Course> w)
-                                                            {
-                                                                try
-                                                                {
-                                                                    try
-                                                                    {
-                                                                        if (w != null)
-                                                                        {
-                                                                            {
-                                                                                {
-                                                                                    {
-                                                                                        {
-                                                                                            {
-                                                                                                {
-                                                                                                    {
-                                                                                                        {
-                                                                                                            try
-                                                                                                            {
-                                                                                                                DatabaseManager.instantiate(MainActivity.this).syncCourses(w);
-                                                                                                                List<Long> ids = new ArrayList<Long>();
-                                                                                                                for (Course kw3 : w)
-                                                                                                                    ids.add((long) kw3.getId());
-
-                                                                                                                SharedUtils.saveCourses(ids, MainActivity.this);
-                                                                                                            }
-                                                                                                            catch (Exception e)
-                                                                                                            {
-                                                                                                                {
-                                                                                                                    {
-                                                                                                                        {
-                                                                                                                            {
-                                                                                                                                {
-                                                                                                                                    try
-                                                                                                                                    {
-                                                                                                                                        // print exception here
-                                                                                                                                    }
-                                                                                                                                    catch (Exception e3)
-                                                                                                                                    {
-                                                                                                                                        if ((((((e instanceof FileNotFoundException)))))) e.printStackTrace();
-                                                                                                                                    }
-                                                                                                                                }
-                                                                                                                            }
-                                                                                                                        }
-                                                                                                                    }
-                                                                                                                }
-                                                                                                            }
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    catch (Exception e)
-                                                                    {
-                                                                        e.printStackTrace();
-                                                                        throw e;
-                                                                    }
-                                                                }
-                                                                catch (Exception e)
-                                                                {
-                                                                    {
-                                                                        try
-                                                                        {
-                                                                            {
-                                                                                Thread.sleep(200);
-                                                                            }
-                                                                        }
-                                                                        catch (Exception e2)
-                                                                        {
-                                                                            {
-                                                                                e2.printStackTrace();
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                                System.out.println(w);
-                                                            }
-                                                        });
-                                                    }
-                                                    catch (Exception e)
-                                                    {
-                                                        {
-                                                            {
-                                                                {
-                                                                    {
-                                                                        {
-                                                                            {
-                                                                                {
-                                                                                    {
-                                                                                        // TODO print stack trace
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        });
+                        param.exception.printStackTrace();
+                        DialogUtils.show(getString(R.string.an_error_has_occurred_loadings_departments), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                        return;
                     }
-                });
-            }
+
+                    DialogUtils.showDepartmentsList(MainActivity.this, result, new OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapter, View view, int position, long id)
+                        {
+                            Department dep = result.get(position);
+                            UnitnApi.getCoursesAsync(dep, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
+                            {
+                                @Override
+                                public void invoke(TaskResult<List<Course>> param)
+                                {
+                                    if (param.exception != null) DialogUtils.show(getString(R.string.an_error_has_occurred_loadings_courses), null, MainActivity.this, true, null, getString(R.string.ok), null);
+
+                                    DialogUtils.showCoursesSelector(MainActivity.this, param.result, new Action<List<Course>>()
+                                    {
+                                        @Override
+                                        public void invoke(List<Course> courses)
+                                        {
+                                            SharedUtils.saveCourses(courses, MainActivity.this);
+                                            try
+                                            {
+                                                DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
         }
     };
 
@@ -275,7 +186,13 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-
+            try
+            {
+                SharedUtils.toogleNotificationPreference(MainActivity.this);
+            }
+            catch (Exception e)
+            { // TODO pensare a cosa fare
+            }
         }
     };
 

@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 public class UnitnApi
 {
-    private static String IP = "192.168.0.107";
+    private static String IP = "192.168.0.103";
     private static final String PROTOCOL = "http";
     private static final int PORT = 6767;
     private static final String PATH = "/rssservice/";
@@ -109,7 +109,9 @@ public class UnitnApi
 
         HttpClient client = new DefaultHttpClient();
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments", null, null);
+
         HttpGet get = new HttpGet(uri);
+        get.addHeader("Accept", "application/json");
 
         HttpEntity entity = null;
 
