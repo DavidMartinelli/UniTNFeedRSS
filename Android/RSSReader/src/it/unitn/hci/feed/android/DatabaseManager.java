@@ -36,7 +36,6 @@ public class DatabaseManager
             public void onUpgrade(SQLiteDatabase arg0, ConnectionSource arg1, int arg2, int arg3)
             {
                 // empty method
-
             }
 
 

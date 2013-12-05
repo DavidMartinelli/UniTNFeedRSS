@@ -177,7 +177,7 @@ public class Course implements Model
     @Override
     public String toString()
     {
-        return "id: " + mId + ", name: " + mName + ", aliases: " + mAliases + ", colour: " + mColour + ", department: " + mDepartment.getName();
+        return "id: " + mId + ", name: " + mName + ", aliases: " + mAliases + ", colour: " + mColour + ", department: " + (mDepartment == null ? null : mDepartment.getName());
     }
 
 

@@ -1,5 +1,6 @@
 package it.unitn.hci.feed.android.utils;
 
+import it.unitn.hci.feed.common.models.Course;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -19,13 +20,13 @@ public class SharedUtils
     }
 
 
-    public static void saveCourses(List<Long> ids, Context context)
+    public static void saveCourses(List<Course> courses, Context context)
     {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
         Editor editor = preferences.edit();
         JSONArray arr = new JSONArray();
-        for (Long id : ids)
-            arr.put(id);
+        for (Course c : courses)
+            arr.put(c.getId());
         editor.putString(KEY, arr.toString());
         editor.commit();
     }

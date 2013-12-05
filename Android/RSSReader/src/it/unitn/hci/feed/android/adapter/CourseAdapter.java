@@ -7,13 +7,13 @@ import java.util.List;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
-public class CourseAdapter extends ArrayAdapter<Course> implements OnItemClickListener
+public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListener
 {
     private List<Course> mCourses;
     private List<Boolean> mSelected;
@@ -38,6 +38,9 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnItemClickLi
     {
         if (convertView == null) convertView = mInflater.inflate(R.layout.courses_chooser_item_layout, null);
         TextView departmentName = (TextView) convertView.findViewById(R.id.lblCourseName);
+        CheckBox cb = (CheckBox) convertView.findViewById(R.id.cbSelectCourse);
+        cb.setOnClickListener(this);
+        cb.setTag(position);
 
         departmentName.setText(mCourses.get(position).getName());
 
@@ -45,15 +48,17 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnItemClickLi
     }
 
 
-    @Override
-    public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
-    {
-        mSelected.set(position, !mSelected.get(position));
-    }
-    
     public List<Boolean> getSelected()
     {
         return mSelected;
+    }
+
+
+    @Override
+    public void onClick(View view)
+    {
+        int position = (Integer) view.getTag();
+        mSelected.set(position, !mSelected.get(position));
     }
 
 }

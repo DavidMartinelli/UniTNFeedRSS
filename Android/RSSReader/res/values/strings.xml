@@ -10,5 +10,9 @@
     <string name="manage_feeds">Manage feeds</string>
     <string name="choose_department">Choose a department</string>
     <string name="choose_courses">Choose the courses</string>
+    <string name="loadings_departments">Loading department</string>
+    <string name="an_error_has_occurred_loadings_departments">An error has occurred loading department. Try Later.</string>
+    <string name="ok">Ok</string>
+    <string name="an_error_has_occurred_loadings_courses">An error has occurred loading courses. Try Later.</string>
 
 </resources>
