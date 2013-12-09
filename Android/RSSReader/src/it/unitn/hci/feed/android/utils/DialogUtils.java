@@ -11,6 +11,7 @@ import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
@@ -32,6 +33,18 @@ import android.widget.AdapterView.OnItemClickListener;
 public class DialogUtils
 {
 
+    public static ProgressDialog showProgressDialog(Context c, String title, String message, boolean isCancellable)
+    {
+        final ProgressDialog dialog = new ProgressDialog(c);
+        dialog.setTitle(title); 
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.show();
+
+        return dialog;
+    }
+
+
     public static void show(String message, String title, Context context, boolean isCancellable, Integer icon, String positiveButtonText, DialogInterface.OnClickListener positiveButtonListener)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -47,7 +60,7 @@ public class DialogUtils
 
     //
     @SuppressWarnings("deprecation")
-    public static void showPopupWindowMenu(Context context, View anchor, final OnClickListener manageFeedsListener, final OnClickListener showAllFeedsListener, final OnClickListener showNotificationListener)
+    public static void showPopupWindowMenu(Context context, View anchor, final OnClickListener manageFeedsListener, final OnClickListener showAllFeedsListener, final OnClickListener showNotificationListener) throws Exception
     {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.fast_menu_layout, null);
@@ -55,6 +68,7 @@ public class DialogUtils
         TextView btnManageFeeds = (TextView) view.findViewById(R.id.btnManageFeeds);
         TextView btnShowAllFeeds = (TextView) view.findViewById(R.id.btnShowAllFeeds);
         TextView btnEnableNotification = (TextView) view.findViewById(R.id.btnEnableNotification);
+        btnEnableNotification.setText(SharedUtils.isNotificationsEnabled(context) ? context.getString(R.string.disable_notifications) : context.getString(R.string.enable_notifications));
 
         final PopupWindow popupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable());

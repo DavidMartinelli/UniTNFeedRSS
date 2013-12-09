@@ -24,6 +24,7 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.app.ProgressDialog;
 import android.content.Context;
 
@@ -48,20 +49,16 @@ public class MainActivity extends FragmentActivity
         mCoursesList.setOnChildClickListener(onFeedClickListener);
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
 
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setTitle("Loading feeds"); //TODO fare le stringe nel xml
-        dialog.setMessage("Please wait..."); //TODO idem
-        dialog.setCancelable(false);
-        dialog.show();
+        final ProgressDialog dialog = DialogUtils.showProgressDialog(this, getString(R.string.loading_feeds), getString(R.string.please_wait), true);
 
         // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
-        UnitnApi.getFeedsAsync(new Course(1, "Probabilità e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+        UnitnApi.getFeedsAsync(new Course(1, "Probabilit�� e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
         {
             @Override
             public void invoke(TaskResult<List<Feed>> param)
             {
                 if (param.exception != null)
-                ;// cè stato un errore, mostrare messaggio
+                ;// c�� stato un errore, mostrare messaggio
 
                 dialog.dismiss();
 
@@ -83,8 +80,16 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onClick(View v)
             {
-                DialogUtils.showPopupWindowMenu(context, v, mOnManageFeedsCkicked, mOnShowAllFeedsCkicked, mOnEnableNotificationCkicked);
+                try
+                {
+                    DialogUtils.showPopupWindowMenu(context, v, mOnManageFeedsCkicked, mOnShowAllFeedsCkicked, mOnEnableNotificationCkicked);
+                }
+                catch (Exception e)
+                {
+                    Toast.makeText(context, context.getString(R.string.an_error_has_occurred_saving_your_preference), Toast.LENGTH_LONG).show();
+                }
             }
+
         };
     }
 
@@ -166,7 +171,11 @@ public class MainActivity extends FragmentActivity
             try
             {
                 SharedUtils.toogleNotificationPreference(MainActivity.this);
-                // mostrare toast e cambiare attiva/disattiva nella voce del menu....fare anche all'accensione del programma va controlloato se è attivo/disattivo e settare la voce del menu di conseguenza
+
+                final Context context = MainActivity.this;
+                boolean isEnabled = SharedUtils.isNotificationsEnabled(context);
+                if (isEnabled) Toast.makeText(context, context.getString(R.string.notification_enabled), Toast.LENGTH_LONG).show();
+                else Toast.makeText(context, context.getString(R.string.notification_disabled), Toast.LENGTH_LONG).show();
             }
             catch (Exception e)
             { // TODO pensare a cosa fare

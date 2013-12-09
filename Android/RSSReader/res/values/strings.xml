@@ -7,6 +7,7 @@
     <string name="manage_feed">Manage feeds</string>
     <string name="show_all">Show all feeds</string>
     <string name="enable_notifications">Enable notifications</string>
+    <string name="disable_notifications">Disable notifications</string>
     <string name="manage_feeds">Manage feeds</string>
     <string name="choose_department">Choose a department</string>
     <string name="choose_courses">Choose the courses</string>
@@ -15,5 +16,10 @@
     <string name="ok">Ok</string>
     <string name="an_error_has_occurred_loadings_courses">An error has occurred loading courses. Try Later.</string>
     <string name="an_error_has_occurred_saving_your_subscription">An error has occurred saving your subscription. Try Later.</string>
+    <string name="loading_feeds">Loading feeds</string>
+    <string name="please_wait">Please wait</string>
+    <string name="an_error_has_occurred_saving_your_preference">An error has occurred saving your preferences</string>
+    <string name="notification_enabled">notification enabled</string>
+    <string name="notification_disabled">Notification disabled</string>
 
 </resources>
