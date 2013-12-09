@@ -1,9 +1,7 @@
 package it.unitn.hci.feed.android;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
@@ -26,17 +24,15 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 
 public class MainActivity extends FragmentActivity
 {
     private ExpandableListAdapter mCoursesAdapter;
     private ExpandableListView mCoursesList;
 
-    private Map<String, List<Feed>> mCourses;
+    private Map<String, List<Feed>> mCourses = new HashMap<String, List<Feed>>();
     private ImageView btnMenu;
 
 
@@ -49,53 +45,34 @@ public class MainActivity extends FragmentActivity
         mCoursesList = (ExpandableListView) findViewById(R.id.lstCourses);
         btnMenu = (ImageView) findViewById(R.id.btnMenu);
 
-        // final ProgressDialog dialog = new ProgressDialog(this);
-        // dialog.setTitle("Loading feeds");
-        // dialog.setMessage("Please wait...");
-        // dialog.setCancelable(false);
-        // dialog.show();
-        //
-        // TODO prendere da db i feeds e ordinarli per data
-        // UnitnApi.getFeedsAsync("ANALISI_MATEMATICA_III", new Action<TaskResult<List<Feed>>>()
-        // {
-        // @Override
-        // public void invoke(TaskResult<List<Feed>> result)
-        // {
-        // dialog.dismiss();
-        // Exception exception = result.exception;
-        // if (exception != null)
-        // {
-        // Toast.makeText(MainActivity.this, "Something went wrong: " + exception + ", " + exception.getMessage(), Toast.LENGTH_LONG).show();
-        // exception.printStackTrace();
-        // return;
-        // }
-        //
-        // mCourses = new Hashtable<String, List<Feed>>();
-        // for (Feed f : result.result)
-        // {
-        // final String timestamp = new Date(f.getTimeStamp()).toString();
-        // List<Feed> feeds = mCourses.get(timestamp);
-        // if (feeds == null) feeds = new LinkedList<Feed>();
-        // feeds.add(f);
-        // mCourses.put(timestamp, feeds);
-        // }
-        //
-        // mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
-        // mCoursesList.setAdapter(mCoursesAdapter);
-        // mCoursesList.setOnChildClickListener(new OnChildClickListener()
-        // {
-        // @Override
-        // public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
-        // {
-        // List<String> mDates = new ArrayList<String>(mCourses.keySet());
-        // DialogUtils.showFeed(MainActivity.this, mCourses.get(mDates.get(groupPosition)).get(childPosition));
-        // return true;
-        // }
-        // });
-        // }
-        // });
-
+        mCoursesList.setOnChildClickListener(onFeedClickListener);
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
+
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setTitle("Loading feeds"); //TODO fare le stringe nel xml
+        dialog.setMessage("Please wait..."); //TODO idem
+        dialog.setCancelable(false);
+        dialog.show();
+
+        // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
+        UnitnApi.getFeedsAsync(new Course(1, "Probabilità e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+        {
+            @Override
+            public void invoke(TaskResult<List<Feed>> param)
+            {
+                if (param.exception != null)
+                ;// cè stato un errore, mostrare messaggio
+
+                dialog.dismiss();
+
+                List<Feed> feeds = param.result;
+
+                mCourses.put("1990", feeds);
+
+                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
+                mCoursesList.setAdapter(mCoursesAdapter);
+            }
+        });
     }
 
 
@@ -177,7 +154,7 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-
+            // fare un api che ritorna tutti i feed dell'universo...e mettere un progress dialog mentri li scarichi
         }
     };
 
@@ -189,10 +166,22 @@ public class MainActivity extends FragmentActivity
             try
             {
                 SharedUtils.toogleNotificationPreference(MainActivity.this);
+                // mostrare toast e cambiare attiva/disattiva nella voce del menu....fare anche all'accensione del programma va controlloato se è attivo/disattivo e settare la voce del menu di conseguenza
             }
             catch (Exception e)
             { // TODO pensare a cosa fare
             }
+        }
+    };
+
+    private final OnChildClickListener onFeedClickListener = new OnChildClickListener()
+    {
+        @Override
+        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+        {
+            List<String> mDates = new ArrayList<String>(mCourses.keySet());
+            DialogUtils.showFeed(MainActivity.this, mCourses.get(mDates.get(groupPosition)).get(childPosition));
+            return true;
         }
     };
 
