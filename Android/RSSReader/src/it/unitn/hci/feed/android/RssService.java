@@ -4,22 +4,27 @@ import it.unitn.hci.feed.android.utils.SharedUtils;
 import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.OsUtils;
+import java.io.File;
 import java.util.List;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class RssService extends Service
 {
 
     private static final long SLEEP_TIME = 900000;
     private boolean mStop = false;
+    private final IBinder mLocalBinder = new LocalBinder();
+    private Intent mIntent;
 
 
     @Override
     public IBinder onBind(Intent intent)
     {
-        return (IBinder) this;
+        return mLocalBinder;
     }
 
 
@@ -69,6 +74,7 @@ public class RssService extends Service
         try
         {
             List<Long> ids = SharedUtils.getCourses(this);
+            System.out.println("orco");
             for (long id : ids)
             {
                 try
@@ -94,10 +100,21 @@ public class RssService extends Service
     {
         DatabaseManager manager = DatabaseManager.instantiate(this);
         Course c = manager.getCourse(courseId);
+        System.out.println("caio");
         List<Feed> feeds = UnitnApi.getFeeds(c, manager.getLastFeed(c));
         manager.insertFeeds(feeds, c);
-        
         // TODO mandare la push
+        mIntent = new Intent(MainActivity.DIALOG_INTENT);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(mIntent);
+
+    }
+
+    public class LocalBinder extends Binder
+    {
+        public RssService getServerInstance()
+        {
+            return RssService.this;
+        }
     }
 
 }

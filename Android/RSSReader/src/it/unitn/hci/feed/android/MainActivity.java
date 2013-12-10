@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
-import it.unitn.hci.feed.android.adapter.FeedsAdapter;
+import it.unitn.hci.feed.android.RssService.LocalBinder;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
@@ -15,6 +15,7 @@ import it.unitn.hci.feed.common.models.Course;
 import it.unitn.hci.feed.common.models.Department;
 import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,15 +27,26 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 
 public class MainActivity extends FragmentActivity
 {
+    public static final String DIALOG_INTENT = "dialog";
+
     private ExpandableListAdapter mCoursesAdapter;
     private ExpandableListView mCoursesList;
 
     private Map<String, List<Feed>> mCourses = new HashMap<String, List<Feed>>();
     private ImageView btnMenu;
+    private ProgressDialog mDialog;
+
+    private boolean mBounded;
+    private RssService mServer;
 
 
     @Override
@@ -49,27 +61,30 @@ public class MainActivity extends FragmentActivity
         mCoursesList.setOnChildClickListener(onFeedClickListener);
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
 
-        final ProgressDialog dialog = DialogUtils.showProgressDialog(this, getString(R.string.loading_feeds), getString(R.string.please_wait), true);
+        Intent mIntent = new Intent(this, RssService.class);
+        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
 
+        IntentFilter intent = new IntentFilter(DIALOG_INTENT);
+        registerReceiver(mDialogBroadcastReceiver, intent);
         // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
-        UnitnApi.getFeedsAsync(new Course(1, "Probabilit�� e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
-        {
-            @Override
-            public void invoke(TaskResult<List<Feed>> param)
-            {
-                if (param.exception != null)
-                ;// c�� stato un errore, mostrare messaggio
-
-                dialog.dismiss();
-
-                List<Feed> feeds = param.result;
-
-                mCourses.put("1990", feeds);
-
-                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
-                mCoursesList.setAdapter(mCoursesAdapter);
-            }
-        });
+        //        UnitnApi.getFeedsAsync(new Course(1, "Probabilit�� e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+        //        {
+        //            @Override
+        //            public void invoke(TaskResult<List<Feed>> param)
+        //            {
+        //                if (param.exception != null)
+        //                ;// c�� stato un errore, mostrare messaggio
+        //
+        //                dialog.dismiss();
+        //
+        //                List<Feed> feeds = param.result;
+        //
+        //                mCourses.put("1990", feeds);
+        //
+        //                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
+        //                mCoursesList.setAdapter(mCoursesAdapter);
+        //            }
+        //        });
     }
 
 
@@ -138,6 +153,7 @@ public class MainActivity extends FragmentActivity
                                             try
                                             {
                                                 DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
+                                                mDialog = DialogUtils.showProgressDialog(getApplicationContext(), getString(R.string.loading_feeds), getString(R.string.please_wait), true);
                                             }
                                             catch (Exception e)
                                             {
@@ -194,4 +210,31 @@ public class MainActivity extends FragmentActivity
         }
     };
 
+    private final ServiceConnection mConnection = new ServiceConnection()
+    {
+
+        public void onServiceDisconnected(ComponentName name)
+        {
+            Toast.makeText(MainActivity.this, "Service is disconnected", Toast.LENGTH_LONG).show();
+            mBounded = false;
+            mServer = null;
+        }
+
+
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            Toast.makeText(MainActivity.this, "Service is connected", Toast.LENGTH_LONG).show();
+            mBounded = true;
+            mServer = ((LocalBinder) service).getServerInstance();
+        }
+    };
+
+    BroadcastReceiver mDialogBroadcastReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            mDialog.dismiss();
+        }
+    };
 }
