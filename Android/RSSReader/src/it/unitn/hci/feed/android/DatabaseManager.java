@@ -1,12 +1,14 @@
 package it.unitn.hci.feed.android;
 
+import it.unitn.hci.feed.android.models.Alias;
+import it.unitn.hci.feed.android.models.Course;
+import it.unitn.hci.feed.android.models.Department;
+import it.unitn.hci.feed.android.models.Feed;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import it.unitn.hci.feed.common.models.Course;
-import it.unitn.hci.feed.common.models.Feed;
 import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -44,9 +46,11 @@ public class DatabaseManager
             {
                 try
                 {
-                    if (mConnectionSource == null) mConnectionSource = new AndroidConnectionSource(this);
+                    mConnectionSource = arg1;
                     TableUtils.createTableIfNotExists(mConnectionSource, Course.class);
                     TableUtils.createTableIfNotExists(mConnectionSource, Feed.class);
+                    TableUtils.createTableIfNotExists(mConnectionSource, Department.class);
+                    TableUtils.createTableIfNotExists(mConnectionSource, Alias.class);
                 }
                 catch (Exception e)
                 {
