@@ -1,6 +1,9 @@
 package it.unitn.hci.feed.android;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,33 +65,66 @@ public class MainActivity extends FragmentActivity
         mCoursesList.setOnChildClickListener(onFeedClickListener);
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
 
+        try
+        {
+            DatabaseManager manager = DatabaseManager.instantiate(this);
+            List<Feed> feeds = manager.getFeeds();
+            List<String> orderedKeys = displayFeeds(feeds);
+            mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses, orderedKeys);
+            mCoursesList.setAdapter(mCoursesAdapter);
+            DatabaseManager.close(manager);
+        }
+        catch (Exception e)
+        {
+            // non ce ne saranno
+            e.printStackTrace();
+        } finally {
+
+        }
+
         Intent mIntent = new Intent(this, RssService.class);
         bindService(mIntent, mConnection, BIND_AUTO_CREATE);
 
         IntentFilter intent = new IntentFilter(DIALOG_INTENT);
         registerReceiver(mDialogBroadcastReceiver, intent);
+    }
 
-        // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
 
-        // final ProgressDialog dialog = DialogUtils.showProgressDialog(this, "", "Loading feeds", true);
-        UnitnApi.getFeedsAsync(new Course(1, "Probabilità e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+    protected List<String> displayFeeds(List<Feed> feeds)
+    {
+        final SimpleDateFormat dateFormater = new SimpleDateFormat("MMMMM dd, yyyy");
+
+        List<Feed> savedFeeds;
+        List<Timestamp> orderedTimestamp = new ArrayList<Timestamp>();
+        for (Feed f : feeds)
         {
-            @Override
-            public void invoke(TaskResult<List<Feed>> param)
+            Timestamp t = new Timestamp(f.getTimeStamp());//new Time(f.getTimeStamp());
+            String timeStamp = dateFormater.format(t).toUpperCase();
+            savedFeeds = mCourses.get(timeStamp);
+            if (savedFeeds != null)
             {
-                if (param.exception != null)
-                ;// cè stato un errore, mostrare messaggio
-
-                // dialog.dismiss();
-
-                List<Feed> feeds = param.result;
-
-                mCourses.put("1990", feeds);
-
-                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
-                mCoursesList.setAdapter(mCoursesAdapter);
+                savedFeeds.add(f);
             }
-        });
+            else
+            {
+                savedFeeds = new ArrayList<Feed>();
+                savedFeeds.add(f);
+                orderedTimestamp.add(t);
+                mCourses.put(timeStamp, savedFeeds);
+            }
+
+        }
+        Collections.reverse(orderedTimestamp);
+
+        List<String> orderedDates = new ArrayList<String>();
+
+        for (Timestamp tstamp : orderedTimestamp)
+        {
+            orderedDates.add(dateFormater.format(tstamp).toUpperCase());
+        }
+        ;
+
+        return orderedDates;
     }
 
 
@@ -157,10 +193,12 @@ public class MainActivity extends FragmentActivity
                                             try
                                             {
                                                 DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
-                                                mDialog = DialogUtils.showProgressDialog(getApplicationContext(), getString(R.string.loading_feeds), getString(R.string.please_wait), true);
+                                             //   mDialog = DialogUtils.showProgressDialog(MainActivity.this, getString(R.string.loading_feeds), getString(R.string.please_wait), true);
+                                                DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
                                             }
                                             catch (Exception e)
                                             {
+                                                e.printStackTrace();
                                                 DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
                                             }
                                         }
@@ -179,7 +217,23 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-            // fare un api che ritorna tutti i feed dell'universo...e mettere un progress dialog mentri li scarichi
+            UnitnApi.getAllFeedsAsync(new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+            {
+                @Override
+                public void invoke(TaskResult<List<Feed>> param)
+                {
+                    if (param.exception != null)
+                    ;// cè stato un errore, mostrare messaggio
+
+                    // dialog.dismiss();
+
+                    List<String> orderedKeys = displayFeeds(param.result);
+
+                    mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses, orderedKeys);
+
+                    mCoursesList.setAdapter(mCoursesAdapter);
+                }
+            });
         }
     };
 

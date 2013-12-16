@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 public class UnitnApi
 {
-    private static String IP = "192.168.31.26";
+    private static String IP = "192.168.1.25";
     private static final String PROTOCOL = "http";
     private static final int PORT = 6767;
     private static final String PATH = "/rssservice/";
@@ -58,7 +58,7 @@ public class UnitnApi
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments/" + department.getId(), null, null);
         HttpGet get = new HttpGet(uri);
         get.setHeader("Accept", "application/json");
-        
+
         HttpEntity entity = null;
 
         try
@@ -112,6 +112,7 @@ public class UnitnApi
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments", null, null);
 
         HttpGet get = new HttpGet(uri);
+
         get.addHeader("Accept", "application/json");
 
         HttpEntity entity = null;
@@ -135,6 +136,7 @@ public class UnitnApi
                 tmp.setId(o.getLong("id"));
                 deparments.add(tmp);
             }
+
             return deparments;
         }
         finally
@@ -164,6 +166,67 @@ public class UnitnApi
     {
         HttpClient client = new DefaultHttpClient();
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + course.getId(), "lastReceivedId=" + lastSavedFeed, null);
+        System.out.println("uri " + uri);
+        HttpGet get = new HttpGet(uri);
+
+        HttpEntity entity = null;
+        try
+        {
+            HttpResponse response = client.execute(get);
+
+            StatusLine line = response.getStatusLine();
+            if (line.getStatusCode() != 200) throw new FileNotFoundException(line.getStatusCode() + ": " + line.getReasonPhrase());
+
+            entity = response.getEntity();
+
+            List<Feed> feeds = new ArrayList<Feed>();
+            if (!entity.equals(""))
+            {
+                String json = StreamUtils.readAll(entity.getContent());
+
+                JSONArray jsonArray = new JSONArray(json);
+
+                for (int i = 0; i < jsonArray.length(); i++)
+                {
+                    JSONObject jsonFeed = jsonArray.getJSONObject(i);
+
+                    final int id = jsonFeed.getInt("id");
+                    final String body = jsonFeed.getString("body");
+                    final long timestamp = jsonFeed.getLong("timestamp");
+
+                    feeds.add(new Feed(id, body, timestamp, course));
+                }
+            }
+            return feeds;
+        }
+        finally
+        {
+            if (entity != null) entity.consumeContent();
+        }
+    }
+
+
+    public static CallbackAsyncTask<List<Feed>> getAllFeedsAsync(final Action<TaskResult<List<Feed>>> callback)
+    {
+        CallbackAsyncTask<List<Feed>> task = new CallbackAsyncTask<List<Feed>>(callback)
+        {
+            @Override
+            public List<Feed> doJob() throws Exception
+            {
+                return getAllFeeds();
+            }
+        };
+        task.execute();
+
+        return task;
+    }
+
+
+    public static List<Feed> getAllFeeds() throws Exception
+    {
+        HttpClient client = new DefaultHttpClient();
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "all_feeds", null, null);
+        System.out.println("uri " + uri);
         HttpGet get = new HttpGet(uri);
 
         HttpEntity entity = null;
@@ -188,7 +251,12 @@ public class UnitnApi
                 final String body = jsonFeed.getString("body");
                 final long timestamp = jsonFeed.getLong("timestamp");
 
-                feeds.add(new Feed(id, body, timestamp, course));
+                JSONObject jsonCourse = jsonFeed.getJSONObject("course");
+                final int courseId = jsonCourse.getInt("id");
+                final String courseName = jsonCourse.getString("name");
+                final int courseColour = jsonCourse.getInt("colour");
+
+                feeds.add(new Feed(id, body, timestamp, new Course(courseId, courseName, courseColour, null)));
             }
 
             return feeds;

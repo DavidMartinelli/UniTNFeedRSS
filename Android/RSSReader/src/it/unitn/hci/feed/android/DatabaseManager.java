@@ -1,5 +1,6 @@
 package it.unitn.hci.feed.android;
 
+
 import it.unitn.hci.feed.android.models.Alias;
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Department;
@@ -20,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseManager
 {
-    private static final String DATABASE_NAME = "feeds.db";
+    private static final String DATABASE_NAME = "feedsAndroid5.db";
     private static final int DATABASE_VERSION = 1;
     private static DatabaseManager mManager;
 
@@ -83,7 +84,10 @@ public class DatabaseManager
         Collection<Feed> feeds = course.getFeeds();
         Long mostRecent = Long.MIN_VALUE;
         for (Feed f : feeds)
+        {
+            System.out.println("already saved " + f.getId());
             if (f.getId() > mostRecent) mostRecent = (long) f.getId();
+        }
 
         return mostRecent;
     }
@@ -94,6 +98,7 @@ public class DatabaseManager
         for (Feed feed : feeds)
         {
             feed.setCourse(course);
+            System.out.println("save " + feed.getId());
             mFeedDao.createIfNotExists(feed);
         }
     }
@@ -135,7 +140,7 @@ public class DatabaseManager
 
     public void syncCourses(List<Course> courses) throws Exception
     {
-        List<Course> savedCourses = mCourseDao.queryForAll();
+        List<Course> savedCourses = getCourses();
         List<Course> toDelete = new ArrayList<Course>();
 
         for (Course savedCourse : savedCourses)
@@ -157,5 +162,30 @@ public class DatabaseManager
 
         for (Course save : courses)
             saveCourse(save, save.getId());
+    }
+    
+    
+    public List<Course> getCourses() throws Exception
+    {
+        return mCourseDao.queryForAll();
+    }
+    
+    
+    public List<Feed> getFeeds() throws Exception
+    {
+        List<Course> savedCourses = getCourses();
+        List<Long> coursesId = new ArrayList<Long>();
+        
+        for (Course c : savedCourses) {
+            coursesId.add((long) c.getId());
+        }
+        
+        return this.getFeeds(coursesId);
+    }
+    
+    public static void close(DatabaseManager db) throws Exception
+    {
+        if (db == null) return;
+        if (db.mConnectionSource.isOpen()) db.mConnectionSource.close();
     }
 }

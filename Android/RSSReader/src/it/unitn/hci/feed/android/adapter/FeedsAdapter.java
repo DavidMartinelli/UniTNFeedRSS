@@ -23,12 +23,11 @@ public class FeedsAdapter extends BaseExpandableListAdapter
     private LayoutInflater mInflater;
 
 
-    public FeedsAdapter(Context context, Map<String, List<Feed>> courses)
+    public FeedsAdapter(Context context, Map<String, List<Feed>> courses, List<String> orderedKeys)
     {
         mCourses = courses;
         mContext = context;
-        List<String> l = new ArrayList<String>(courses.keySet());
-        mDates = l;
+        mDates = orderedKeys;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

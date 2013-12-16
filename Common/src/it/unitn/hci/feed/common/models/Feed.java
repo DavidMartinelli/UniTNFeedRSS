@@ -11,7 +11,7 @@ public class Feed implements Model, Comparable<Feed>
 {
 
     @XmlElement(name = "id")
-    @DatabaseField(generatedId = true)
+    @DatabaseField(generatedId = true, allowGeneratedIdInsert=true)
     private int mId;
 
     @XmlElement(name = "body")
@@ -69,9 +69,13 @@ public class Feed implements Model, Comparable<Feed>
     @Override
     public boolean isPersistent()
     {
-        return mId >= 0;
+        return mId > 0;
     }
 
+    public void cleanId()
+    {
+        mId = 0;
+    }
 
     @Override
     public String toString()

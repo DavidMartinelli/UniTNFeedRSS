@@ -1,11 +1,8 @@
 package it.unitn.hci.feed.android;
 
-import it.unitn.hci.feed.android.models.Alias;
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Feed;
-import it.unitn.hci.feed.android.utils.SharedUtils;
 import it.unitn.hci.utils.OsUtils;
-import java.util.HashSet;
 import java.util.List;
 import android.app.Service;
 import android.content.Intent;
@@ -41,6 +38,7 @@ public class RssService extends Service
     {
         super.onCreate();
         mStop = false;
+        System.out.println("start");
         new Thread()
         {
             @Override
@@ -74,12 +72,15 @@ public class RssService extends Service
     {
         try
         {
-            List<Long> ids = SharedUtils.getCourses(this);
-            for (long id : ids)
+            DatabaseManager manager = DatabaseManager.instantiate(this);
+            List<Course> courses = manager.getCourses();
+            System.out.println("loop for courses " + courses);
+            for (Course c : courses)
             {
+                System.out.println("courrse " + c);
                 try
                 {
-                    getFeeds(id);
+                    getFeeds(c.getId(), manager);
                 }
                 catch (Exception e)
                 {
@@ -87,6 +88,7 @@ public class RssService extends Service
                     // UPS, Kuuuupa
                 }
             }
+            DatabaseManager.close(manager);
         }
         catch (Exception e)
         {
@@ -96,17 +98,14 @@ public class RssService extends Service
     }
 
 
-    private void getFeeds(long courseId) throws Exception
+    private void getFeeds(long courseId, DatabaseManager manager) throws Exception
     {
-        DatabaseManager manager = DatabaseManager.instantiate(this);
         Course c = manager.getCourse(courseId);
-        System.out.println("caio");
         List<Feed> feeds = UnitnApi.getFeeds(c, manager.getLastFeed(c));
         manager.insertFeeds(feeds, c);
         // TODO mandare la push
         mIntent = new Intent(MainActivity.DIALOG_INTENT);
         LocalBroadcastManager.getInstance(this).sendBroadcast(mIntent);
-
     }
 
     public class LocalBinder extends Binder

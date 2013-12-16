@@ -129,6 +129,7 @@ public class DatabaseManager
         if (feed.getCourse() == null) throw new IllegalArgumentException("You must supply a course");
         try
         {
+            feed.cleanId();
             feedDao.create(feed);
             return true;
         }
