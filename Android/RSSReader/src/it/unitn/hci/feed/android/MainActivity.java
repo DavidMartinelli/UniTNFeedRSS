@@ -6,14 +6,15 @@ import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.RssService.LocalBinder;
+import it.unitn.hci.feed.android.adapter.FeedsAdapter;
+import it.unitn.hci.feed.android.models.Course;
+import it.unitn.hci.feed.android.models.Department;
+import it.unitn.hci.feed.android.models.Feed;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
 import it.unitn.hci.feed.android.utils.SharedUtils;
-import it.unitn.hci.feed.common.models.Course;
-import it.unitn.hci.feed.common.models.Department;
-import it.unitn.hci.feed.common.models.Feed;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
@@ -66,25 +67,28 @@ public class MainActivity extends FragmentActivity
 
         IntentFilter intent = new IntentFilter(DIALOG_INTENT);
         registerReceiver(mDialogBroadcastReceiver, intent);
+
         // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
-        //        UnitnApi.getFeedsAsync(new Course(1, "Probabilit�� e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
-        //        {
-        //            @Override
-        //            public void invoke(TaskResult<List<Feed>> param)
-        //            {
-        //                if (param.exception != null)
-        //                ;// c�� stato un errore, mostrare messaggio
-        //
-        //                dialog.dismiss();
-        //
-        //                List<Feed> feeds = param.result;
-        //
-        //                mCourses.put("1990", feeds);
-        //
-        //                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
-        //                mCoursesList.setAdapter(mCoursesAdapter);
-        //            }
-        //        });
+
+        // final ProgressDialog dialog = DialogUtils.showProgressDialog(this, "", "Loading feeds", true);
+        UnitnApi.getFeedsAsync(new Course(1, "Probabilità e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+        {
+            @Override
+            public void invoke(TaskResult<List<Feed>> param)
+            {
+                if (param.exception != null)
+                ;// cè stato un errore, mostrare messaggio
+
+                // dialog.dismiss();
+
+                List<Feed> feeds = param.result;
+
+                mCourses.put("1990", feeds);
+
+                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
+                mCoursesList.setAdapter(mCoursesAdapter);
+            }
+        });
     }
 
 
@@ -236,5 +240,11 @@ public class MainActivity extends FragmentActivity
         {
             mDialog.dismiss();
         }
+    };
+
+
+    protected void onDestroy()
+    {
+        unregisterReceiver(mDialogBroadcastReceiver);
     };
 }

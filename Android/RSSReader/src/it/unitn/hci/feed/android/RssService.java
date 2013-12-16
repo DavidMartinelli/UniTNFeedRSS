@@ -1,10 +1,11 @@
 package it.unitn.hci.feed.android;
 
+import it.unitn.hci.feed.android.models.Alias;
+import it.unitn.hci.feed.android.models.Course;
+import it.unitn.hci.feed.android.models.Feed;
 import it.unitn.hci.feed.android.utils.SharedUtils;
-import it.unitn.hci.feed.common.models.Course;
-import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.OsUtils;
-import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import android.app.Service;
 import android.content.Intent;
@@ -74,7 +75,6 @@ public class RssService extends Service
         try
         {
             List<Long> ids = SharedUtils.getCourses(this);
-            System.out.println("orco");
             for (long id : ids)
             {
                 try

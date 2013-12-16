@@ -1,11 +1,11 @@
 package it.unitn.hci.feed.android;
 
+import it.unitn.hci.feed.android.models.Course;
+import it.unitn.hci.feed.android.models.Department;
+import it.unitn.hci.feed.android.models.Feed;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
-import it.unitn.hci.feed.common.models.Course;
-import it.unitn.hci.feed.common.models.Department;
-import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.StreamUtils;
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 public class UnitnApi
 {
-    private static String IP = "10.23.175.253";
+    private static String IP = "192.168.31.26";
     private static final String PROTOCOL = "http";
     private static final int PORT = 6767;
     private static final String PATH = "/rssservice/";

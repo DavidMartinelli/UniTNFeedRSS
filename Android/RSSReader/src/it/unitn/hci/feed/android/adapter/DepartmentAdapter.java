@@ -1,7 +1,7 @@
 package it.unitn.hci.feed.android.adapter;
 
 import it.unitn.hci.feed.R;
-import it.unitn.hci.feed.common.models.Department;
+import it.unitn.hci.feed.android.models.Department;
 import java.util.List;
 import android.content.Context;
 import android.view.LayoutInflater;

@@ -1,6 +1,6 @@
 package it.unitn.hci.feed.android.utils;
 
-import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.android.models.Course;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
