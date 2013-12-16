@@ -44,7 +44,7 @@ public class MainActivity extends FragmentActivity
 
     private Map<String, List<Feed>> mCourses = new HashMap<String, List<Feed>>();
     private ImageView btnMenu;
-    private ProgressDialog mDialog;
+    //private ProgressDialog mDialog;
 
     private boolean mBounded;
     private RssService mServer;
@@ -69,24 +69,13 @@ public class MainActivity extends FragmentActivity
         registerReceiver(mDialogBroadcastReceiver, intent);
 
         // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
-
-        // final ProgressDialog dialog = DialogUtils.showProgressDialog(this, "", "Loading feeds", true);
+        //final ProgressDialog mDialog = DialogUtils.showProgressDialog(this, "", "Loading feeds", true);
         UnitnApi.getFeedsAsync(new Course(1, "Probabilità e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
         {
             @Override
             public void invoke(TaskResult<List<Feed>> param)
             {
-                if (param.exception != null)
-                ;// cè stato un errore, mostrare messaggio
-
-                // dialog.dismiss();
-
-                List<Feed> feeds = param.result;
-
-                mCourses.put("1990", feeds);
-
-                mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
-                mCoursesList.setAdapter(mCoursesAdapter);
+                showFeeds(param, true);
             }
         });
     }
@@ -108,7 +97,6 @@ public class MainActivity extends FragmentActivity
                     Toast.makeText(context, context.getString(R.string.an_error_has_occurred_saving_your_preference), Toast.LENGTH_LONG).show();
                 }
             }
-
         };
     }
 
@@ -153,14 +141,15 @@ public class MainActivity extends FragmentActivity
                                         @Override
                                         public void invoke(List<Course> courses)
                                         {
+                                            System.out.println(courses);
                                             SharedUtils.saveCourses(courses, MainActivity.this);
                                             try
                                             {
                                                 DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
-                                                mDialog = DialogUtils.showProgressDialog(getApplicationContext(), getString(R.string.loading_feeds), getString(R.string.please_wait), true);
                                             }
                                             catch (Exception e)
                                             {
+                                                e.printStackTrace();
                                                 DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
                                             }
                                         }
@@ -179,7 +168,15 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-            // fare un api che ritorna tutti i feed dell'universo...e mettere un progress dialog mentri li scarichi
+            //if (mDialog != null) mDialog.show();
+            UnitnApi.getAllFeedsAsync(new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
+            {
+                @Override
+                public void invoke(TaskResult<List<Feed>> param)
+                {
+                    showFeeds(param, false);
+                }
+            });
         }
     };
 
@@ -238,7 +235,6 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            mDialog.dismiss();
         }
     };
 
@@ -247,4 +243,21 @@ public class MainActivity extends FragmentActivity
     {
         unregisterReceiver(mDialogBroadcastReceiver);
     };
+
+
+    private void showFeeds(TaskResult<List<Feed>> param, boolean groupFeeds)
+    {
+        if (param.exception != null)
+        ;// cè stato un errore, mostrare messaggio
+
+        //if (mDialog != null) mDialog.dismiss();
+
+        List<Feed> feeds = param.result;
+
+        if (feeds != null && !feeds.isEmpty()) mCourses.put("All feeds", feeds);
+        else DialogUtils.show("No feeds", null, MainActivity.this, true, null, getString(R.string.ok), null);
+
+        mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
+        mCoursesList.setAdapter(mCoursesAdapter);
+    }
 }
