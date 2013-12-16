@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
@@ -39,12 +38,12 @@ public class MainActivity extends FragmentActivity
 {
     public static final String DIALOG_INTENT = "dialog";
 
-    private ExpandableListAdapter mCoursesAdapter;
+    private FeedsAdapter mCoursesAdapter;
     private ExpandableListView mCoursesList;
 
     private Map<String, List<Feed>> mCourses = new HashMap<String, List<Feed>>();
     private ImageView btnMenu;
-    //private ProgressDialog mDialog;
+    // private ProgressDialog mDialog;
 
     private boolean mBounded;
     private RssService mServer;
@@ -69,7 +68,7 @@ public class MainActivity extends FragmentActivity
         registerReceiver(mDialogBroadcastReceiver, intent);
 
         // TODO prendere da db i feeds e ordinarli per data invece che usare direttamente l'api d
-        //final ProgressDialog mDialog = DialogUtils.showProgressDialog(this, "", "Loading feeds", true);
+        // final ProgressDialog mDialog = DialogUtils.showProgressDialog(this, "", "Loading feeds", true);
         UnitnApi.getFeedsAsync(new Course(1, "Probabilità e statistica", 1451669771, null), 0L, new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
         {
             @Override
@@ -168,7 +167,7 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-            //if (mDialog != null) mDialog.show();
+            // if (mDialog != null) mDialog.show();
             UnitnApi.getAllFeedsAsync(new Action<CallbackAsyncTask.TaskResult<List<Feed>>>()
             {
                 @Override
@@ -250,14 +249,27 @@ public class MainActivity extends FragmentActivity
         if (param.exception != null)
         ;// cè stato un errore, mostrare messaggio
 
-        //if (mDialog != null) mDialog.dismiss();
+        // if (mDialog != null) mDialog.dismiss();
 
         List<Feed> feeds = param.result;
+        if (feeds == null || feeds.isEmpty())
+        {
+            DialogUtils.show("No feeds", null, MainActivity.this, true, null, getString(R.string.ok), null);
+            return;
+        }
 
-        if (feeds != null && !feeds.isEmpty()) mCourses.put("All feeds", feeds);
-        else DialogUtils.show("No feeds", null, MainActivity.this, true, null, getString(R.string.ok), null);
-
+        if (groupFeeds)
+        {
+            mCourses.clear();
+            mCourses.put("A1999", feeds);
+        }
+        else
+        {
+            mCourses.clear();
+            mCourses.put("All feeds", feeds);
+        }
         mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
         mCoursesList.setAdapter(mCoursesAdapter);
+        mCoursesAdapter.notifyDataSetChanged();
     }
 }

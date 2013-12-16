@@ -58,7 +58,7 @@ public class UnitnApi
         URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "departments/" + department.getId(), null, null);
         HttpGet get = new HttpGet(uri);
         get.setHeader("Accept", "application/json");
-        
+
         HttpEntity entity = null;
 
         try
@@ -198,7 +198,8 @@ public class UnitnApi
             if (entity != null) entity.consumeContent();
         }
     }
-    
+
+
     public static CallbackAsyncTask<List<Feed>> getAllFeedsAsync(final Action<TaskResult<List<Feed>>> callback)
     {
         CallbackAsyncTask<List<Feed>> task = new CallbackAsyncTask<List<Feed>>(callback)
@@ -219,8 +220,9 @@ public class UnitnApi
     {
         HttpClient client = new DefaultHttpClient();
 
-        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "allfeeds", null, null);
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "all_feeds", null, null);
         HttpGet get = new HttpGet(uri);
+        get.addHeader("Accept", "application/json");
 
         HttpEntity entity = null;
         try
@@ -244,9 +246,9 @@ public class UnitnApi
                 final String body = jsonFeed.getString("body");
                 final long timestamp = jsonFeed.getLong("timestamp");
 
-                feeds.add(new Feed(id, body, timestamp, null));
+                Feed f = new Feed(id, body, timestamp, null);
+                feeds.add(f);
             }
-
             return feeds;
         }
         finally
