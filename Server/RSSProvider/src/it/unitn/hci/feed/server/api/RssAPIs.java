@@ -1,6 +1,12 @@
 package it.unitn.hci.feed.server.api;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import it.unitn.hci.feed.DatabaseManager;
+import it.unitn.hci.feed.common.models.Course;
+import it.unitn.hci.feed.common.models.Feed;
 import it.unitn.hci.utils.ResponseUtils;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,6 +30,29 @@ public class RssAPIs
             if (id != null) return ResponseUtils.fromObject(DatabaseManager.getFeeds(id, courseId));
             return ResponseUtils.fromObject(DatabaseManager.getFeeds(courseId));
 
+        }
+        catch (Exception e)
+        {
+            return ResponseUtils.fromException(e);
+        }
+    }
+    
+    @GET
+    @Path("/all_feeds")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFeeds()
+    {
+        try
+        {
+            Collection<Course> courses = DatabaseManager.getCourses();
+            List<Feed> feeds = new ArrayList<Feed>();
+            
+            for ( Course c: courses){
+                feeds.addAll(c.getFeeds());
+            }
+            
+            Collections.sort(feeds);
+            return ResponseUtils.fromObject(feeds);
         }
         catch (Exception e)
         {

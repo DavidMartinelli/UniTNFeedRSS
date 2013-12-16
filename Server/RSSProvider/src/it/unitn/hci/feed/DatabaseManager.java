@@ -356,6 +356,19 @@ public class DatabaseManager
         }
     }
 
+    public static Collection<Course> getCourses() throws Exception
+    {
+        DatabaseManager db = null;
+        try
+        {
+            db = fromConnectionPool();
+            return createCourseDao(db).queryForAll();
+        }
+        finally
+        {
+            close(db);
+        } 
+    }
 
     public static void main(String[] argv) throws Exception
     {
