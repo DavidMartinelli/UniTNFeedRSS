@@ -115,7 +115,7 @@ public class MainActivity extends FragmentActivity
             }
 
         }
-        Collections.reverse(orderedTimestamp);
+        Collections.sort(orderedTimestamp);
 
         List<String> orderedDates = new ArrayList<String>();
 

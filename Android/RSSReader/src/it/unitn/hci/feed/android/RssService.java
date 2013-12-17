@@ -1,10 +1,14 @@
 package it.unitn.hci.feed.android;
 
+import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Feed;
 import it.unitn.hci.feed.android.utils.RefreshTask;
 import it.unitn.hci.utils.OsUtils;
 import java.util.List;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -17,7 +21,6 @@ public class RssService extends Service
     private boolean mStop = false;
     private final IBinder mLocalBinder = new LocalBinder();
     private Intent mIntent;
-
 
     @Override
     public IBinder onBind(Intent intent)
@@ -99,8 +102,8 @@ public class RssService extends Service
             DatabaseManager.close(manager);
             //aggiornare la home page con i feed
             if (totalNewFeed > 0) {
-                System.out.println("send intent");
-                    sendBroadcast(new Intent(RefreshTask.REFRESH_DATA_INTENT));
+                sendBroadcast(new Intent(RefreshTask.REFRESH_DATA_INTENT));
+                sendNotification();
             }
         }
         catch (Exception e)
@@ -119,11 +122,23 @@ public class RssService extends Service
         List<Feed> feeds = UnitnApi.getFeeds(c, manager.getLastFeed(c));
         manager.insertFeeds(feeds, c);
         if (feeds != null && feeds.size() > 0 ){
-            mIntent = new Intent(MainActivity.DIALOG_INTENT);
-            sendBroadcast(mIntent);
             return feeds.size();
         }
         return 0;
+    }
+    
+    private void sendNotification(){
+        NotificationManager mNM =
+                (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+        
+        Notification notification = new Notification(R.drawable.ic_launcher, getString(R.string.new_feeds), System.currentTimeMillis());
+        
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new
+                Intent(this, MainActivity.class), 0);
+        
+        notification.setLatestEventInfo(this, getText(R.string.app_name), getString(R.string.new_feeds), contentIntent);
+        
+        mNM.notify(153, notification);
     }
 
     public class LocalBinder extends Binder
