@@ -21,7 +21,6 @@ import it.unitn.hci.feed.android.utils.RefreshTask;
 import it.unitn.hci.feed.android.utils.SharedUtils;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.StrictMode.ThreadPolicy;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -309,6 +308,7 @@ public class MainActivity extends FragmentActivity
 
     protected void onDestroy()
     {
+        super.onDestroy();
         unregisterReceiver(mIntentReceiver);
     };
 }
