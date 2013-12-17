@@ -88,11 +88,9 @@ public class RssService extends Service
         {
             DatabaseManager manager = DatabaseManager.instantiate(this);
             List<Course> courses = manager.getCourses();
-            System.out.println("loop for courses " + courses);
             Integer totalNewFeed = 0;
             for (Course c : courses)
             {
-                System.out.println("courrse " + c);
                 try
                 {
                     totalNewFeed += getFeeds(c.getId(), manager);
@@ -105,11 +103,8 @@ public class RssService extends Service
             }
             DatabaseManager.close(manager);
             //aggiornare la home page con i feed
-            if (totalNewFeed > 0)
-            {
-                sendBroadcast(new Intent(RefreshTask.REFRESH_DATA_INTENT));
-                sendNotification();
-            }
+            sendBroadcast(new Intent(RefreshTask.REFRESH_DATA_INTENT));
+            if (totalNewFeed > 0) sendNotification();
         }
         catch (Exception e)
         {

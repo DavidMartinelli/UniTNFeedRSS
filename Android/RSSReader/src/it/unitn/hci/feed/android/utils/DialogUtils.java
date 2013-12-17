@@ -31,6 +31,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 public class DialogUtils
 {
@@ -213,34 +214,43 @@ public class DialogUtils
                 View lyTitle = rootView.findViewById(R.id.lyTitle);
                 final ListView lstDepartments = (ListView) rootView.findViewById(R.id.lstCourses);
                 View button = rootView.findViewById(R.id.btnOk);
-                final CourseAdapter adapter = new CourseAdapter(context, courses);
-                lstDepartments.setAdapter(adapter);
 
-                button.setOnClickListener(new OnClickListener()
+                try
                 {
-                    @Override
-                    public void onClick(View v)
+                    final CourseAdapter adapter = new CourseAdapter(context, courses);
+                    lstDepartments.setAdapter(adapter);
+
+                    button.setOnClickListener(new OnClickListener()
                     {
-                        List<Course> result = new ArrayList<Course>();
-                        List<Boolean> selectedCourse = adapter.getSelected();
-                        for (int i = 0; i < courses.size(); i++)
+                        @Override
+                        public void onClick(View v)
                         {
-                            if (selectedCourse.get(i)) result.add(courses.get(i));
+                            List<Course> result = new ArrayList<Course>();
+                            List<Boolean> selectedCourse = adapter.getSelected();
+                            System.out.println("selected " + selectedCourse);
+                            for (int i = 0; i < courses.size(); i++)
+                            {
+                                if (selectedCourse.get(i)) result.add(courses.get(i));
+                            }
+
+                            action.invoke(result);
+                            dismiss();
                         }
+                    });
 
-                        action.invoke(result);
-                        dismiss();
-                    }
-                });
-
-                lyTitle.setOnClickListener(new OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
+                    lyTitle.setOnClickListener(new OnClickListener()
                     {
-                        dismiss();
-                    }
-                });
+                        @Override
+                        public void onClick(View v)
+                        {
+                            dismiss();
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    Toast.makeText(context, getString(R.string.an_error_has_occurred_loadings_courses), Toast.LENGTH_LONG).show();
+                }
 
                 return rootView;
             }

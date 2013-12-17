@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseManager
 {
-    private static final String DATABASE_NAME = "feedsAndroid11.db";
+    private static final String DATABASE_NAME = "feedsAndroid16.db";
     private static final int DATABASE_VERSION = 1;
     private static DatabaseManager mManager;
 
@@ -124,7 +124,6 @@ public class DatabaseManager
     public void saveCourse(Course course, long id) throws Exception
     {
         course.setId(id);
-        System.out.println("save");
         mCourseDao.createIfNotExists(course);
     }
 
@@ -137,11 +136,15 @@ public class DatabaseManager
     }
 
 
-    public void syncCourses(List<Course> courses) throws Exception
+    public void syncCourses(List<Course> courses, Department dep) throws Exception
     {
+        if (courses == null || courses.isEmpty())
+            return;
+        
         List<Course> savedCourses = getCourses();
         List<Course> toDelete = new ArrayList<Course>();
-
+        Long editableDepartment = dep.getId();
+        
         for (Course savedCourse : savedCourses)
         {
             boolean any = false;
@@ -153,14 +156,18 @@ public class DatabaseManager
                     break;
                 }
             }
-            if (!any) toDelete.add(savedCourse);
+            if (!any && savedCourse.getDepartment().getId() == editableDepartment) 
+                toDelete.add(savedCourse);
         }
 
         for (Course delete : toDelete)
             deleteCourse(delete);
 
         for (Course save : courses)
+        {
+            save.setDepartment(dep);
             saveCourse(save, save.getId());
+        }
     }
     
     

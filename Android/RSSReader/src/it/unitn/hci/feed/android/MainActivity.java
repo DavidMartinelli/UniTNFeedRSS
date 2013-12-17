@@ -62,8 +62,6 @@ public class MainActivity extends FragmentActivity
         mCoursesList.setOnChildClickListener(onFeedClickListener);
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
 
-        loadAndShowFeeds();
-
         Intent mIntent = new Intent(this, RssService.class);
         bindService(mIntent, mConnection, BIND_AUTO_CREATE);
 
@@ -99,6 +97,7 @@ public class MainActivity extends FragmentActivity
 
         List<Feed> savedFeeds;
         List<Timestamp> orderedTimestamp = new ArrayList<Timestamp>();
+        mCourses = new HashMap<String, List<Feed>>();
         for (Feed f : feeds)
         {
             Timestamp t = new Timestamp(f.getTimeStamp());
@@ -110,12 +109,11 @@ public class MainActivity extends FragmentActivity
             }
             else
             {
+                orderedTimestamp.add(t);
                 savedFeeds = new ArrayList<Feed>();
                 savedFeeds.add(f);
-                orderedTimestamp.add(t);
                 mCourses.put(timeStamp, savedFeeds);
             }
-
         }
         Collections.sort(orderedTimestamp, Collections.reverseOrder());
 
@@ -124,7 +122,6 @@ public class MainActivity extends FragmentActivity
         for (Timestamp tstamp : orderedTimestamp)
         {
             orderedDates.add(dateFormater.format(tstamp).toUpperCase());
-            System.out.println(dateFormater.format(tstamp).toUpperCase());
         }
         return orderedDates;
     }
@@ -234,7 +231,7 @@ public class MainActivity extends FragmentActivity
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View view, int position, long id)
                     {
-                        Department dep = result.get(position);
+                        final Department dep = result.get(position);
                         UnitnApi.getCoursesAsync(dep, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
                         {
                             @Override
@@ -247,17 +244,12 @@ public class MainActivity extends FragmentActivity
                                     @Override
                                     public void invoke(List<Course> courses)
                                     {
-                                        System.out.println(courses);
-                                        //SharedUtils.saveCourses(courses, MainActivity.this);
                                         try
                                         {
-                                            DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
-                                            DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
-
-                                            System.out.println("service");
+                                            DatabaseManager.instantiate(MainActivity.this).syncCourses(courses, dep);
+                                            Toast.makeText(MainActivity.this, getString(R.string.saved_preferences), Toast.LENGTH_SHORT).show();
                                             if (mService != null)
                                             {
-                                                System.out.println("launch");
                                                 Thread polling = mService.getPollingThread();
                                                 synchronized (polling)
                                                 {
@@ -267,7 +259,7 @@ public class MainActivity extends FragmentActivity
                                         }
                                         catch (Exception e)
                                         {
-                                            DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                                            Toast.makeText(MainActivity.this, getString(R.string.an_error_has_occurred_saving_your_subscription), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });

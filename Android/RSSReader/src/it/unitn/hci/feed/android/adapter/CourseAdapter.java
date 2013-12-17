@@ -1,6 +1,7 @@
 package it.unitn.hci.feed.android.adapter;
 
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.android.DatabaseManager;
 import it.unitn.hci.feed.android.models.Course;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListener
+public class CourseAdapter extends ArrayAdapter<Course>
 {
     private List<Course> mCourses;
     private List<Boolean> mSelected;
@@ -21,7 +22,7 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListen
     private LayoutInflater mInflater;
 
 
-    public CourseAdapter(Context context, List<Course> courses)
+    public CourseAdapter(Context context, List<Course> courses) throws Exception
     {
         super(context, R.layout.courses_chooser_layout, courses);
         mCourses = courses;
@@ -29,8 +30,10 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListen
 
         if (mCourses == null) return;
         mSelected = new ArrayList<Boolean>();
-        for (int i = 0; i < mCourses.size(); i++)
-            mSelected.add(i, false);
+        List<Course> savedCourses = DatabaseManager.instantiate(context).getCourses();
+        for (Course c:courses){
+            mSelected.add(savedCourses.contains(c));
+        }
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -39,10 +42,12 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListen
     public View getView(int position, View convertView, ViewGroup parent)
     {
         if (convertView == null) convertView = mInflater.inflate(R.layout.courses_chooser_item_layout, null);
+        View pnlCourse = (View) convertView.findViewById(R.id.pnlCourse);
         TextView departmentName = (TextView) convertView.findViewById(R.id.lblCourseName);
         CheckBox cb = (CheckBox) convertView.findViewById(R.id.cbSelectCourse);
-        cb.setOnClickListener(this);
-        cb.setTag(position);
+        pnlCourse.setOnClickListener(setChecked(position, cb));
+        cb.setOnClickListener(setChecked(position, cb));
+        cb.setChecked(mSelected.get(position));
 
         departmentName.setText(mCourses.get(position).getName());
 
@@ -55,12 +60,17 @@ public class CourseAdapter extends ArrayAdapter<Course> implements OnClickListen
         return mSelected;
     }
 
-
-    @Override
-    public void onClick(View view)
+    public OnClickListener setChecked(final int position, final CheckBox cb)
     {
-        int position = (Integer) view.getTag();
-        mSelected.set(position, !mSelected.get(position));
+        return new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                mSelected.set(position, !mSelected.get(position));
+                cb.setChecked(mSelected.get(position));
+            }
+        };
     }
 
 }
