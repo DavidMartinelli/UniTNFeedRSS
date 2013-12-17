@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
-import it.unitn.hci.feed.android.RssService.LocalBinder;
 import it.unitn.hci.feed.android.adapter.FeedsAdapter;
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Department;
@@ -29,6 +28,7 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -87,6 +87,7 @@ public class MainActivity extends FragmentActivity
     }
 
 
+    @SuppressLint("SimpleDateFormat")
     protected List<String> displayFeeds(List<Feed> feeds)
     {
         final SimpleDateFormat dateFormater = new SimpleDateFormat("MMMMM dd, yyyy");
@@ -95,7 +96,7 @@ public class MainActivity extends FragmentActivity
         List<Timestamp> orderedTimestamp = new ArrayList<Timestamp>();
         for (Feed f : feeds)
         {
-            Timestamp t = new Timestamp(f.getTimeStamp());//new Time(f.getTimeStamp());
+            Timestamp t = new Timestamp(f.getTimeStamp());// new Time(f.getTimeStamp());
             String timeStamp = dateFormater.format(t).toUpperCase();
             savedFeeds = mCourses.get(timeStamp);
             if (savedFeeds != null)
@@ -119,8 +120,6 @@ public class MainActivity extends FragmentActivity
         {
             orderedDates.add(dateFormater.format(tstamp).toUpperCase());
         }
-        ;
-
         return orderedDates;
     }
 
@@ -149,61 +148,7 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onClick(View v)
         {
-            final ProgressDialog pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage(getString(R.string.loadings_departments));
-            pDialog.show();
-
-            UnitnApi.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<Department>>>()
-            {
-                @Override
-                public void invoke(TaskResult<List<Department>> param)
-                {
-                    pDialog.dismiss();
-                    final List<Department> result = param.result;
-                    if (param.exception != null || result.isEmpty())
-                    {
-                        param.exception.printStackTrace();
-                        DialogUtils.show(getString(R.string.an_error_has_occurred_loadings_departments), null, MainActivity.this, true, null, getString(R.string.ok), null);
-                        return;
-                    }
-
-                    DialogUtils.showDepartmentsList(MainActivity.this, result, new OnItemClickListener()
-                    {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapter, View view, int position, long id)
-                        {
-                            Department dep = result.get(position);
-                            UnitnApi.getCoursesAsync(dep, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
-                            {
-                                @Override
-                                public void invoke(TaskResult<List<Course>> param)
-                                {
-                                    if (param.exception != null) DialogUtils.show(getString(R.string.an_error_has_occurred_loadings_courses), null, MainActivity.this, true, null, getString(R.string.ok), null);
-
-                                    DialogUtils.showCoursesSelector(MainActivity.this, param.result, new Action<List<Course>>()
-                                    {
-                                        @Override
-                                        public void invoke(List<Course> courses)
-                                        {
-                                            System.out.println(courses);
-                                            SharedUtils.saveCourses(courses, MainActivity.this);
-                                            try
-                                            {
-                                                DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
-                                                DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
-                                            }
-                                            catch (Exception e)
-                                            {
-                                                DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
+            manageFeeds();
         }
     };
 
@@ -256,6 +201,66 @@ public class MainActivity extends FragmentActivity
             return true;
         }
     };
+
+
+    private void manageFeeds()
+    {
+        final ProgressDialog pDialog = new ProgressDialog(MainActivity.this);
+        pDialog.setMessage(getString(R.string.loadings_departments));
+        pDialog.show();
+
+        UnitnApi.getDepartmentsAsync(new Action<CallbackAsyncTask.TaskResult<List<Department>>>()
+        {
+            @Override
+            public void invoke(TaskResult<List<Department>> param)
+            {
+                pDialog.dismiss();
+                final List<Department> result = param.result;
+                if (param.exception != null || result.isEmpty())
+                {
+                    param.exception.printStackTrace();
+                    DialogUtils.show(getString(R.string.an_error_has_occurred_loadings_departments), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                    return;
+                }
+
+                DialogUtils.showDepartmentsList(MainActivity.this, result, new OnItemClickListener()
+                {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter, View view, int position, long id)
+                    {
+                        Department dep = result.get(position);
+                        UnitnApi.getCoursesAsync(dep, new Action<CallbackAsyncTask.TaskResult<List<Course>>>()
+                        {
+                            @Override
+                            public void invoke(TaskResult<List<Course>> param)
+                            {
+                                if (param.exception != null) DialogUtils.show(getString(R.string.an_error_has_occurred_loadings_courses), null, MainActivity.this, true, null, getString(R.string.ok), null);
+
+                                DialogUtils.showCoursesSelector(MainActivity.this, param.result, new Action<List<Course>>()
+                                {
+                                    @Override
+                                    public void invoke(List<Course> courses)
+                                    {
+                                        System.out.println(courses);
+                                        SharedUtils.saveCourses(courses, MainActivity.this);
+                                        try
+                                        {
+                                            DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
+                                            DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
 
     private final ServiceConnection mConnection = new ServiceConnection()
     {
