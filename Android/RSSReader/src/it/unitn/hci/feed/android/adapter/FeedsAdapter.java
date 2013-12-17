@@ -2,6 +2,7 @@ package it.unitn.hci.feed.android.adapter;
 
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.models.Feed;
+import it.unitn.hci.feed.android.utils.StringUtils;
 import java.util.List;
 import java.util.Map;
 import android.content.Context;
@@ -55,8 +56,8 @@ public class FeedsAdapter extends BaseExpandableListAdapter
 
         Feed feed = (Feed) getChild(groupPosition, childPosition);
 
-        if (feed.getCourse() != null) lblCourseName.setText(feed.getCourse().getStringName());
-        lblCourseDescription.setText(feed.getBody());
+        if (feed.getCourse() != null) lblCourseName.setText(StringUtils.capitalize(feed.getCourse().getStringName()));
+        lblCourseDescription.setText(StringUtils.capitalize(feed.getBody()));
         if (feed.getCourse() != null) imgCourseColor.setBackgroundColor(feed.getCourse().getColour());
         return convertView;
     }

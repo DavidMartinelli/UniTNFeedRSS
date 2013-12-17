@@ -3,6 +3,7 @@ package it.unitn.hci.feed.android.adapter;
 import java.util.List;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.models.Feed;
+import it.unitn.hci.feed.android.utils.StringUtils;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -34,12 +35,12 @@ public class AllFeedsAdapter extends ArrayAdapter<Feed>
 
         TextView lblTitle = (TextView) convertView.findViewById(R.id.lblCourseName);
         if (f.getCourse() != null) {
-            lblTitle.setText(f.getCourse().getName());
+            lblTitle.setText(StringUtils.capitalize(f.getCourse().getName()));
             lblTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         }
 
         TextView lblBody = (TextView) convertView.findViewById(R.id.lblCourseDescription);
-        lblBody.setText(f.getBody());
+        lblBody.setText(StringUtils.capitalize(f.getBody()));
         lblBody.setMaxLines(2);
         lblBody.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
         

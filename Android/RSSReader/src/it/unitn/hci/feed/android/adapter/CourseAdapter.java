@@ -3,6 +3,7 @@ package it.unitn.hci.feed.android.adapter;
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.DatabaseManager;
 import it.unitn.hci.feed.android.models.Course;
+import it.unitn.hci.feed.android.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
@@ -49,7 +50,7 @@ public class CourseAdapter extends ArrayAdapter<Course>
         cb.setOnClickListener(setChecked(position, cb));
         cb.setChecked(mSelected.get(position));
 
-        departmentName.setText(mCourses.get(position).getName());
+        departmentName.setText(StringUtils.capitalize(mCourses.get(position).getName()));
 
         return convertView;
     }
