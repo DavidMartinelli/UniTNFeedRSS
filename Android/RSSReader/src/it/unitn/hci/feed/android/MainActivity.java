@@ -66,13 +66,14 @@ public class MainActivity extends FragmentActivity
 
         Intent mIntent = new Intent(this, RssService.class);
         bindService(mIntent, mConnection, BIND_AUTO_CREATE);
-        
+
         IntentFilter intentFilter = new IntentFilter(RefreshTask.REFRESH_DATA_INTENT);
         registerReceiver(mIntentReceiver, intentFilter);
     }
 
-    
-    private void loadAndShowFeeds() {
+
+    private void loadAndShowFeeds()
+    {
         try
         {
             DatabaseManager manager = DatabaseManager.instantiate(this);
@@ -81,6 +82,7 @@ public class MainActivity extends FragmentActivity
             mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses, orderedKeys);
             mCoursesList.setAdapter(mCoursesAdapter);
             DatabaseManager.close(manager);
+            if (mCoursesList.getCount() > 0) mCoursesList.expandGroup(0);
         }
         catch (Exception e)
         {
@@ -88,7 +90,8 @@ public class MainActivity extends FragmentActivity
             e.printStackTrace();
         }
     }
-    
+
+
     @SuppressLint("SimpleDateFormat")
     protected List<String> displayFeeds(List<Feed> feeds)
     {
@@ -249,7 +252,7 @@ public class MainActivity extends FragmentActivity
                                         {
                                             DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
                                             DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
-                                            
+
                                             System.out.println("service");
                                             if (mService != null)
                                             {
@@ -257,7 +260,7 @@ public class MainActivity extends FragmentActivity
                                                 Thread polling = mService.getPollingThread();
                                                 synchronized (polling)
                                                 {
-                                                   polling.interrupt(); 
+                                                    polling.interrupt();
                                                 }
                                             }
                                         }
@@ -288,7 +291,7 @@ public class MainActivity extends FragmentActivity
 
         public void onServiceConnected(ComponentName name, IBinder service)
         {
-            mService = ((LocalBinder) service).getServerInstance();  
+            mService = ((LocalBinder) service).getServerInstance();
             Toast.makeText(MainActivity.this, "Service is connected", Toast.LENGTH_LONG).show();
         }
     };
