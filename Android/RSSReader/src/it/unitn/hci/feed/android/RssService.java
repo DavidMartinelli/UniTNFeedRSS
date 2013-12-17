@@ -105,7 +105,7 @@ public class RssService extends Service
         manager.insertFeeds(feeds, c);
         // TODO mandare la push
         mIntent = new Intent(MainActivity.DIALOG_INTENT);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(mIntent);
+        sendBroadcast(mIntent);
     }
 
     public class LocalBinder extends Binder

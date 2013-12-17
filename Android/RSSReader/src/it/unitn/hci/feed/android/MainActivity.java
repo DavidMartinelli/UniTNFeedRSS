@@ -46,10 +46,6 @@ public class MainActivity extends FragmentActivity
 
     private Map<String, List<Feed>> mCourses = new HashMap<String, List<Feed>>();
     private ImageView btnMenu;
-    // private ProgressDialog mDialog;
-
-    private boolean mBounded;
-    private RssService mServer;
 
 
     @Override
@@ -194,12 +190,10 @@ public class MainActivity extends FragmentActivity
                                             try
                                             {
                                                 DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
-                                                //   mDialog = DialogUtils.showProgressDialog(MainActivity.this, getString(R.string.loading_feeds), getString(R.string.please_wait), true);
                                                 DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
                                             }
                                             catch (Exception e)
                                             {
-                                                e.printStackTrace();
                                                 DialogUtils.show(getString(R.string.an_error_has_occurred_saving_your_subscription), null, MainActivity.this, true, null, getString(R.string.ok), null);
                                             }
                                         }
@@ -226,13 +220,7 @@ public class MainActivity extends FragmentActivity
                     if (param.exception != null)
                     ;// cè stato un errore, mostrare messaggio
 
-                    // dialog.dismiss();
-
-                    List<String> orderedKeys = displayFeeds(param.result);
-
-                    mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses, orderedKeys);
-
-                    mCoursesList.setAdapter(mCoursesAdapter);
+                    DialogUtils.showAllFeeds(MainActivity.this, param.result);
                 }
             });
         }
@@ -275,16 +263,12 @@ public class MainActivity extends FragmentActivity
         public void onServiceDisconnected(ComponentName name)
         {
             Toast.makeText(MainActivity.this, "Service is disconnected", Toast.LENGTH_LONG).show();
-            mBounded = false;
-            mServer = null;
         }
 
 
         public void onServiceConnected(ComponentName name, IBinder service)
         {
             Toast.makeText(MainActivity.this, "Service is connected", Toast.LENGTH_LONG).show();
-            mBounded = true;
-            mServer = ((LocalBinder) service).getServerInstance();
         }
     };
 
@@ -301,37 +285,4 @@ public class MainActivity extends FragmentActivity
     {
         unregisterReceiver(mDialogBroadcastReceiver);
     };
-
-
-    private void showFeeds(TaskResult<List<Feed>> param, boolean groupFeeds)
-    {
-        if (param.exception != null)
-        ;// cè stato un errore, mostrare messaggio
-
-        // if (mDialog != null) mDialog.dismiss();
-
-        List<Feed> feeds = param.result;
-        if (feeds == null || feeds.isEmpty())
-        {
-            DialogUtils.show("No feeds", null, MainActivity.this, true, null, getString(R.string.ok), null);
-            return;
-        }
-
-        if (groupFeeds)
-        {
-            mCourses.clear();
-            mCourses.put("A1999", feeds);
-        }
-        else
-        {
-            mCourses.clear();
-            mCourses.put("All feeds", feeds);
-        }
-
-        List<String> orderedKeys = displayFeeds(param.result);
-        mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses, orderedKeys);
-
-        mCoursesList.setAdapter(mCoursesAdapter);
-        mCoursesAdapter.notifyDataSetChanged();
-    }
 }

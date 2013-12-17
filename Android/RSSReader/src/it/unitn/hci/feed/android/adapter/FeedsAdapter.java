@@ -2,7 +2,6 @@ package it.unitn.hci.feed.android.adapter;
 
 import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.models.Feed;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import android.content.Context;

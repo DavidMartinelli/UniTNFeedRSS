@@ -3,6 +3,7 @@ package it.unitn.hci.feed.android.utils;
 import java.util.ArrayList;
 import java.util.List;
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.android.adapter.AllFeedsAdapter;
 import it.unitn.hci.feed.android.adapter.CourseAdapter;
 import it.unitn.hci.feed.android.adapter.DepartmentAdapter;
 import it.unitn.hci.feed.android.models.Course;
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -36,7 +38,7 @@ public class DialogUtils
     public static ProgressDialog showProgressDialog(Context c, String title, String message, boolean isCancellable)
     {
         final ProgressDialog dialog = new ProgressDialog(c);
-        dialog.setTitle(title); 
+        dialog.setTitle(title);
         dialog.setMessage(message);
         dialog.setCancelable(false);
         dialog.show();
@@ -257,5 +259,61 @@ public class DialogUtils
 
         d.setCancelable(true);
         d.show(manager, "departments");
+    }
+
+
+    public static void showAllFeeds(final Context context, final List<Feed> feeds)
+    {
+        DialogFragment d = new DialogFragment()
+        {
+            Button btn;
+            ListView lstFields;
+
+
+            @Override
+            public View onCreateView(LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)
+            {
+                View rootView = inflater.inflate(R.layout.show_all_feeds_dialog_layout, container, false);
+                lstFields = (ListView) rootView.findViewById(R.id.lstMenu);
+
+                btn = (Button) rootView.findViewById(R.id.btnDone);
+                btn.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        dismiss();
+                    }
+                });
+
+                final AllFeedsAdapter a = new AllFeedsAdapter(context, feeds);
+                lstFields.setAdapter(a);
+                lstFields.setOnItemClickListener(new OnItemClickListener()
+                {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, final int position, long id)
+                    {
+                        Feed f = feeds.get(position);
+                        if (f != null)
+                        {
+                            showFeed(context, f);
+                        }
+                    }
+                });
+                return rootView;
+            }
+
+
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState)
+            {
+                Dialog dialog = super.onCreateDialog(savedInstanceState);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                return dialog;
+            }
+        };
+        FragmentManager manager = ((FragmentActivity) context).getSupportFragmentManager();
+
+        d.show(manager, "all_feeds");
     }
 }
