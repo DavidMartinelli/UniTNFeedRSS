@@ -4,6 +4,7 @@ import it.unitn.hci.feed.R;
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Feed;
 import it.unitn.hci.feed.android.utils.RefreshTask;
+import it.unitn.hci.feed.android.utils.SharedUtils;
 import it.unitn.hci.utils.OsUtils;
 import java.util.List;
 import android.app.Notification;
@@ -22,6 +23,7 @@ public class RssService extends Service
     private final IBinder mLocalBinder = new LocalBinder();
     private Intent mIntent;
 
+
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -36,11 +38,14 @@ public class RssService extends Service
     }
 
     private Thread mPollingThread;
+
+
     public Thread getPollingThread()
     {
         return mPollingThread;
     }
-    
+
+
     @Override
     public void onCreate()
     {
@@ -101,7 +106,8 @@ public class RssService extends Service
             }
             DatabaseManager.close(manager);
             //aggiornare la home page con i feed
-            if (totalNewFeed > 0) {
+            if (totalNewFeed > 0)
+            {
                 sendBroadcast(new Intent(RefreshTask.REFRESH_DATA_INTENT));
                 sendNotification();
             }
@@ -113,6 +119,7 @@ public class RssService extends Service
         }
     }
 
+
     /*
      * Return the number of new feeds
      */
@@ -121,24 +128,28 @@ public class RssService extends Service
         Course c = manager.getCourse(courseId);
         List<Feed> feeds = UnitnApi.getFeeds(c, manager.getLastFeed(c));
         manager.insertFeeds(feeds, c);
-        if (feeds != null && feeds.size() > 0 ){
+        if (feeds != null && feeds.size() > 0)
+        {
             return feeds.size();
         }
         return 0;
     }
-    
-    private void sendNotification(){
-        NotificationManager mNM =
-                (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
-        
-        Notification notification = new Notification(R.drawable.ic_launcher, getString(R.string.new_feeds), System.currentTimeMillis());
-        
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new
-                Intent(this, MainActivity.class), 0);
-        
-        notification.setLatestEventInfo(this, getText(R.string.app_name), getString(R.string.new_feeds), contentIntent);
-        
-        mNM.notify(153, notification);
+
+
+    private void sendNotification()
+    {
+        if (SharedUtils.isNotificationsEnabled(getApplicationContext()))
+        {
+            NotificationManager mNM = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+
+            Notification notification = new Notification(R.drawable.ic_launcher, getString(R.string.new_feeds), System.currentTimeMillis());
+
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+
+            notification.setLatestEventInfo(this, getText(R.string.app_name), getString(R.string.new_feeds), contentIntent);
+
+            mNM.notify(153, notification);
+        }
     }
 
     public class LocalBinder extends Binder

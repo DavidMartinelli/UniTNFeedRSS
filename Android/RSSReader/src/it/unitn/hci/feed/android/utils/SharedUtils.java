@@ -52,7 +52,7 @@ public class SharedUtils
     }
 
 
-    public static boolean isNotificationsEnabled(Context context) throws Exception
+    public static boolean isNotificationsEnabled(Context context) 
     {
         return context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE).getBoolean(NOTIFICATION_PREFERENCES_KEY, true);
     }

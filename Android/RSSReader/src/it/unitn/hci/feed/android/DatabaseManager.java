@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseManager
 {
-    private static final String DATABASE_NAME = "feedsAndroid16.db";
+    private static final String DATABASE_NAME = "feedsAndroid17.db";
     private static final int DATABASE_VERSION = 1;
     private static DatabaseManager mManager;
 
