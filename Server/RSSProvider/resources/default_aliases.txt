@@ -51,12 +51,17 @@
 =FONDATIONS_OF_MATHEMATICAL_ANALYSIS
 -fondations of analysis
 
+=ADVANCED_GEOMETRY
+
+=BIOTECNOLOGIE_MICROBICHE
+
 =BIOLOGIA_DELLO_SVILUPPO
 -biologia dello sviluppo
 
-=INGEGNERIA_DELLA_QUALITA E DELL'INNOVAZIONE
--ingneria della qualita
--ingneria della qualità
+=TRASFORMATE_INTEGRALI
+
+=INGEGNERIA_DELLA_QUALITA_E_DELL'INNOVAZIONE
+-ingegneria della qualità e dell'innovazione
 
 =MIDTERM LOGICS
 -midterm logics
