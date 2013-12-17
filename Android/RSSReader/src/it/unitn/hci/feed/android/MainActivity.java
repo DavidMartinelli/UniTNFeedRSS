@@ -77,7 +77,9 @@ public class MainActivity extends FragmentActivity
         {
             // non ce ne saranno
             e.printStackTrace();
-        } finally {
+        }
+        finally
+        {
 
         }
 
@@ -192,7 +194,7 @@ public class MainActivity extends FragmentActivity
                                             try
                                             {
                                                 DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
-                                             //   mDialog = DialogUtils.showProgressDialog(MainActivity.this, getString(R.string.loading_feeds), getString(R.string.please_wait), true);
+                                                //   mDialog = DialogUtils.showProgressDialog(MainActivity.this, getString(R.string.loading_feeds), getString(R.string.please_wait), true);
                                                 DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
                                             }
                                             catch (Exception e)
@@ -325,7 +327,10 @@ public class MainActivity extends FragmentActivity
             mCourses.clear();
             mCourses.put("All feeds", feeds);
         }
-        mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
+
+        List<String> orderedKeys = displayFeeds(param.result);
+        mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses, orderedKeys);
+
         mCoursesList.setAdapter(mCoursesAdapter);
         mCoursesAdapter.notifyDataSetChanged();
     }
