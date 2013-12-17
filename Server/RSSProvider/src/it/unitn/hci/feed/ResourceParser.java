@@ -33,19 +33,20 @@ public class ResourceParser
         try
         {
             stream = new FileInputStream(f);
-
+    
             String currentDepartment = null;
             String url = null;
             String css = null;
             String currentCourse = null;
 
             List<Department> departments = new ArrayList<Department>();
-            Set<Course> courses = new HashSet<Course>();
+            List<Course> courses = new ArrayList<Course>();
+            courses.add(Course.GENERIC_COURSE);
             Set<Alias> aliases = new HashSet<Alias>();
 
             int state = -1; // 0: department mode; 1: course mode
 
-            List<String> lines = StreamUtils.readLines(stream);
+            List<String> lines = StreamUtils.readLines(stream, "UTF8");
             lines.add(EOF);
 
             for (String line : lines)
@@ -59,7 +60,8 @@ public class ResourceParser
                         Department d = new Department(currentDepartment, css, url, courses);
                         departments.add(d);
 
-                        courses = new HashSet<Course>();
+                        courses = new ArrayList<Course>();
+                        courses.add(Course.GENERIC_COURSE);
                     }
 
                     if (line.equals(EOF)) break;

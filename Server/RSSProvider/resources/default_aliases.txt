@@ -1,19 +1,19 @@
 
 #Economia e management!http://www.unitn.it/economia!TODODISCOVER
 
-=Probabilità e statistica
+=PROBABILITÀ_E_STATISTICA
 -Prob.
 -Prob. e statistica
 
-=Diritto privato
+=DIRITTO_PRIVATO
 -Dir. priv
 
 #Facolta di Giurisprudenza!http://www.unitn.it/giurisprudenza!TODODISCOVER
 
-=Diritto romano
+=DIRITTO_ROMANO
 -Dir. romano
 
-=Filosofia dell'arte
+=FILOSOFIA_DELL'ARTE
 -Fil. dell'arte
 
 #Ingegneria civile, ambientale e meccanica!http://www.unitn.it/dicam!TODODISCOVER

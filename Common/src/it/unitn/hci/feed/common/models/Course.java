@@ -15,8 +15,8 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class Course implements Model
 {
-    public static final String GENERIC_COURSE_NAME = "GENERIC";
-    public static final Course GENERIC_COURSE = new Course(1, GENERIC_COURSE_NAME, generateRandomColor(), new HashSet<Alias>(Arrays.asList(new Alias(GENERIC_COURSE_NAME, null))));
+    public static final String GENERIC_COURSE_NAME = "AVVISI_GENERALI";
+    public static final Course GENERIC_COURSE = new Course(null, GENERIC_COURSE_NAME, generateRandomColor(), new HashSet<Alias>(Arrays.asList(new Alias(GENERIC_COURSE_NAME, null))));
     private static final int DEFAUL_COLOUR = 000000;
 
     @DatabaseField(generatedId = true)

@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseManager
 {
-    private static final String DATABASE_NAME = "feedsAndroid2.db";
+    private static final String DATABASE_NAME = "feedsAndroid11.db";
     private static final int DATABASE_VERSION = 1;
     private static DatabaseManager mManager;
 
@@ -124,6 +124,7 @@ public class DatabaseManager
     public void saveCourse(Course course, long id) throws Exception
     {
         course.setId(id);
+        System.out.println("save");
         mCourseDao.createIfNotExists(course);
     }
 

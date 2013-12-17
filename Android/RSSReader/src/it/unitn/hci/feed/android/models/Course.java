@@ -17,7 +17,7 @@ public class Course implements Model
     public static final Course GENERIC_COURSE = new Course(1, GENERIC_COURSE_NAME, generateRandomColor(), new HashSet<Alias>(Arrays.asList(new Alias(GENERIC_COURSE_NAME, null))));
     private static final int DEFAUL_COLOUR = 000000;
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField(id = true)
     private Integer mId;
 
     @DatabaseField(uniqueCombo = true)

@@ -37,7 +37,7 @@ public class Department
     }
 
 
-    public Department(String name, String CSSSelector, String bulletinNewsURL, Set<Course> courses)
+    public Department(String name, String CSSSelector, String bulletinNewsURL, Collection<Course> courses)
     {
         mName = name;
         mCSSSelector = CSSSelector;

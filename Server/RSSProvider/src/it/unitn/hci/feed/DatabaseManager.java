@@ -10,6 +10,7 @@ import java.util.Map;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import it.unitn.hci.feed.common.models.Alias;
@@ -279,7 +280,7 @@ public class DatabaseManager
         for (Course c : department.getCourses())
         {
             c.setDepartment(department);
-            courseDao.createOrUpdate(c);
+            courseDao.create(c);
 
             if (c.getAliases() != null)
             {
@@ -337,6 +338,27 @@ public class DatabaseManager
         {
             close(db);
         }
+    }
+    
+    public static Course getGenericDepartmentCourse(Department department) throws Exception
+    {
+        DatabaseManager db = null;
+        try
+        {
+            db = fromConnectionPool();
+            Dao<Course, Integer> dao = createCourseDao(db);
+
+            QueryBuilder<Course, Integer> queryBuilder = dao.queryBuilder();
+            queryBuilder.where().eq("mDepartment_id", department.getId());
+            queryBuilder.orderBy("mId", true);
+            Course course = dao.queryForFirst(queryBuilder.prepare());
+       //     if (course == null) throw new FileNotFoundException("Course  #" + courseId + " does not exist");
+            return course;
+        }
+        finally
+        {
+            close(db);
+        }    
     }
 
 

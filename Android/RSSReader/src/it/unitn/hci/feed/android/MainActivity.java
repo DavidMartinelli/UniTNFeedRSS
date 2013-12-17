@@ -248,7 +248,7 @@ public class MainActivity extends FragmentActivity
                                     public void invoke(List<Course> courses)
                                     {
                                         System.out.println(courses);
-                                        SharedUtils.saveCourses(courses, MainActivity.this);
+                                        //SharedUtils.saveCourses(courses, MainActivity.this);
                                         try
                                         {
                                             DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
