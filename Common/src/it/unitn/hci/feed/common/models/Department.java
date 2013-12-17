@@ -27,7 +27,7 @@ public class Department
     @DatabaseField
     private String mBulletinNewsUrl;
 
-    @ForeignCollectionField(eager = true)
+    @ForeignCollectionField(eager = true, orderColumnName="mName", orderAscending=true)
     private Collection<Course> mCourses;
 
 

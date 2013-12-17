@@ -41,7 +41,7 @@ public class ResourceParser
 
             List<Department> departments = new ArrayList<Department>();
             List<Course> courses = new ArrayList<Course>();
-            courses.add(Course.GENERIC_COURSE);
+            //courses.add(Course.GENERIC_COURSE);
             Set<Alias> aliases = new HashSet<Alias>();
 
             int state = -1; // 0: department mode; 1: course mode
@@ -61,7 +61,7 @@ public class ResourceParser
                         departments.add(d);
 
                         courses = new ArrayList<Course>();
-                        courses.add(Course.GENERIC_COURSE);
+                      //  courses.add(Course.GENERIC_COURSE);
                     }
 
                     if (line.equals(EOF)) break;
