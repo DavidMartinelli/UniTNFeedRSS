@@ -7,7 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Feed implements Model, Comparable<Feed>
 {
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField
     private int mId;
 
     @DatabaseField(uniqueCombo = true)

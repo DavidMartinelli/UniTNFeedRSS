@@ -180,23 +180,21 @@ public class UnitnApi
             entity = response.getEntity();
 
             List<Feed> feeds = new ArrayList<Feed>();
-            if (!entity.equals(""))
+            String json = StreamUtils.readAll(entity.getContent());
+
+            JSONArray jsonArray = new JSONArray(json);
+
+            for (int i = 0; i < jsonArray.length(); i++)
             {
-                String json = StreamUtils.readAll(entity.getContent());
+                JSONObject jsonFeed = jsonArray.getJSONObject(i);
 
-                JSONArray jsonArray = new JSONArray(json);
+                final int id = jsonFeed.getInt("id");
+                final String body = jsonFeed.getString("body");
+                final long timestamp = jsonFeed.getLong("timestamp");
 
-                for (int i = 0; i < jsonArray.length(); i++)
-                {
-                    JSONObject jsonFeed = jsonArray.getJSONObject(i);
-
-                    final int id = jsonFeed.getInt("id");
-                    final String body = jsonFeed.getString("body");
-                    final long timestamp = jsonFeed.getLong("timestamp");
-
-                    feeds.add(new Feed(id, body, timestamp, course));
-                }
+                feeds.add(new Feed(id, body, timestamp, course));
             }
+
             return feeds;
         }
         finally

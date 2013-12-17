@@ -117,13 +117,14 @@ public class MainActivity extends FragmentActivity
             }
 
         }
-        Collections.sort(orderedTimestamp);
+        Collections.sort(orderedTimestamp, Collections.reverseOrder());
 
         List<String> orderedDates = new ArrayList<String>();
 
         for (Timestamp tstamp : orderedTimestamp)
         {
             orderedDates.add(dateFormater.format(tstamp).toUpperCase());
+            System.out.println(dateFormater.format(tstamp).toUpperCase());
         }
         return orderedDates;
     }

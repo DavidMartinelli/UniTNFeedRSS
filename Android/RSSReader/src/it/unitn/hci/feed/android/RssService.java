@@ -7,6 +7,7 @@ import it.unitn.hci.feed.android.utils.RefreshTask;
 import it.unitn.hci.feed.android.utils.SharedUtils;
 import it.unitn.hci.utils.OsUtils;
 import java.util.List;
+import org.json.JSONException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -51,7 +52,6 @@ public class RssService extends Service
     {
         super.onCreate();
         mStop = false;
-        System.out.println("start");
         mPollingThread = new Thread()
         {
             @Override
@@ -76,7 +76,6 @@ public class RssService extends Service
     {
         while (!mStop)
         {
-            System.out.println("start thread");
             getFeeds();
             OsUtils.vaFateNaDormida(SLEEP_TIME);
         }
@@ -98,9 +97,9 @@ public class RssService extends Service
                 {
                     totalNewFeed += getFeeds(c.getId(), manager);
                 }
-                catch (Exception e)
+                catch (JSONException e)
                 {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     // UPS, Kuuuupa
                 }
             }
