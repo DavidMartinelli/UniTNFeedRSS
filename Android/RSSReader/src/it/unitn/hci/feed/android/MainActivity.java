@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
@@ -42,12 +41,12 @@ public class MainActivity extends FragmentActivity
 {
     public static final String DIALOG_INTENT = "dialog";
 
-    private ExpandableListAdapter mCoursesAdapter;
+    private FeedsAdapter mCoursesAdapter;
     private ExpandableListView mCoursesList;
 
     private Map<String, List<Feed>> mCourses = new HashMap<String, List<Feed>>();
     private ImageView btnMenu;
-    private ProgressDialog mDialog;
+    // private ProgressDialog mDialog;
 
     private boolean mBounded;
     private RssService mServer;
@@ -144,7 +143,6 @@ public class MainActivity extends FragmentActivity
                     Toast.makeText(context, context.getString(R.string.an_error_has_occurred_saving_your_preference), Toast.LENGTH_LONG).show();
                 }
             }
-
         };
     }
 
@@ -189,6 +187,7 @@ public class MainActivity extends FragmentActivity
                                         @Override
                                         public void invoke(List<Course> courses)
                                         {
+                                            System.out.println(courses);
                                             SharedUtils.saveCourses(courses, MainActivity.this);
                                             try
                                             {
@@ -292,7 +291,6 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            mDialog.dismiss();
         }
     };
 
@@ -301,4 +299,34 @@ public class MainActivity extends FragmentActivity
     {
         unregisterReceiver(mDialogBroadcastReceiver);
     };
+
+
+    private void showFeeds(TaskResult<List<Feed>> param, boolean groupFeeds)
+    {
+        if (param.exception != null)
+        ;// cè stato un errore, mostrare messaggio
+
+        // if (mDialog != null) mDialog.dismiss();
+
+        List<Feed> feeds = param.result;
+        if (feeds == null || feeds.isEmpty())
+        {
+            DialogUtils.show("No feeds", null, MainActivity.this, true, null, getString(R.string.ok), null);
+            return;
+        }
+
+        if (groupFeeds)
+        {
+            mCourses.clear();
+            mCourses.put("A1999", feeds);
+        }
+        else
+        {
+            mCourses.clear();
+            mCourses.put("All feeds", feeds);
+        }
+        mCoursesAdapter = new FeedsAdapter(MainActivity.this, mCourses);
+        mCoursesList.setAdapter(mCoursesAdapter);
+        mCoursesAdapter.notifyDataSetChanged();
+    }
 }

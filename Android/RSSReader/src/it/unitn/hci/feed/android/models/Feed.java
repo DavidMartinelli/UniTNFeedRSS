@@ -70,7 +70,7 @@ public class Feed implements Model, Comparable<Feed>
     public String toString()
     {
         final StringBuilder builder = new StringBuilder("[\n");
-        builder.append("\tSubject: " + mCourse.getStringName() + "\n");
+        if(mCourse != null) builder.append("\tSubject: " + mCourse.getStringName() + "\n");
         builder.append("\tID: " + mId + "\n");
         builder.append("\tTimeStamp: " + mTimeStamp + "\n");
         builder.append("\tBody: " + mBody);

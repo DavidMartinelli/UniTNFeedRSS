@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 public class UnitnApi
 {
-    private static String IP = "192.168.1.25";
+    private static String IP = "192.168.31.27";
     private static final String PROTOCOL = "http";
     private static final int PORT = 6767;
     private static final String PATH = "/rssservice/";
@@ -259,6 +259,64 @@ public class UnitnApi
                 feeds.add(new Feed(id, body, timestamp, new Course(courseId, courseName, courseColour, null)));
             }
 
+            return feeds;
+        }
+        finally
+        {
+            if (entity != null) entity.consumeContent();
+        }
+    }
+
+
+    public static CallbackAsyncTask<List<Feed>> getAllFeedsAsync(final Action<TaskResult<List<Feed>>> callback)
+    {
+        CallbackAsyncTask<List<Feed>> task = new CallbackAsyncTask<List<Feed>>(callback)
+        {
+            @Override
+            public List<Feed> doJob() throws Exception
+            {
+                return getAllFeeds();
+            }
+        };
+        task.execute();
+
+        return task;
+    }
+
+
+    public static List<Feed> getAllFeeds() throws Exception
+    {
+        HttpClient client = new DefaultHttpClient();
+
+        URI uri = new URI(PROTOCOL, null, IP, PORT, PATH + "all_feeds", null, null);
+        HttpGet get = new HttpGet(uri);
+        get.addHeader("Accept", "application/json");
+
+        HttpEntity entity = null;
+        try
+        {
+            HttpResponse response = client.execute(get);
+
+            StatusLine line = response.getStatusLine();
+            if (line.getStatusCode() != 200) throw new FileNotFoundException(line.getStatusCode() + ": " + line.getReasonPhrase());
+
+            entity = response.getEntity();
+            String json = StreamUtils.readAll(entity.getContent());
+
+            JSONArray jsonArray = new JSONArray(json);
+            List<Feed> feeds = new ArrayList<Feed>(jsonArray.length());
+
+            for (int i = 0; i < jsonArray.length(); i++)
+            {
+                JSONObject jsonFeed = jsonArray.getJSONObject(i);
+
+                final int id = jsonFeed.getInt("id");
+                final String body = jsonFeed.getString("body");
+                final long timestamp = jsonFeed.getLong("timestamp");
+
+                Feed f = new Feed(id, body, timestamp, null);
+                feeds.add(f);
+            }
             return feeds;
         }
         finally
