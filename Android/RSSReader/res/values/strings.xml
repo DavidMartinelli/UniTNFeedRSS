@@ -22,4 +22,5 @@
     <string name="notification_enabled">notification enabled</string>
     <string name="notification_disabled">Notification disabled</string>
 	<string name="saved_preferences">Saved preferences</string>
+	<string name="new_feeds">New feeds for you</string>
 </resources>
