@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import it.unitn.hci.feed.R;
+import it.unitn.hci.feed.android.RssService.LocalBinder;
 import it.unitn.hci.feed.android.adapter.FeedsAdapter;
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Department;
@@ -16,9 +17,11 @@ import it.unitn.hci.feed.android.utils.CallbackAsyncTask;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.Action;
 import it.unitn.hci.feed.android.utils.CallbackAsyncTask.TaskResult;
 import it.unitn.hci.feed.android.utils.DialogUtils;
+import it.unitn.hci.feed.android.utils.RefreshTask;
 import it.unitn.hci.feed.android.utils.SharedUtils;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.StrictMode.ThreadPolicy;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -60,6 +63,17 @@ public class MainActivity extends FragmentActivity
         mCoursesList.setOnChildClickListener(onFeedClickListener);
         btnMenu.setOnClickListener(onBtnMenuClicked(this));
 
+        loadAndShowFeeds();
+
+        Intent mIntent = new Intent(this, RssService.class);
+        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+        
+        IntentFilter intentFilter = new IntentFilter(RefreshTask.REFRESH_DATA_INTENT);
+        registerReceiver(mIntentReceiver, intentFilter);
+    }
+
+    
+    private void loadAndShowFeeds() {
         try
         {
             DatabaseManager manager = DatabaseManager.instantiate(this);
@@ -74,19 +88,8 @@ public class MainActivity extends FragmentActivity
             // non ce ne saranno
             e.printStackTrace();
         }
-        finally
-        {
-
-        }
-
-        Intent mIntent = new Intent(this, RssService.class);
-        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
-
-        IntentFilter intent = new IntentFilter(DIALOG_INTENT);
-        registerReceiver(mDialogBroadcastReceiver, intent);
     }
-
-
+    
     @SuppressLint("SimpleDateFormat")
     protected List<String> displayFeeds(List<Feed> feeds)
     {
@@ -96,7 +99,7 @@ public class MainActivity extends FragmentActivity
         List<Timestamp> orderedTimestamp = new ArrayList<Timestamp>();
         for (Feed f : feeds)
         {
-            Timestamp t = new Timestamp(f.getTimeStamp());// new Time(f.getTimeStamp());
+            Timestamp t = new Timestamp(f.getTimeStamp());
             String timeStamp = dateFormater.format(t).toUpperCase();
             savedFeeds = mCourses.get(timeStamp);
             if (savedFeeds != null)
@@ -247,6 +250,17 @@ public class MainActivity extends FragmentActivity
                                         {
                                             DatabaseManager.instantiate(MainActivity.this).syncCourses(courses);
                                             DialogUtils.show(getString(R.string.saved_preferences), null, MainActivity.this, true, null, getString(R.string.ok), null);
+                                            
+                                            System.out.println("service");
+                                            if (mService != null)
+                                            {
+                                                System.out.println("launch");
+                                                Thread polling = mService.getPollingThread();
+                                                synchronized (polling)
+                                                {
+                                                   polling.interrupt(); 
+                                                }
+                                            }
                                         }
                                         catch (Exception e)
                                         {
@@ -262,32 +276,39 @@ public class MainActivity extends FragmentActivity
         });
     }
 
+    private RssService mService;
     private final ServiceConnection mConnection = new ServiceConnection()
     {
 
         public void onServiceDisconnected(ComponentName name)
         {
+            mService = null;
             Toast.makeText(MainActivity.this, "Service is disconnected", Toast.LENGTH_LONG).show();
         }
 
 
         public void onServiceConnected(ComponentName name, IBinder service)
         {
+            mService = ((LocalBinder) service).getServerInstance();  
             Toast.makeText(MainActivity.this, "Service is connected", Toast.LENGTH_LONG).show();
         }
     };
 
-    BroadcastReceiver mDialogBroadcastReceiver = new BroadcastReceiver()
+    BroadcastReceiver mIntentReceiver = new BroadcastReceiver()
     {
         @Override
         public void onReceive(Context context, Intent intent)
         {
+            if (intent.getAction().equals(RefreshTask.REFRESH_DATA_INTENT))
+            {
+                loadAndShowFeeds();
+            }
         }
     };
 
 
     protected void onDestroy()
     {
-        unregisterReceiver(mDialogBroadcastReceiver);
+        unregisterReceiver(mIntentReceiver);
     };
 }

@@ -11,7 +11,7 @@ public class Feed implements Model, Comparable<Feed>
 {
 
     @XmlElement(name = "id")
-    @DatabaseField(generatedId = true, allowGeneratedIdInsert=true)
+    @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     private int mId;
 
     @XmlElement(name = "body")

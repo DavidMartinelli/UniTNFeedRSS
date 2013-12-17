@@ -2,6 +2,7 @@ package it.unitn.hci.feed.android;
 
 import it.unitn.hci.feed.android.models.Course;
 import it.unitn.hci.feed.android.models.Feed;
+import it.unitn.hci.feed.android.utils.RefreshTask;
 import it.unitn.hci.utils.OsUtils;
 import java.util.List;
 import android.app.Service;
@@ -31,21 +32,27 @@ public class RssService extends Service
         return Service.START_NOT_STICKY;
     }
 
-
+    private Thread mPollingThread;
+    public Thread getPollingThread()
+    {
+        return mPollingThread;
+    }
+    
     @Override
     public void onCreate()
     {
         super.onCreate();
         mStop = false;
         System.out.println("start");
-        new Thread()
+        mPollingThread = new Thread()
         {
             @Override
             public void run()
             {
                 loopForRss();
             }
-        }.start();
+        };
+        mPollingThread.start();
     }
 
 
@@ -61,6 +68,7 @@ public class RssService extends Service
     {
         while (!mStop)
         {
+            System.out.println("start thread");
             getFeeds();
             OsUtils.vaFateNaDormida(SLEEP_TIME);
         }
@@ -74,12 +82,13 @@ public class RssService extends Service
             DatabaseManager manager = DatabaseManager.instantiate(this);
             List<Course> courses = manager.getCourses();
             System.out.println("loop for courses " + courses);
+            Integer totalNewFeed = 0;
             for (Course c : courses)
             {
                 System.out.println("courrse " + c);
                 try
                 {
-                    getFeeds(c.getId(), manager);
+                    totalNewFeed += getFeeds(c.getId(), manager);
                 }
                 catch (Exception e)
                 {
@@ -88,6 +97,11 @@ public class RssService extends Service
                 }
             }
             DatabaseManager.close(manager);
+            //aggiornare la home page con i feed
+            if (totalNewFeed > 0) {
+                System.out.println("send intent");
+                    sendBroadcast(new Intent(RefreshTask.REFRESH_DATA_INTENT));
+            }
         }
         catch (Exception e)
         {
@@ -96,15 +110,20 @@ public class RssService extends Service
         }
     }
 
-
-    private void getFeeds(long courseId, DatabaseManager manager) throws Exception
+    /*
+     * Return the number of new feeds
+     */
+    private int getFeeds(long courseId, DatabaseManager manager) throws Exception
     {
         Course c = manager.getCourse(courseId);
         List<Feed> feeds = UnitnApi.getFeeds(c, manager.getLastFeed(c));
         manager.insertFeeds(feeds, c);
-        // TODO mandare la push
-        mIntent = new Intent(MainActivity.DIALOG_INTENT);
-        sendBroadcast(mIntent);
+        if (feeds != null && feeds.size() > 0 ){
+            mIntent = new Intent(MainActivity.DIALOG_INTENT);
+            sendBroadcast(mIntent);
+            return feeds.size();
+        }
+        return 0;
     }
 
     public class LocalBinder extends Binder

@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 public class UnitnApi
 {
-    private static String IP = "10.23.195.213";
+    private static String IP = "10.25.1.80";
     private static final String PROTOCOL = "http";
     private static final int PORT = 6767;
     private static final String PATH = "/rssservice/";
